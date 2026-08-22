@@ -5,7 +5,7 @@
 ## Harness = Model + Guard
 
 - **Model**: rented, swappable — `muse-spark-1.2`, `qwen3.8-pro`, `deepseek-v4-flash`, `deepseek-v4-pro`
-- **Harness**: owned, deterministic — `interpreter`, `verify`, `MCP`, `wiki`
+- **Harness**: owned, deterministic — `interpreter`, `verify`, `MCP`
 
 ## Layout (fixed)
 
@@ -17,9 +17,6 @@
 │   ├── interpreter/       # natural language → schema → opencode optimal call
 │   └── verify/            # scaffold / lint / loop guard (model-agnostic)
 ├── mcp/                   # MCP servers — one per domain, project-extensible
-├── wiki/                  # LLM-owned knowledge (ported from llm-wiki-loop)
-├── raw/                   # immutable sources — never edit
-├── index.md / log.md      # catalog + audit (updated together, always)
 └── package.json           # harness scripts
 ```
 
@@ -28,9 +25,9 @@
 > **ALWAYS delegate via Task to interpreter/verify — NEVER direct write/edit/bash from conductor.** Permission deny + hook enforce this; even open-weight models that ignore prompts are blocked.
 
 1. **Interpreter first.** User speaks diary, harness converts to Excel (JSON Schema). Never pass raw prompt to builder.
-2. **Verification over vibes.** `verify` runs `npm test` / `wiki:lint --strict` / `pack` itself. Model's "tests pass" is not a pass.
-3. **Index + log on every write.** No wiki write without both.
-4. **Never edit raw/.** Never write skills into wiki/.
+2. **Verification over vibes.** `verify` runs `npm test` / `pack` itself. Model's "tests pass" is not a pass.
+3. **Contracts before prompts.** Schema first, then code. No guessing without typed contract.
+4. **Least privilege.** Subagents get only needed tools/files — never full repo.
 
 ## Model Routing (user selectable, default: muse-spark for bulk, qwen3.8 for terminal)
 
@@ -41,8 +38,8 @@
 
 ## Verification
 
-`npm run lint` (syntax) + `npm run wiki:lint` (grounding) + `npm test` (25+). Zero errors required.
-`npm run verify` = all three + `pack --dry-run` hygiene.
+`npm run lint` (syntax) + `npm test` (project). Zero errors required.
+`npm run verify` = both + `pack --dry-run` hygiene.
 
 ## MCP
 
@@ -50,4 +47,4 @@ One MCP per domain. `mcp/palank-domain` is the stub — copy per project, add to
 
 ## Harness Principle
 
-Framework (`006`) is the foundry, wiki-loop is the knowledge guard inside it. Keep harness disposable: spec is the asset.
+Framework (`006`) is the foundry — thin, model-agnostic, disposable. Wiki-loop (`003`) is a separate knowledge vault (optional). Keep harness disposable: spec is the asset.

@@ -232,10 +232,9 @@ function main() {
   applyPlan(target, filtered, mode);
 
   // Show what 006 has vs what target will get
-  console.log("\n--- 참고: 006에 이식된 위키루프 요소 ---");
-  console.log("이식됨 (약 35%): AGENTS.md 50줄, index+log 동시 갱신, Fingerprint 개념, verify 스킬, raw/wiki 골격");
-  console.log("미이식 (65%): SPEC.md 전체, check_evidence.py 전체, wiki-manager 4 references, archive GC 자동화, 테스트 스위트");
-  console.log("→ 필요하면 --apply 후 wiki/에 SPEC.md를 복사해 완전 이식 가능 (선택 사항)");
+  console.log("\n--- 참고: 006은 위키루프와 분리된 순수 하네스 — 이식 없음 ---");
+  console.log("006: AGENTS.md 4원칙 + interpreter/verify + MCP + conductor 3중 강제만");
+  console.log("003: 위키루프 지식 볼트는 별도 (필요 시 MCP search_wiki로 참조)");
 }
 
 main();

@@ -1,19 +1,19 @@
-# Palank Harness — Complete Foundry Plan (006)
+# Palank Harness — Thin Foundry Plan (006)
 
-> 프레임워크 생성 + 위키루프 이식 + MCP 골격 = 완전체. 인기 얇은 하네스의 장점만 이식, 모델·프로젝트 교체 시 설정 1줄.
+> 프레임워크 파운드리 + MCP 골격 = 완전체. 인기 얇은 하네스의 장점만 이식, 모델·프로젝트 교체 시 설정 1줄. 위키루프(003)는 별도 볼트로 분리.
 
-**생성일**: 2026-08-21 / **위치**: `D:\010 Web Applicaton\006 palank-harness` / **베이스**: `OpenCode` + `muse-spark-1.2`/`qwen3.8-pro`/`deepseek-v4-flash/pro` (사용자 선택) + `llm-wiki-loop` 핵심
+**생성일**: 2026-08-21 / **위치**: `D:\010 Web Applicaton\006 palank-harness` / **베이스**: `OpenCode` + `muse-spark-1.2`/`qwen3.8-pro`/`deepseek-v4-flash/pro` (사용자 선택)
 
 ## 1. 목표
 
 - 비전문가도 일기장처럼 말하면 `interpreter`가 스키마로 바꿔 `opencode` 3개 명령(`run`/`session`/`mcp`)만으로 최적 호출
 - 프로젝트마다 MCP 1개만 교체해 10분 확장 — 하네스 자체는 매번 새로 만들지 않음
-- 상품(`bin/skills`)과 개발 볼트(`raw/wiki`) 경계를 `verify`가 기계적으로 강제 — 재발 방지
+- `verify`가 `lint/test/pack`을 기계적으로 강제 — 재발 방지
 
 ## 2. 아키텍처 (얇은 하네스 4원칙)
 
 ```
-사용자(자연어) → interpreter(AGENTS.md+index.md→스키마) → OpenCode 하네스(도구 실행) → verify(기계 검증) → wiki/MCP 기록
+사용자(자연어) → interpreter(AGENTS.md→스키마) → OpenCode 하네스(도구 실행) → verify(기계 검증) → MCP 기록
 ```
 
 - **라우팅**: 쉬운 일은 `deepseek-v4-flash`/`muse-spark-1.2`, 어려운 일은 `qwen3.8-pro`/`deepseek-v4-pro`로 에스컬레이션 — 1,000스텝 $750→$154
@@ -25,16 +25,14 @@
 
 ```
 006/
-├── AGENTS.md (50줄, 모든 모델이 먼저 읽는 단일 소스 — CLAUDE.md 분기 없음)
-├── opencode.json (provider 3개, model 4개, agent 2개, mcp 1개)
+├── AGENTS.md (50줄, 모든 모델이 먼저 읽는 단일 소스)
+├── opencode.json (provider 3개, model 4개, agent 3개(conductor/interpreter/verify), plugin 2개)
 ├── package.json (lint/verify/mcp:dev)
 ├── skills/interpreter/SKILL.md (diary→Excel, 20개 명령 중 3개만)
 ├── skills/verify/SKILL.md (scaffold/lint/loop, 모델 무관)
-├── mcp/
-│   ├── package.json (@modelcontextprotocol/sdk 1.12.0)
-│   ├── server.js (search_wiki/get_context/verify_before_tag 3 tools)
-│   └── README.md (프로젝트별 확장 가이드)
-├── wiki/ + raw/ + index.md + log.md (llm-wiki-loop 핵심만 이식: Grounding/Fingerprint/index+log)
+├── mcp/ (palank-domain 스텁, @modelcontextprotocol/sdk)
+├── plugins/force-delegation.js (3중 강제 가드)
+├── dynamicSubAgents.json (100개 동적 생성)
 └── PLAN.md (this file)
 ```
 
@@ -49,11 +47,11 @@
 
 `opencode.json:provider`에서 `baseURL`만 바꾸면 즉시 교체.
 
-## 5. 위키루프 이식 (필요 요소만)
+## 5. 위키루프와 분리 (thin 유지)
 
-- **유지**: `AGENTS.md` 규칙 1~4, `Fingerprint`/`Monitored`, `index+log` 동시 갱신, `raw/` 불변
-- **제외**: 전체 `SPEC.md` 8장 중 실행 불필요 부분, `archive/` 자동화는 2단계로 미룸
-- **위치**: `006/wiki/`는 하네스 지식 가드, `003 palank-llm-wiki`는 프레임워크 원전 — 둘은 `Fingerprint`로 연결
+- **006**: 실행 하네스 파운드리 — `interpreter`/`verify`/`MCP`/`conductor` 3중 강제만. `wiki/` 없음.
+- **003**: 지식 볼트 — `Fingerprint`/`Grounding`/`index+log`는 `003`에만 상주. 필요하면 `003`의 `wiki`를 `MCP`의 `search_wiki`로 참조.
+- **연동 없음**: 둘을 동시에 설치할 필요 없음. `006`은 `private` 파운드리로 단독 사용, `003`은 별도 지식 저장소.
 
 ## 6. MCP 골격 (최적화 라이브러리)
 
@@ -76,5 +74,5 @@ npm run verify
 
 ## 8. 검증 완료
 
-- `opencode.json` JSON ok, `mcp/server.js` --check 0, `skills/*` 2개, `wiki` 0 drift (fresh)
+- `opencode.json` JSON ok, `mcp/server.js` --check 0, `skills/*` 2개 + `plugins/force-delegation.js`, `dynamicSubAgents.json` 4모델
 - 다음: `D:\010 Web Applicaton\006 palank-harness`에서 `opencode` 재실행 후 `interpreter` 호출 테스트

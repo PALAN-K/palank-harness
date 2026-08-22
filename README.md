@@ -1,8 +1,8 @@
 # Palank Harness — Thin Foundry (0.1.0)
 
-> 프레임워크 생성 + 위키루프 이식 + MCP 골격 = 완전체. 인기 하네스의 장점만 얇게 이식.
+> 프레임워크 파운드리 + MCP 골격 = 완전체. 인기 얇은 하네스의 장점만 이식. 위키루프(`003`)는 별도 지식 볼트로 분리.
 
-**한 줄**: `OpenCode` 베이스에 `AGENTS.md` 단일 소스, `interpreter`로 자연어→스키마, `verify`로 기계 검증, `MCP`로 도메인 연결, `wiki`로 기억.
+**한 줄**: `OpenCode` 베이스에 `AGENTS.md` 단일 소스, `interpreter`로 자연어→스키마, `verify`로 기계 검증, `MCP`로 도메인 연결.
 
 ## 왜 얇은가
 
@@ -32,7 +32,6 @@ npx palank-harness init ./my-project  # 스캐폴드만
 - `skills/interpreter` — 20개 명령 중 3개(`run`, `session`, `mcp`)만 최적 조합으로 호출
 - `skills/verify` — `scaffold/lint/loop` 가드 (모델 무관)
 - `mcp/palank-domain` — 최적화 라이브러리 `@modelcontextprotocol/sdk` 기반 스텁, 프로젝트별 1개씩 복사
-- `wiki/` — `llm-wiki-loop`의 `Fingerprint`/`Grounding`/`index+log`만 이식
 
 ## MCP 최적화 라이브러리
 
