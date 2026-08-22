@@ -57,7 +57,7 @@
   },
   "plugin": ["./plugins/force-delegation.js", "cgasgarth/opencode-dynamic-subagents"],
   "mcp": {
-    "palank-domain": { "command": "node", "args": ["mcp/server.js"], "enabled": true }
+    "palank-domain": { "type": "local", "command": ["node", "mcp/server.js"], "enabled": true }
   },
   "instructions": ["AGENTS.md"]
 }
