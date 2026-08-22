@@ -47,4 +47,4 @@ One MCP per domain. `mcp/palank-domain` is the stub — copy per project, add to
 
 ## Harness Principle
 
-Framework (`006`) is the foundry — thin, model-agnostic, disposable. Wiki-loop (`003`) is a separate knowledge vault (optional). Keep harness disposable: spec is the asset.
+Framework (`006`) is the foundry — thin, model-agnostic, disposable. Keep harness disposable: spec is the asset.

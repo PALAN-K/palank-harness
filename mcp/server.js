@@ -49,7 +49,7 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
     return { content: [{ type: "text", text: `AGENTS.md:\n${ag}\n\nintent: ${args.intent}\n→ attach 5 files max` }] };
   }
   if (name === "verify_before_tag") {
-    return { content: [{ type: "text", text: "Run: npm run lint && npm test && node ../003\\ palank-llm-wiki/bin/cli.js check --strict . && npm pack --dry-run" }] };
+    return { content: [{ type: "text", text: "Run: npm run lint && npm test && npm pack --dry-run" }] };
   }
   throw new Error(`unknown tool: ${name}`);
 });

@@ -232,9 +232,7 @@ function main() {
   applyPlan(target, filtered, mode);
 
   // Show what 006 has vs what target will get
-  console.log("\n--- 참고: 006은 위키루프와 분리된 순수 하네스 — 이식 없음 ---");
-  console.log("006: AGENTS.md 4원칙 + interpreter/verify + MCP + conductor 3중 강제만");
-  console.log("003: 위키루프 지식 볼트는 별도 (필요 시 MCP search_wiki로 참조)");
+  console.log("\n--- 참고: 006은 순수 하네스 파운드리 — 단독 프로젝트 ---");
 }
 
 main();

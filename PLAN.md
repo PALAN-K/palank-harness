@@ -1,6 +1,6 @@
 # Palank Harness — Thin Foundry Plan (006)
 
-> 프레임워크 파운드리 + MCP 골격 = 완전체. 인기 얇은 하네스의 장점만 이식, 모델·프로젝트 교체 시 설정 1줄. 위키루프(003)는 별도 볼트로 분리.
+> 프레임워크 파운드리 + MCP 골격 = 완전체. 인기 얇은 하네스의 장점만 이식, 모델·프로젝트 교체 시 설정 1줄.
 
 **생성일**: 2026-08-21 / **위치**: `D:\010 Web Applicaton\006 palank-harness` / **베이스**: `OpenCode` + `muse-spark-1.2`/`qwen3.8-pro`/`deepseek-v4-flash/pro` (사용자 선택)
 
@@ -50,9 +50,7 @@
 ## 5. 위키루프와 분리 (thin 유지)
 
 - **006**: 실행 하네스 파운드리 — `interpreter`/`verify`/`MCP`/`conductor` 3중 강제만. `wiki/` 없음.
-- **003**: 지식 볼트 — `Fingerprint`/`Grounding`/`index+log`는 `003`에만 상주. 필요하면 `003`의 `wiki`를 `MCP`의 `search_wiki`로 참조.
-- **연동 없음**: 둘을 동시에 설치할 필요 없음. `006`은 `private` 파운드리로 단독 사용, `003`은 별도 지식 저장소.
-
+- **단독**: `006`은 `private` 파운드리로 단독 사용.
 ## 6. MCP 골격 (최적화 라이브러리)
 
 - **라이브러리**: `@modelcontextprotocol/sdk` — MIT, `OpenHarness`/`DeepSeek Harness`도 동일. 도구 디스커버리·스키마 검증·재시도 내장
