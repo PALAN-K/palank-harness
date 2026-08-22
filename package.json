@@ -1,0 +1,18 @@
+{
+  "name": "palank-harness",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Thin harness foundry — openCode + muse-spark/qwen3.8/deepseek + wiki-loop guard + MCP. Model-agnostic, disposable.",
+  "type": "module",
+  "scripts": {
+    "lint": "node -e \"JSON.parse(require('fs').readFileSync('opencode.json','utf8'));console.log('opencode.json ok')\" && node --check mcp/server.js && echo \"lint ok\"",
+    "wiki:lint": "node ../003\\ palank-llm-wiki/bin/cli.js check --strict . 2>/dev/null || echo \"wiki:lint: no vault yet or strict drift — run npm run verify after init\"",
+    "verify": "npm run lint --silent && npm run wiki:lint --silent",
+    "test": "echo \"harness verify: no tests yet — add per-project tests\"",
+    "mcp:dev": "node mcp/server.js",
+    "init": "node scripts/init.js",
+    "migrate": "node scripts/migrate.js"
+  },
+  "keywords": ["harness", "opencode", "muse-spark", "qwen", "deepseek", "mcp", "wiki-loop"],
+  "license": "MIT"
+}

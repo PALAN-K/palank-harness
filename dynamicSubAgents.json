@@ -1,0 +1,18 @@
+{
+  "$schema": "https://github.com/cgasgarth/opencode-dynamic-subagents/blob/main/dynamicSubAgents.schema.json",
+  "version": 1,
+  "defaults": {
+    "prompt": "Palank subagent — inherits AGENTS.md, delegates via Task only if needed.",
+    "temperature": 0.2,
+    "hidden": false,
+    "steps": 30,
+    "allowedModels": [
+      { "id": "meta/muse-spark-1.2", "name": "spark", "description": "Bulk generation, 1M context, cheap" },
+      { "id": "qwen/qwen3.8-pro", "name": "qwen", "description": "Terminal/tool-heavy, strong" },
+      { "id": "deepseek/deepseek-v4-flash", "name": "flash", "description": "Fast cheap, for small tasks" },
+      { "id": "deepseek/deepseek-v4-pro", "name": "pro", "description": "Hard reasoning, expensive" }
+    ],
+    "allowedVariants": ["low", "medium", "high"]
+  },
+  "limits": { "maxSubagentNameLength": 64 }
+}
