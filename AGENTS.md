@@ -17,6 +17,11 @@
 │   ├── interpreter/       # natural language → schema → opencode optimal call
 │   └── verify/            # scaffold / lint / loop guard (model-agnostic)
 ├── mcp/                   # MCP servers — one per domain, project-extensible
+├── wiki/                  # harness knowledge vault (static encyclopedia)
+├── raw/                   # immutable verbatim sources (evidence)
+├── archive/               # outdated knowledge (Status: Outdated, no delete)
+├── index.md               # vault map (1 line per page)
+├── log.md                 # audit ledger (atomic with index.md)
 └── package.json           # harness scripts
 ```
 
@@ -28,6 +33,7 @@
 2. **Verification over vibes.** `verify` runs `npm test` / `pack` itself. Model's "tests pass" is not a pass.
 3. **Contracts before prompts.** Schema first, then code. No guessing without typed contract.
 4. **Least privilege.** Subagents get only needed tools/files — never full repo.
+5. **Knowledge as Asset.** wiki is spec (static encyclopedia), harness is scaffolding (disposable). Every claim needs Raw: verbatim or official docs citation.
 
 ## Model Routing (user selectable, default: muse-spark for bulk, qwen3.8 for terminal)
 
@@ -38,8 +44,8 @@
 
 ## Verification
 
-`npm run lint` (syntax) + `npm test` (project). Zero errors required.
-`npm run verify` = both + `pack --dry-run` hygiene.
+`npm run lint` (syntax) + `npm run check:vault --strict` (evidence) + `npm test` (project). Zero errors required.
+`npm run verify` = all + `pack --dry-run` hygiene.
 
 ## MCP
 

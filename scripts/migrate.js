@@ -41,6 +41,13 @@ function readIfExists(p) {
   try { return fs.readFileSync(p, "utf-8"); } catch { return null; }
 }
 
+function parseJsonSafe(p) {
+  const raw = readIfExists(p);
+  if (raw == null) return null;
+  const cleaned = raw.replace(/^\uFEFF/, "");
+  return JSON.parse(cleaned);
+}
+
 function buildAnchorBlock() {
   const harnessAgents = readIfExists(path.join(HARNESS_ROOT, "AGENTS.md")) || "";
   // Use first 30 lines as anchor, or full if short
@@ -67,17 +74,36 @@ function planOpencodeJson(target) {
   if (!exists(targetFile)) {
     return { action: "create", file: "opencode.json", detail: "새로 생성 (006 opencode.json 복사)" };
   }
-  // Shallow merge check: compare provider keys
   try {
-    const t = JSON.parse(readIfExists(targetFile) || "{}");
-    const h = JSON.parse(readIfExists(harnessFile) || "{}");
+    const tRaw = readIfExists(targetFile);
+    const hRaw = readIfExists(harnessFile);
+    const t = JSON.parse((tRaw || "{}").replace(/^\uFEFF/, ""));
+    const h = JSON.parse((hRaw || "{}").replace(/^\uFEFF/, ""));
+    const missing = [];
+    // provider keys
     const tProviders = Object.keys(t.provider || {});
     const hProviders = Object.keys(h.provider || {});
-    const missing = hProviders.filter(k => !tProviders.includes(k));
+    const missingProviders = hProviders.filter(k => !tProviders.includes(k));
+    if (missingProviders.length) missing.push(`provider:${missingProviders.join(",")}`);
+    // agent keys (interpreter/verify/conductor etc)
+    const tAgents = Object.keys(t.agent || {});
+    const hAgents = Object.keys(h.agent || {});
+    const missingAgents = hAgents.filter(k => !tAgents.includes(k));
+    if (missingAgents.length) missing.push(`agent:${missingAgents.join(",")}`);
+    // plugin array (union)
+    const tPlugins = Array.isArray(t.plugin) ? t.plugin : [];
+    const hPlugins = Array.isArray(h.plugin) ? h.plugin : [];
+    const missingPlugins = hPlugins.filter(k => !tPlugins.includes(k));
+    if (missingPlugins.length) missing.push(`plugin:${missingPlugins.join(",")}`);
+    // instructions array
+    const tInstr = Array.isArray(t.instructions) ? t.instructions : [];
+    const hInstr = Array.isArray(h.instructions) ? h.instructions : [];
+    const missingInstr = hInstr.filter(k => !tInstr.includes(k));
+    if (missingInstr.length) missing.push(`instructions:${missingInstr.join(",")}`);
     if (missing.length === 0) {
-      return { action: "skip", file: "opencode.json", detail: "provider 이미 모두 존재 — 건너뜀" };
+      return { action: "skip", file: "opencode.json", detail: "이미 동기화됨 — 건너뜀" };
     }
-    return { action: "merge", file: "opencode.json", detail: `provider 병합 필요: ${missing.join(", ")} 추가` };
+    return { action: "merge", file: "opencode.json", detail: `병합 필요: ${missing.join(" | ")} 추가` };
   } catch {
     return { action: "overwrite?", file: "opencode.json", detail: "JSON 파싱 실패 — 수동 확인 필요" };
   }
@@ -135,6 +161,29 @@ function planSkills(target) {
   return skills;
 }
 
+function planPlugins(target) {
+  const out = [];
+  const harnessPlugin = path.join(HARNESS_ROOT, "plugins", "force-delegation.js");
+  const targetPlugin = path.join(target, "plugins", "force-delegation.js");
+  if (exists(harnessPlugin) && !exists(targetPlugin)) {
+    out.push({ action: "create", file: "plugins/force-delegation.js", detail: "플러그인 새로 설치 (force-delegation)" });
+  } else if (exists(targetPlugin)) {
+    out.push({ action: "skip", file: "plugins/force-delegation.js", detail: "이미 존재" });
+  }
+  return out;
+}
+
+function planDynamicSubAgents(target) {
+  const harnessFile = path.join(HARNESS_ROOT, "dynamicSubAgents.json");
+  const targetFile = path.join(target, "dynamicSubAgents.json");
+  if (exists(harnessFile) && !exists(targetFile)) {
+    return [{ action: "create", file: "dynamicSubAgents.json", detail: "동적 서브에이전트 설정 새로 생성" }];
+  } else if (exists(targetFile)) {
+    return [{ action: "skip", file: "dynamicSubAgents.json", detail: "이미 존재" }];
+  }
+  return [];
+}
+
 function applyPlan(target, plan, mode) {
   let created = 0, appended = 0, skipped = 0;
   for (const p of plan) {
@@ -156,8 +205,47 @@ function applyPlan(target, plan, mode) {
         } else if (p.action === "create" && p.file === "opencode.json") {
           fs.copyFileSync(path.join(HARNESS_ROOT, "opencode.json"), path.join(target, "opencode.json"));
           created++;
-        } else if (p.action === "create" && p.file.endsWith("/")) {
-          fs.mkdirSync(path.join(target, p.file), { recursive: true });
+        } else if (p.action === "merge" && p.file === "opencode.json") {
+          // deep-merge missing providers/agents/plugins/instructions into target's opencode.json
+          const targetFile = path.join(target, "opencode.json");
+          const harnessFile = path.join(HARNESS_ROOT, "opencode.json");
+          const t = JSON.parse((readIfExists(targetFile) || "{}").replace(/^\uFEFF/, ""));
+          const h = JSON.parse((readIfExists(harnessFile) || "{}").replace(/^\uFEFF/, ""));
+          // provider
+          if (h.provider) {
+            t.provider = t.provider || {};
+            for (const k of Object.keys(h.provider)) {
+              if (!(k in t.provider)) t.provider[k] = h.provider[k];
+            }
+          }
+          // agent
+          if (h.agent) {
+            t.agent = t.agent || {};
+            for (const k of Object.keys(h.agent)) {
+              if (!(k in t.agent)) t.agent[k] = h.agent[k];
+            }
+          }
+          // plugin array union
+          if (Array.isArray(h.plugin)) {
+            const cur = Array.isArray(t.plugin) ? t.plugin : [];
+            const merged = [...cur];
+            for (const p of h.plugin) if (!merged.includes(p)) merged.push(p);
+            t.plugin = merged;
+          }
+          // instructions array union
+          if (Array.isArray(h.instructions)) {
+            const cur = Array.isArray(t.instructions) ? t.instructions : [];
+            const merged = [...cur];
+            for (const ins of h.instructions) if (!merged.includes(ins)) merged.push(ins);
+            t.instructions = merged;
+          }
+          // copy top-level model if missing
+          if (h.model && !t.model) t.model = h.model;
+          // ensure $schema
+          if (h["$schema"] && !t["$schema"]) t["$schema"] = h["$schema"];
+          // also copy mcp if missing
+          if (h.mcp && !t.mcp) t.mcp = h.mcp;
+          fs.writeFileSync(targetFile, JSON.stringify(t, null, 2) + "\n", "utf-8");
           created++;
         } else if (p.action === "create" && p.file.startsWith(".agents/skills/")) {
           const name = p.file.split("/")[2];
@@ -190,6 +278,18 @@ function applyPlan(target, plan, mode) {
             }
           };
           cp(path.join(HARNESS_ROOT, "mcp"), path.join(target, "mcp"));
+          created++;
+        } else if (p.action === "create" && p.file.endsWith("/")) {
+          fs.mkdirSync(path.join(target, p.file), { recursive: true });
+          created++;
+        } else if (p.action === "create" && p.file === "plugins/force-delegation.js") {
+          const src = path.join(HARNESS_ROOT, "plugins", "force-delegation.js");
+          const dest = path.join(target, "plugins", "force-delegation.js");
+          fs.mkdirSync(path.dirname(dest), { recursive: true });
+          fs.copyFileSync(src, dest);
+          created++;
+        } else if (p.action === "create" && p.file === "dynamicSubAgents.json") {
+          fs.copyFileSync(path.join(HARNESS_ROOT, "dynamicSubAgents.json"), path.join(target, "dynamicSubAgents.json"));
           created++;
         } else if (p.action === "create" && (p.file === "index.md" || p.file === "log.md")) {
           fs.copyFileSync(path.join(HARNESS_ROOT, p.file), path.join(target, p.file));
@@ -225,6 +325,8 @@ function main() {
   plan.push(planOpencodeJson(target));
   plan.push(...planWiki(target));
   plan.push(...planSkills(target));
+  plan.push(...planPlugins(target));
+  plan.push(...planDynamicSubAgents(target));
 
   // Filter nulls
   const filtered = plan.filter(Boolean);

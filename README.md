@@ -18,6 +18,8 @@
 - 하드 추론: `deepseek-v4-pro`
 - 검증: `qwen3.8-pro` (저렴하고 엄격)
 
+> 모델 매핑은 예시 — easy→ muse-spark/flash, hard→ qwen3.8-pro/deepseek-pro로 바꿔도, 하나의 모델만 사용해도 정상. `opencode.json: model` 1줄 교체로 라우팅 변경, 비용 최적 + 교차 긍정 효과(per papers).
+
 ## 시작
 
 ```bash

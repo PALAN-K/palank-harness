@@ -13,7 +13,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const VAULT_ROOT = path.resolve(__dirname, "..");
+const HARNESS_ROOT = path.resolve(__dirname, "..");
 
 const server = new Server({ name: "palank-domain", version: "0.1.0" }, { capabilities: { tools: {} } });
 
@@ -21,12 +21,12 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools: [
     {
       name: "search_wiki",
-      description: "Search wiki/ for keyword — returns index.md + grep hits. Use before answering.",
+      description: "Search harness knowledge vault (wiki/) — returns index.md + grep hits. Use before answering.",
       inputSchema: { type: "object", properties: { query: { type: "string" } }, required: ["query"] }
     },
     {
       name: "get_context",
-      description: "Get 5-file context for a task — returns AGENTS.md + relevant wiki/raw files.",
+      description: "Get 5-file harness context — returns AGENTS.md + relevant wiki/raw files (layered reading, 5 files max).",
       inputSchema: { type: "object", properties: { intent: { type: "string" } }, required: ["intent"] }
     },
     {
@@ -41,11 +41,11 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
   const { name, arguments: args } = req.params;
   if (name === "search_wiki") {
     const q = args.query;
-    const index = fs.existsSync(path.join(VAULT_ROOT, "index.md")) ? fs.readFileSync(path.join(VAULT_ROOT, "index.md"), "utf-8").slice(0, 2000) : "(no index)";
+    const index = fs.existsSync(path.join(HARNESS_ROOT, "index.md")) ? fs.readFileSync(path.join(HARNESS_ROOT, "index.md"), "utf-8").slice(0, 2000) : "(no index)";
     return { content: [{ type: "text", text: `index.md (head):\n${index}\n\nquery: ${q}\n→ run: grep -r "${q}" wiki/ raw/` }] };
   }
   if (name === "get_context") {
-    const ag = fs.existsSync(path.join(VAULT_ROOT, "AGENTS.md")) ? fs.readFileSync(path.join(VAULT_ROOT, "AGENTS.md"), "utf-8").slice(0, 3000) : "";
+    const ag = fs.existsSync(path.join(HARNESS_ROOT, "AGENTS.md")) ? fs.readFileSync(path.join(HARNESS_ROOT, "AGENTS.md"), "utf-8").slice(0, 3000) : "";
     return { content: [{ type: "text", text: `AGENTS.md:\n${ag}\n\nintent: ${args.intent}\n→ attach 5 files max` }] };
   }
   if (name === "verify_before_tag") {
@@ -56,4 +56,4 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
 
 const transport = new StdioServerTransport();
 await server.connect(transport);
-console.error("palank-mcp running (stdio) — project: 006");
+console.error("palank-mcp running (stdio) — project: harness");

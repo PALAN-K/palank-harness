@@ -48,7 +48,7 @@
           "interpreter": "allow",
           "verify": "allow",
           "explore": "allow",
-          "general": "allow"
+          "general": "deny"
         }
       }
     },

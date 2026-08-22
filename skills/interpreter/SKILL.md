@@ -22,7 +22,7 @@ description: >
 
 1. **Listen** — 사용자 원문 그대로 캡처. 추측하지 말고, 불명확하면 1개 질문만.
 2. **Classify** — `intent`를 먼저 분류: `research|brainstorm` vs `build|fix|migrate|review`. `research|brainstorm`이면 `AGENTS.md`를 읽지 않고 외부 문서로 간다.
-3. **Read (conditional)** — `build` 계열일 때만 `AGENTS.md` + `index.md` + `wiki/` 상위 3개 + `opencode.json:provider`를 읽고, `MCP`/`raw/`에서 verbatim 근거 1개 이상을 확보해야 다음 단계로 간다. `research`는 외부 검색으로 대체.
+3. **Read (conditional)** — `build` 계열일 때만 3-layer로 읽는다: AGENTS.md (헌법) → index.md (카탈로그 1줄/페이지) → wiki/ 요약 → raw/ 원전 verbatim — 기존 AGENTS.md + index.md + wiki/ 상위 3개 + opencode.json:provider + MCP/raw/ verbatim 유지, MCP get_context 5파일 제한. wiki/ 없으면 (no index) fallback, but foundry now has wiki/ skeleton so evidence gate active. `MCP`/`raw/`에서 verbatim 근거 1개 이상을 확보해야 다음 단계로 간다. `research`는 외부 검색으로 대체.
 4. **Translate** — 아래 스키마로 변환:
 
 ```json
@@ -41,12 +41,12 @@ description: >
 
 ## Model routing (user selectable)
 
-- `opencode.json`에서 사용자가 고른 4개 중 선택:
-  - `deepseek-v4-flash` — 벌크/저렴
-  - `muse-spark-1.2` — 벌크/긴 컨텍스트
-  - `qwen3.8-pro` — 터미널/도구
-  - `deepseek-v4-pro` — 난이도 높은 추론
-- 기본값: `bulk → flash/spark`, `tool-heavy → qwen3.8-pro`, `hard → deepseek-pro`
+User selectable — e.g., easy→ muse-spark/flash (general), hard→ qwen3.8-pro/deepseek-pro (frontier), swappable, single model OK. Cost-optimal routing + cross-model positive effect per papers. Change in opencode.json 1 line.
+
+- 예시 매핑:
+  - `muse-spark-1.2` / `deepseek-v4-flash` — 벌크/저렴 (general)
+  - `qwen3.8-pro` / `deepseek-v4-pro` — 터미널/도구·난이도 높은 추론 (frontier)
+- `opencode.json` 1줄 교체로 모델 스왑, 단일 모델도 OK.
 
 ## Example
 
@@ -61,7 +61,6 @@ description: >
 
 ## Hard rules
 
-- Never pass raw diary prompt to builder.
-- Always produce `files` (1~5개) + `schema` (typed) + `opencode_call` (1개).
+- Never pass raw diary prompt to builder. Always produce files[1-5]+schema+opencode_call. If files unknown, Grep 1회 탐색 후 결정.
 - If `files`를 모르면 `Grep`으로 1회 탐색 후 결정, 추측으로 파일명 만들지 않음.
 - `AGENTS.md`가 단일 소스 — `CLAUDE.md`/`GEMINI.md` 분기 금지.

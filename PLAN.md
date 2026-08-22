@@ -18,7 +18,7 @@
 
 - **라우팅**: 쉬운 일은 `deepseek-v4-flash`/`muse-spark-1.2`, 어려운 일은 `qwen3.8-pro`/`deepseek-v4-pro`로 에스컬레이션 — 1,000스텝 $750→$154
 - **제약(스키마)**: 프롬프트 대신 `JSON Schema`로 결정 공간 축소. `OPT-350M 30%→80%`가 증명
-- **검증 루프**: 모델의 `tests pass`를 믿지 않고 하네스가 직접 `npm test`/`wiki:lint`/`pack` 실행
+- **검증 루프**: 모델의 `tests pass`를 믿지 않고 하네스가 직접 `npm test`/`check:vault --strict`/`pack` 실행
 - **폐기성**: 하네스는 스펙을 강제하는 비계. 다음 분기 모델 교체 시 스캐폴드 유지
 
 ## 3. 파일 맵 (완전체)
@@ -45,12 +45,17 @@
 | 하드 추론 | `deepseek-v4-pro` | $6 | 최고 지능 |
 | 검증 | `qwen3.8-pro` | $2 | 엄격, 저렴 |
 
+> 모델 매핑은 예시 — easy→ muse-spark/flash, hard→ qwen3.8-pro/deepseek-pro로 바꿔도, 하나의 모델만 사용해도 정상. `opencode.json: model` 1줄 교체로 라우팅 변경, 비용 최적 + 교차 긍정 효과(per papers).
+
 `opencode.json:provider`에서 `baseURL`만 바꾸면 즉시 교체.
 
-## 5. 위키루프와 분리 (thin 유지)
+## 5. Harness Knowledge Vault (mechanical / layered / archive)
 
-- **006**: 실행 하네스 파운드리 — `interpreter`/`verify`/`MCP`/`conductor` 3중 강제만. `wiki/` 없음.
-- **단독**: `006`은 `private` 파운드리로 단독 사용.
+- **006** is private foundry thin — harness is scaffolding (disposable), wiki is spec (static encyclopedia)
+- **기계 검증**: `raw/` immutable → `wiki/` LLM-owned `Raw:` 링크 → `check_vault --strict` 0 errors
+- **계층 리딩**: `AGENTS.md → index.md → wiki/ 요약 → raw/ 원전` 3-layer, MCP get_context 5파일 제한
+- **격리 보존**: `Status: Outdated` 블록 + `archive/YYYY-MM-DD/` 이동, 삭제 금지, No TTL event-based
+- **이중 장부**: `index.md(지도) + log.md(원장)` 원자적 동시 갱신
 ## 6. MCP 골격 (최적화 라이브러리)
 
 - **라이브러리**: `@modelcontextprotocol/sdk` — MIT, `OpenHarness`/`DeepSeek Harness`도 동일. 도구 디스커버리·스키마 검증·재시도 내장

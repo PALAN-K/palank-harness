@@ -11,8 +11,9 @@
 import fs from "fs";
 import path from "path";
 import { spawnSync } from "child_process";
-
-const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const ROOT = path.resolve(path.dirname(__filename), "..");
 const WT_ROOT = path.join(ROOT, ".worktrees");
 
 function run(cmd, args, opts = {}) {
@@ -22,6 +23,7 @@ function run(cmd, args, opts = {}) {
 }
 
 export function create(taskId) {
+  if (!/^[a-zA-Z0-9_-]+$/.test(taskId)) throw new Error("invalid taskId");
   fs.mkdirSync(WT_ROOT, { recursive: true });
   const wtPath = path.join(WT_ROOT, taskId);
   if (fs.existsSync(wtPath)) {
@@ -37,6 +39,7 @@ export function create(taskId) {
 }
 
 export function remove(taskId) {
+  if (!/^[a-zA-Z0-9_-]+$/.test(taskId)) throw new Error("invalid taskId");
   const wtPath = path.join(WT_ROOT, taskId);
   if (!fs.existsSync(wtPath)) {
     console.log(`[worktree] not found: ${wtPath}`);

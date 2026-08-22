@@ -4,12 +4,31 @@
   "private": true,
   "description": "Thin harness foundry — openCode + muse-spark/qwen3.8/deepseek + MCP. Model-agnostic, disposable.",
   "type": "module",
+  "bin": {
+    "palank-harness": "bin/cli.js"
+  },
+  "files": [
+    "AGENTS.md",
+    "opencode.json",
+    "wiki/",
+    "raw/",
+    "archive/",
+    "index.md",
+    "log.md",
+    "skills/",
+    "mcp/",
+    "plugins/",
+    "dynamicSubAgents.json",
+    "scripts/",
+    "bin/"
+  ],
   "scripts": {
-    "lint": "node -e \"JSON.parse(require('fs').readFileSync('opencode.json','utf8'));console.log('opencode.json ok')\" && node --check mcp/server.js && echo \"lint ok\"",
-    "verify": "npm run lint --silent && npm test --silent",
+    "lint": "node -e \"JSON.parse(require('fs').readFileSync('opencode.json','utf8'));console.log('opencode.json ok')\" && node --check mcp/server.js && node --check scripts/check_vault.js && node --check scripts/migrate.js && node --check scripts/worktree.js && node --check bin/cli.js && echo \"lint ok\"",
+    "check:vault": "node scripts/check_vault.js --strict .",
+    "verify": "npm run lint --silent && npm run check:vault --silent && npm test --silent",
     "test": "echo \"harness verify: no tests yet — add per-project tests\"",
     "mcp:dev": "node mcp/server.js",
-    "init": "node scripts/init.js",
+    "init": "node bin/cli.js init",
     "migrate": "node scripts/migrate.js"
   },
   "keywords": ["harness", "opencode", "muse-spark", "qwen", "deepseek", "mcp"],
