@@ -184,6 +184,36 @@ function planDynamicSubAgents(target) {
   return [];
 }
 
+function planPackageJsonScripts(target) {
+  const targetFile = path.join(target, "package.json");
+  if (!exists(targetFile)) return null;
+  try {
+    const raw = readIfExists(targetFile) || "{}";
+    const j = JSON.parse(raw.replace(/^\uFEFF/, ""));
+    const scripts = (j.scripts && typeof j.scripts === "object") ? j.scripts : {};
+    const missing = [];
+    if (!scripts["check:vault"]) missing.push("check:vault");
+    if (!scripts["test"]) missing.push("test");
+    if (missing.length === 0) {
+      return { action: "skip", file: "package.json:scripts", detail: "scripts 이미 존재 (check:vault, test) — 건너뜀" };
+    }
+    // existing 있으면 덮지 않음 — missing만 추가
+    return { action: "merge", file: "package.json:scripts", detail: `scripts 병합 필요: ${missing.join(", ")} 추가 (기존 있으면 덮지 않음)`, missing };
+  } catch {
+    return { action: "skip", file: "package.json:scripts", detail: "package.json 파싱 실패 — 수동 확인 필요" };
+  }
+}
+
+function planScripts(target) {
+  const harnessScript = path.join(HARNESS_ROOT, "scripts", "check_vault.js");
+  const targetScript = path.join(target, "scripts", "check_vault.js");
+  if (!exists(harnessScript)) return null;
+  if (!exists(targetScript)) {
+    return { action: "create", file: "scripts/check_vault.js", detail: "검증 스크립트 새로 설치 (harness → target)" };
+  }
+  return { action: "skip", file: "scripts/check_vault.js", detail: "이미 존재 — 덮어쓰지 않음" };
+}
+
 function applyPlan(target, plan, mode) {
   let created = 0, appended = 0, skipped = 0;
   for (const p of plan) {
@@ -294,6 +324,21 @@ function applyPlan(target, plan, mode) {
         } else if (p.action === "create" && (p.file === "index.md" || p.file === "log.md")) {
           fs.copyFileSync(path.join(HARNESS_ROOT, p.file), path.join(target, p.file));
           created++;
+        } else if (p.action === "merge" && p.file === "package.json:scripts") {
+          const targetFile = path.join(target, "package.json");
+          const j = JSON.parse((readIfExists(targetFile) || "{}").replace(/^\uFEFF/, ""));
+          j.scripts = j.scripts || {};
+          if (!j.scripts["check:vault"]) j.scripts["check:vault"] = "node scripts/check_vault.js --strict .";
+          if (!j.scripts["test"]) j.scripts["test"] = "vitest run || echo 'no tests yet'";
+          // 기존 있으면 덮지 않음 — missing만 보충 (planPackageJsonScripts logic)
+          fs.writeFileSync(targetFile, JSON.stringify(j, null, 2) + "\n", "utf-8");
+          created++;
+        } else if (p.action === "create" && p.file === "scripts/check_vault.js") {
+          const src = path.join(HARNESS_ROOT, "scripts", "check_vault.js");
+          const dest = path.join(target, "scripts", "check_vault.js");
+          fs.mkdirSync(path.dirname(dest), { recursive: true });
+          fs.copyFileSync(src, dest);
+          created++;
         } else {
           skipped++;
         }
@@ -327,6 +372,11 @@ function main() {
   plan.push(...planSkills(target));
   plan.push(...planPlugins(target));
   plan.push(...planDynamicSubAgents(target));
+  // P0-1: package.json scripts + scripts/check_vault.js
+  const pkgScriptsPlan = planPackageJsonScripts(target);
+  if (pkgScriptsPlan) plan.push(pkgScriptsPlan);
+  const scriptsPlan = planScripts(target);
+  if (scriptsPlan) plan.push(scriptsPlan);
 
   // Filter nulls
   const filtered = plan.filter(Boolean);

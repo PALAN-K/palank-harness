@@ -32,8 +32,9 @@ function cpRecursive(src, dest) {
 function cmdInit(targetDir) {
   const target = path.resolve(targetDir || ".");
   fs.mkdirSync(target, { recursive: true });
-  const items = ["AGENTS.md", "opencode.json", "index.md", "log.md", "dynamicSubAgents.json"];
-  const dirs = ["wiki", "raw", "archive", "skills", "mcp", "plugins"];
+  // P0-1 sync: ensure scripts/check_vault.js and eslint template are distributable
+  const items = ["AGENTS.md", "opencode.json", "index.md", "log.md", "dynamicSubAgents.json", "eslint.config.template.mjs"];
+  const dirs = ["wiki", "raw", "archive", "skills", "mcp", "plugins", "scripts", "templates"];
   for (const f of items) {
     const src = path.join(HARNESS_ROOT, f);
     if (fs.existsSync(src)) cpRecursive(src, path.join(target, f));

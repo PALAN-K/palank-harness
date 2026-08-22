@@ -32,13 +32,13 @@ raw/ immutable never edit, wiki/ LLM-owned, index.md 1 line/page, log.md append-
 ## 2. Lint (3 tiers, harness-native)
 
 - Safe fixes: index.md row count vs wiki/**/*.md, source links (wiki→raw/)
-- Mechanical: node scripts/check_vault.js --strict . (0 suspects/0 errors/0 unreferenced, every number/date/quote must be cited verbatim from raw/ or official docs)
+- Mechanical: node scripts/check_vault.js --strict . (0 suspects/0 errors/0 unreferenced, every number/date/quote must be cited verbatim from raw/ or official docs) — `wiki 0 && index 0 → PASS (skeleton)` — skeleton is not error
 - Judgment: contradiction, stale claims, orphan pages — report only
 
 Hard rule: No guessing, official docs only — interpreter without evidence is blocked here.
 
 - **Safe fixes** — 기계적으로 고칠 수 있는 것만: `index.md` 줄 수 vs `wiki/**/*.md` 일치, 소스 링크 (`wiki→raw/`) 존재 여부
-- **Mechanical** — `node scripts/check_vault.js --strict .` 실행, 0 suspects/0 errors/0 unreferenced 필수. every number/date/quote must be cited verbatim from raw/ or official docs
+- **Mechanical** — `node scripts/check_vault.js --strict .` 실행, 0 suspects/0 errors/0 unreferenced 필수. every number/date/quote must be cited verbatim from raw/ or official docs — `wiki 0 && index 0 → PASS (skeleton)` — skeleton is not error
 - **Judgment** — 모순, 오래된 주장, 고아 페이지 — report only (자동 수정 금지)
 
 ## 3. Loop (harness vault lifecycle)

@@ -20,7 +20,9 @@
     "plugins/",
     "dynamicSubAgents.json",
     "scripts/",
-    "bin/"
+    "bin/",
+    "templates/",
+    "eslint.config.template.mjs"
   ],
   "scripts": {
     "lint": "node -e \"JSON.parse(require('fs').readFileSync('opencode.json','utf8'));console.log('opencode.json ok')\" && node --check mcp/server.js && node --check scripts/check_vault.js && node --check scripts/migrate.js && node --check scripts/worktree.js && node --check bin/cli.js && echo \"lint ok\"",

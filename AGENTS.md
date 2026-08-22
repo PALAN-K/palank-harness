@@ -46,6 +46,7 @@
 
 `npm run lint` (syntax) + `npm run check:vault --strict` (evidence) + `npm test` (project). Zero errors required.
 `npm run verify` = all + `pack --dry-run` hygiene.
+`wiki 0 && index 0 → PASS (skeleton)` — empty vault is valid initial state, not an error (skeleton is not error, see `scripts/check_vault.js:58`).
 
 ## MCP
 

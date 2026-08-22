@@ -55,6 +55,7 @@ if (fs.existsSync(indexPath)) {
   report("error", "index.md missing");
 }
 
+// skeleton is not error — wiki 0 && index 0 → PASS (empty vault is valid initial state)
 if (wikiFiles.length === 0 && indexBullets === 0) {
   reports.push("info: skeleton vault — 0 pages, 0 index rows (parity ok)");
 } else if (wikiFiles.length !== indexBullets) {
