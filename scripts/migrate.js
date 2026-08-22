@@ -329,7 +329,8 @@ function applyPlan(target, plan, mode) {
           const j = JSON.parse((readIfExists(targetFile) || "{}").replace(/^\uFEFF/, ""));
           j.scripts = j.scripts || {};
           if (!j.scripts["check:vault"]) j.scripts["check:vault"] = "node scripts/check_vault.js --strict .";
-          if (!j.scripts["test"]) j.scripts["test"] = "vitest run || echo 'no tests yet'";
+          // thin default: node --test (vitest is opt-in — project should `npm i -D vitest` and override test script manually)
+          if (!j.scripts["test"]) j.scripts["test"] = "node --test tests/*.test.js 2>&1 || echo 'no tests yet — add per-project tests'";
           // 기존 있으면 덮지 않음 — missing만 보충 (planPackageJsonScripts logic)
           fs.writeFileSync(targetFile, JSON.stringify(j, null, 2) + "\n", "utf-8");
           created++;
