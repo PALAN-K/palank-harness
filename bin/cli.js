@@ -7,9 +7,18 @@
  *   node bin/cli.js --help
  */
 import fs from "fs";
+import os from "os";
 import path from "path";
 import { fileURLToPath } from "url";
 import { spawnSync } from "child_process";
+
+function hasGlobalHarness() {
+  const candidates = [
+    path.join(os.homedir(), ".config/opencode/skills/interpreter/SKILL.md"),
+    path.join(os.homedir(), ".agents/skills/interpreter/SKILL.md"),
+  ];
+  return candidates.some(p => fs.existsSync(p));
+}
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const HARNESS_ROOT = path.resolve(__dirname, "..");
@@ -32,6 +41,8 @@ function cpRecursive(src, dest) {
 function cmdInit(targetDir) {
   const target = path.resolve(targetDir || ".");
   fs.mkdirSync(target, { recursive: true });
+  const globalHarness = hasGlobalHarness();
+  if (globalHarness) console.log("[harness] global harness detected — skills/plugins will be linked, not copied (Thin: project keeps domain only)");
   // P0-1 sync: ensure scripts/check_vault.js and eslint template are distributable
   const items = ["AGENTS.md", "opencode.json", "index.md", "log.md", "dynamicSubAgents.json", "eslint.config.template.mjs"];
   const dirs = ["wiki", "raw", "archive", "skills", "mcp", "plugins", "scripts", "templates"];
@@ -40,10 +51,20 @@ function cmdInit(targetDir) {
     if (fs.existsSync(src)) cpRecursive(src, path.join(target, f));
   }
   for (const d of dirs) {
+    // Global harness owns skills/plugins/scripts — project keeps domain only when global exists
+    if (globalHarness && (d === "skills" || d === "plugins")) {
+      console.log(`[harness] skip ${d}/ — global owns it (future bootstrap, no duplicate)`);
+      continue;
+    }
+    if (globalHarness && d === "scripts") {
+      // scripts/worktree.js is global engine, but check_vault.js stays project-local for vault lint
+      // For now keep scripts/ local to avoid breaking existing projects — only skip skills/plugins
+      // To enable full global scripts, uncomment: continue;
+    }
     const src = path.join(HARNESS_ROOT, d);
     if (fs.existsSync(src)) cpRecursive(src, path.join(target, d));
   }
-  console.log(`[palank-harness] init → ${target} — scaffold done`);
+  console.log(`[palank-harness] init → ${target} — scaffold done${globalHarness ? " (global-aware, no duplicate skills/plugins)" : ""}`);
 }
 
 function cmdMigrate(targetDir, extraArgs) {

@@ -10,8 +10,17 @@
  */
 
 import fs from "fs";
+import os from "os";
 import path from "path";
 import { fileURLToPath } from "url";
+
+function hasGlobalHarness() {
+  const candidates = [
+    path.join(os.homedir(), ".config/opencode/skills/interpreter/SKILL.md"),
+    path.join(os.homedir(), ".agents/skills/interpreter/SKILL.md"),
+  ];
+  return candidates.some(p => fs.existsSync(p));
+}
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const HARNESS_ROOT = path.resolve(__dirname, "..");
@@ -141,10 +150,15 @@ function planWiki(target) {
 
 function planSkills(target) {
   const skills = [];
+  const globalHarness = hasGlobalHarness();
   const harnessSkills = fs.existsSync(path.join(HARNESS_ROOT, "skills")) ? fs.readdirSync(path.join(HARNESS_ROOT, "skills")) : [];
   for (const s of harnessSkills) {
     const targetSkill = path.join(target, ".agents", "skills", s);
     const harnessSkill = path.join(HARNESS_ROOT, "skills", s);
+    if (globalHarness) {
+      skills.push({ action: "skip", file: `.agents/skills/${s}/`, detail: `전역 하네스 존재 — 글로벌이 소유, 프로젝트 중복 스킵 (Thin)` });
+      continue;
+    }
     if (!exists(targetSkill)) {
       skills.push({ action: "create", file: `.agents/skills/${s}/`, detail: `스킬 새로 설치 (${s})` });
     } else {
@@ -163,6 +177,11 @@ function planSkills(target) {
 
 function planPlugins(target) {
   const out = [];
+  const globalHarness = hasGlobalHarness();
+  if (globalHarness) {
+    out.push({ action: "skip", file: "plugins/force-delegation.js", detail: "전역 하네스 존재 — 글로벌이 소유, 프로젝트 중복 스킵 (Thin)" });
+    return out;
+  }
   const harnessPlugin = path.join(HARNESS_ROOT, "plugins", "force-delegation.js");
   const targetPlugin = path.join(target, "plugins", "force-delegation.js");
   if (exists(harnessPlugin) && !exists(targetPlugin)) {
