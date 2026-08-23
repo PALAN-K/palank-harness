@@ -9,6 +9,9 @@
   },
   "files": [
     "AGENTS.md",
+    "SPEC.md",
+    "CLAUDE.md",
+    "GEMINI.md",
     "opencode.json",
     "wiki/",
     "raw/",

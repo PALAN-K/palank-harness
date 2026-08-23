@@ -54,4 +54,8 @@ One MCP per domain. `mcp/palank-domain` is the stub — copy per project, add to
 
 ## Harness Principle
 
-Framework (`006`) is the foundry — thin, model-agnostic, disposable. Keep harness disposable: spec is the asset.
+Framework (`006`) is the foundry — thin, model-agnostic, disposable. Keep harness disposable: spec is the asset. Normative spec: `SPEC.md` (why), runtime constitution: this file (how). See `SPEC.md:8` Trust Boundary.
+
+## Spec
+
+`SPEC.md` is the normative companion — humans/reviewers read it, agents read this file. Enforcement lives in `scripts/check_vault.js`, not in prose.
