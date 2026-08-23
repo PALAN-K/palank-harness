@@ -33,7 +33,7 @@
 2. **Verification over vibes.** `verify` runs `npm test` / `pack` itself. Model's "tests pass" is not a pass.
 3. **Contracts before prompts.** Schema first, then code. No guessing without typed contract.
 4. **Least privilege.** Subagents get only needed tools/files — never full repo.
-5. **Knowledge as Asset.** wiki is spec (static encyclopedia), harness is scaffolding (disposable). Every claim needs Raw: verbatim or official docs citation.
+5. **Knowledge as Asset + Isolation.** wiki is spec (static encyclopedia), harness is scaffolding (disposable). Every claim needs Raw: verbatim or official docs citation. **Every experiment runs in `git worktree` — never on `main`.** Entry: `npm run sandbox:new <id>` → work in `.worktrees/<id>/` → verify there → merge back. Keeps `main` clean (physical transparency, see `SPEC.md:8` Trust Boundary and `scripts/worktree.js:1`).
 
 ## Model Routing (user selectable, default: muse-spark for bulk, qwen3.8 for terminal)
 
