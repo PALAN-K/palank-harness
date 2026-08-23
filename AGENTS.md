@@ -52,6 +52,8 @@
 
 One MCP per domain. `mcp/palank-domain` is the stub — copy per project, add tools, keep `AGENTS.md` as the contract.
 
+**Routing:** `opencode.json:mcp.<name>.type ∈ {local,remote}` — `local` = stdio (`command: ["node","mcp/server.js"]`, Thin 3툴), `remote` = HTTP (`url: "https://your-domain/api/mcp"`, Domain 15툴, Vercel). See `mcp/README.md: Thin vs Domain` and `templates/opencode.json.template: mcp`.
+
 ## Harness Principle
 
 Framework (`006`) is the foundry — thin, model-agnostic, disposable. Keep harness disposable: spec is the asset. Normative spec: `SPEC.md` (why), runtime constitution: this file (how). See `SPEC.md:8` Trust Boundary.
