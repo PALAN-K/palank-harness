@@ -28,7 +28,7 @@
     "eslint.config.template.mjs"
   ],
   "scripts": {
-    "lint": "node -e \"JSON.parse(require('fs').readFileSync('opencode.json','utf8'));console.log('opencode.json ok')\" && node --check mcp/server.js && node --check scripts/check_vault.js && node --check scripts/migrate.js && node --check scripts/worktree.js && node --check bin/cli.js && echo \"lint ok\"",
+    "lint": "node -e \"JSON.parse(require('fs').readFileSync('opencode.json','utf8'));console.log('opencode.json ok')\" && node --check mcp/server.js && node --check scripts/check_vault.js && node --check scripts/migrate.js && node --check scripts/worktree.js && node --check scripts/hashline.js && node --check bin/cli.js && echo \"lint ok\"",
     "check:vault": "node scripts/check_vault.js --strict .",
     "verify": "npm run lint --silent && npm run check:vault --silent && npm test --silent",
     "test": "node --test tests/*.test.js 2>&1 || (echo \"no tests yet — add per-project tests\" && exit 0)",
