@@ -1,5 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "small_model": "opencode-go/muse-spark-1.2-contributor",
   "agent": {
     "conductor": {
       "mode": "primary",
@@ -17,12 +18,49 @@
         }
       }
     },
-    "interpreter": { "prompt": "skills/interpreter/SKILL.md", "mode": "subagent" },
-    "verify": { "prompt": "skills/verify/SKILL.md", "mode": "subagent" }
+    "interpreter": {
+      "prompt": "skills/interpreter/SKILL.md",
+      "mode": "subagent"
+    },
+    "verify": {
+      "prompt": "skills/verify/SKILL.md",
+      "mode": "subagent"
+    }
   },
-  "plugin": ["./plugins/force-delegation.js", "cgasgarth/opencode-dynamic-subagents"],
+  "plugin": [
+    "./plugins/force-delegation.js",
+    "cgasgarth/opencode-dynamic-subagents"
+  ],
+  "provider": {
+    "opencode-go": {
+      "options": {
+        "baseURL": "https://005-relay-proxy.vercel.app/zen/go/v1"
+      },
+      "models": {
+        "muse-spark-1.2-contributor": {
+          "variants": {
+            "deep": {
+              "reasoningEffort": "xhigh"
+            },
+            "fast": {
+              "reasoningEffort": "minimal"
+            }
+          }
+        }
+      }
+    }
+  },
   "mcp": {
-    "palank-domain": { "type": "local", "command": ["node", "mcp/server.js"], "enabled": true }
+    "palank-domain": {
+      "type": "local",
+      "command": [
+        "node",
+        "mcp/server.js"
+      ],
+      "enabled": true
+    }
   },
-  "instructions": ["AGENTS.md"]
+  "instructions": [
+    "AGENTS.md"
+  ]
 }
