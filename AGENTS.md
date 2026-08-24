@@ -62,3 +62,5 @@ Framework (`006`) is the foundry — thin, model-agnostic, disposable. Keep harn
 ## Spec
 
 `SPEC.md` is the normative companion — humans/reviewers read it, agents read this file. Enforcement lives in `scripts/check_vault.js`, not in prose.
+
+<!-- hashline: optional LINE:HASH stale-safe edits via scripts/hashline.js (1 read/1 write, sha1 7hex), see skills/verify/SKILL.md:4 & skills/interpreter/references/hashline.md -->

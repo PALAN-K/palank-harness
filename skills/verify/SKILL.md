@@ -67,6 +67,22 @@ npm pack --dry-run 2>&1 | grep -q "__pycache__" && exit 1 || echo "clean"
 - `npm pack --dry-run` — `__pycache__` 누출 차단
 - 위 모두 실패 시 태그 금지. release-guardian 5-step 패턴을 하네스 네이티브로 일반화 계승.
 
+## 4. Hashline — stale-safe file edits (optional, recommended for build/migrate)
+
+> Thin port of oh-my-pi hashline: LINE:HASH 앵커 + 파일당 배치 1회 + stale 거부 (Rust 불필요, TS 해시 검증만으로 80% 효과)
+
+- **언제 쓰나**: `build`/`migrate`/`fix`에서 파일 편집 시 — LLM이 `oldText`+`lineHint`+`expectedHash(sha1 7)`로 계획을 세우고, `scripts/hashline.js`가 1회 read → offset 정렬 → 1회 write로 원자 적용. `lineHint`와 `hash` 둘 다 불일치 시 `hash mismatch — file changed since edit planned`로 거부되어 `verify` 루프가 재시도/재read를 강제 — oh-my-pi 6.7%→68.3% 효과의 경량 재현.
+- **강제 아님**: 기존 `write`/`edit` 경로 그대로 동작, `verify` 게이트에서 hashline 권장 (Thin 유지). Rust/Bun/Zig 의존 금지, 순수 `crypto.createHash('sha1')` 동적 해시.
+- **예시 1개**:
+  ```js
+  import { shortHash, hashlineReplace } from "../scripts/hashline.js";
+  hashlineReplace("src/app.ts", [
+    { oldText: 'const a = 1;', newText: 'const a = 2;', lineHint: 12, expectedHash: shortHash('const a = 1;') },
+    { oldText: '', newText: 'import x from "y";\n', lineHint: 1, expectedHash: shortHash('') } // head insert
+  ]); // 파일당 1 read/1 write, stale 시 throw
+  ```
+- **검증**: `npm test`의 `tests/hashline.test.js`가 stale 거부/배치 성공을 기계 검증. 실패 시 `verify`가 감지해 머지 차단.
+
 ## Hard rules
 
 - No guessing, official docs only — interpreter without evidence is blocked here.
