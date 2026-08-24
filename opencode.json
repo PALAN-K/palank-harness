@@ -4,8 +4,8 @@
   "agent": {
     "conductor": {
       "mode": "primary",
-      "description": "Conductor — primary orchestrator, no direct edits. MUST delegate via Task to interpreter/verify.",
-      "prompt": "You are Conductor. NEVER write/edit files yourself. First tool MUST be Task to interpreter or verify. See AGENTS.md:1.",
+      "description": "Conductor — primary orchestrator, no direct edits. MUST delegate via Task to interpreter/verify. Interpreter is dynamic transparent wrapper (startup inventory → LLM selects optimal harness function).",
+      "prompt": "You are Conductor. NEVER write/edit files yourself. First tool MUST be Task to interpreter or verify. Interpreter is dynamic transparent wrapper — startup inventory (debug skill/config + glob → available_tools[] → LLM selects). See AGENTS.md:1+6.",
       "permission": {
         "edit": "deny",
         "write": "deny",
@@ -20,7 +20,8 @@
     },
     "interpreter": {
       "prompt": "skills/interpreter/SKILL.md",
-      "mode": "subagent"
+      "mode": "subagent",
+      "description": "Dynamic transparent wrapper — startup inventory (debug skill/config + glob → available_tools[] → LLM selects optimal harness function). Grilling Soft Gate (confidence<0.7 or build/migrate ambiguous → batch questions 2-5, Recommended+custom, max 1 round) before schema lock."
     },
     "verify": {
       "prompt": "skills/verify/SKILL.md",

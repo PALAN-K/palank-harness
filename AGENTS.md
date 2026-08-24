@@ -25,15 +25,16 @@
 └── package.json           # harness scripts
 ```
 
-## Rules (thin, 4+1 — front-loaded)
+## Rules (thin, 5+1 — front-loaded)
 
 > **ALWAYS delegate via Task to interpreter/verify — NEVER direct write/edit/bash from conductor.** Permission deny + hook enforce this; even open-weight models that ignore prompts are blocked.
 
-1. **Interpreter first.** User speaks diary, harness converts to Excel (JSON Schema). Never pass raw prompt to builder.
+1. **Interpreter first.** User speaks diary, harness converts to Excel (JSON Schema). Never pass raw prompt to builder. Interpreter is dynamic transparent wrapper — startup inventory (debug skill/config + glob) → LLM selects optimal harness function from runtime list.
 2. **Verification over vibes.** `verify` runs `npm test` / `pack` itself. Model's "tests pass" is not a pass.
 3. **Contracts before prompts.** Schema first, then code. No guessing without typed contract.
 4. **Least privilege.** Subagents get only needed tools/files — never full repo.
 5. **Knowledge as Asset + Isolation.** wiki is spec (static encyclopedia), harness is scaffolding (disposable). Every claim needs Raw: verbatim or official docs citation. **Every experiment runs in `git worktree` — never on `main`.** Entry: `npm run sandbox:new <id>` → work in `.worktrees/<id>/` → verify there → merge back. Keeps `main` clean (physical transparency, see `SPEC.md:8` Trust Boundary and `scripts/worktree.js:1`).
+6. **Clarify Before Contract.** 모호도 임계치 넘으면 배치 질문 후 스키마 잠금 — `confidence <0.7` 또는 `intent=build|migrate` + `ambiguous(schema|intent|files)` 일 때만 `question` 툴로 배치 질문(2~5개, 선택지+Recommended+직접입력) 후 스키마 잠금. `required` 필드만 질문, `optional`은 기본값 유지, **max 1라운드 원칙**(명확하면 스킵, 재질문 금지). 모호한 요구는 추측 금지 — 배치 질문으로 해소 후 명시적 확인. See `skills/interpreter/SKILL.md:2.5 GRILL(soft)`.
 
 ## Model Routing (user selectable, default: muse-spark for bulk, qwen3.8 for terminal)
 
