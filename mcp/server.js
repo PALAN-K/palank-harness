@@ -69,17 +69,20 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
       name: "search_wiki",
       description: "Search harness knowledge vault (wiki/) — returns index.md + grep hits. Use before answering.",
       inputSchema: { type: "object", properties: { query: { type: "string" } }, required: ["query"] },
+      annotations: { readOnlyHint: true }, // behavior hint pattern ported from basic-memory
     },
     {
       name: "get_context",
       description:
         "Get layered harness context — AGENTS.md head + index.md + intent-ranked wiki/raw files (max 5, ~4000 chars each).",
       inputSchema: { type: "object", properties: { intent: { type: "string" } }, required: ["intent"] },
+      annotations: { readOnlyHint: true }, // AGENTS.md head stays the FIRST return — stable prefix
     },
     {
       name: "verify_before_tag",
       description: "Run `npm run verify` preflight at project root (timeout 120s). Blocks tag if it fails.",
       inputSchema: { type: "object", properties: {}, required: [] },
+      annotations: { idempotentHint: true }, // same input -> same gate result while sources unchanged
     },
   ],
 }));

@@ -15,10 +15,16 @@ description: >
 
 1. **Listen** — 원문 캡처, 추측 금지.
 2. **Echo (위임 작업이면 항상)** — 일상어로 요약 제시: "작업은 X, 범위는 Y, 결과물은 Z. 맞는가?"
-   조사성 질의(research-only)는 면제. 사용자가 정정하면 반영 후 재요약 1회.
+   확인 획득 후 **모든 Task 프롬프트에 `gate:echo-confirmed` 선언 필수**(v3.1 코드 강제 —
+   plugins/force-delegation.js가 미선언 Task를 차단, fail-closed).
+   조사성 질의(research-only)는 면제 — 해당 Task는 `gate:research-exempt` 선언.
+   사용자가 정정하면 반영 후 재요약 1회.
 3. **Interview (조건부, 결정론)** — 필수 필드 체크리스트 `{intent, scope/files, done 조건}` 중
-   **누락된 것만** 질문. 배치 2-5개, Recommended+custom, **max 1라운드**.
-   confidence 숫자는 어디에도 등장 금지.
+   **누락된 것만** 질문. 형식(Spec Kit clarify 이식):
+   질문 **최대 5개 하드캡** / 각 질문은 **2~4개 옵션 + Recommended를 최상단에 한 줄 이유와 함께** 제시 /
+   사용자는 **"yes" 한 글자로 전체 추천안 수락 가능** 또는 개별 답변 /
+   질문 선정 우선순위 = **Impact × Uncertainty 스캔**.
+   배치 2-5, **max 1라운드**. confidence 숫자는 어디에도 등장 금지.
 4. **Lock** — 스키마 `{intent, files, schema, opencode_call, model, mcp, echo:{summary, confirmed}}`.
    `echo.confirmed !== true`면 Lock 불가(타입 수준 거부).
 5. **Classify** — `research|brainstorm` vs `build|fix|migrate|review`.
@@ -26,7 +32,10 @@ description: >
    (MCP get_context, 5파일 제한).
 7. **Translate** — 스키마 완성.
 8. **Dispatch** — 3-tier: `opencode run --agent verify`(단발) / `opencode session`(장문맥) /
-   `opencode mcp`(도메인 툴). 정적 매핑 테이블 금지 — 매 실행 inventory 기반 LLM 선택.
+   `opencode mcp`(도메인 툴). 모든 Task 프롬프트는 게이트 마커 필수:
+   확인된 위임은 `gate:echo-confirmed`, 조사 전용은 `gate:research-exempt`
+   (미선언 시 플러그인이 차단 — fail-closed, Goose PreToolUse 패턴의 반대 설계).
+   정적 매핑 테이블 금지 — 매 실행 inventory 기반 LLM 선택.
 9. **Verify (build 계열만)** — verify 스킬에 위임. research는 검증 없이 종료.
 
 ## Startup Inventory — 실행 코드 (매 실행)

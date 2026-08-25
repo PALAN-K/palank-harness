@@ -27,6 +27,12 @@
 5. **ALWAYS delegate via Task to interpreter/verify** — never direct writes from conductor. 3-layer enforcement: config deny (`opencode.json`) + `plugins/force-delegation.js` + prompt.
 6. **Verification over vibes.** verify runs the machine itself — a model's "pass" is not a pass. hashline/worktree are NOT core; recover from git history `b14f1bb` if ever needed.
 
+## Cache Economics (v3.1)
+
+1. **Stable prefix**: this constitution is immutable during a session — never edit mid-session; restart instead. Prompt assembly places volatile content (inventory output, task context) AFTER the stable prefix so reloads become cache hits (Aider `--cache-prompts`).
+2. **Late compaction**: compact only at threshold — early compaction invalidates the whole cache; amortize the one rebuild over the long tail (OpenHands condenser).
+3. **Delegation = isolation**: forced subagent delegation keeps the main thread's prefix small and stable — the economic rationale behind Rule 5.
+
 ## Verification
 
 - `npm run lint` — node --check on plugins/force-delegation.js, scripts/check_vault.js, scripts/inventory.js, mcp/server.js

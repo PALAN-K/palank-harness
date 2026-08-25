@@ -19,6 +19,9 @@ npm test               # node --test tests/
 cd mcp && npm i        # MCP 서버 의존성 설치 (opencode.json에 등록됨)
 ```
 
+모든 위임 Task 프롬프트는 게이트 마커 필수: `gate:echo-confirmed`(사용자 확인 완료) 또는
+`gate:research-exempt`(조사 전용) — 미선언 시 플러그인이 차단(fail-closed).
+
 ## v2 회수
 
 v2 전체 스냅샷은 git 이력에 있다(`_archive` 포함, HEAD `b14f1bb`):

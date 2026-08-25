@@ -13,6 +13,10 @@
 | `get_context` | 레이어드 리딩 — AGENTS.md 선두 3000자 + index.md + intent 키워드 겹침 순위로 wiki/raw 최대 5파일(파일당 ~4000자) 반환 |
 | `verify_before_tag` | 프로젝트 루트에서 `npm run verify` 스폰(timeout 120s) → `{ok, output_tail}` 반환. 실패 시 태그 금지 |
 
+> v3.1: 전 툴 behavior hints(`annotations`) — 패턴 출처: basic-memory의 전 툴 behavior hint
+> (progressive tool discovery — 모델이 툴을 호출해 보기 전에 동작을 알게 해 시행착오 토큰 절약).
+> `search_wiki`·`get_context` = `readOnlyHint: true`, `verify_before_tag` = `idempotentHint: true`(소스 미변경 시 동일 게이트 결과).
+
 ## 설치·등록·검증
 
 ```bash
