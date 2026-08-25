@@ -23,16 +23,24 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const HARNESS_ROOT = path.resolve(__dirname, "..");
 
 // SSOT: server version derives from root package.json (eliminates drift at every release).
-// Fail-soft: on any read/parse failure keep booting with fallback.
+// Fail-fast: unreadable/unparseable package.json or missing version throws — the server
+// must never boot with a silently substituted version (dead fallback removed in v3.2).
 const SERVER_VERSION = (() => {
+  const pkgPath = path.join(HARNESS_ROOT, "package.json");
+  let parsed;
   try {
-    return (
-      JSON.parse(fs.readFileSync(path.join(HARNESS_ROOT, "package.json"), "utf-8")).version ||
-      "3.1.0"
+    parsed = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
+  } catch (e) {
+    throw new Error(
+      `palank-domain: cannot resolve version from ${pkgPath} (${e.message}) — refusing to boot with unknown version`
     );
-  } catch {
-    return "3.1.0";
   }
+  if (!parsed.version || typeof parsed.version !== "string") {
+    throw new Error(
+      `palank-domain: cannot resolve version from ${pkgPath} ("version" missing or not a string) — refusing to boot with unknown version`
+    );
+  }
+  return parsed.version;
 })();
 
 const FILE_LIMIT = 4000; // per-file truncate

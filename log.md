@@ -31,3 +31,9 @@
 - 결정 12: 버전 SSOT 도입 — scripts/sync-version.js(마스터=root package.json, TARGETS 허용 목록: mcp/package.json, mcp/package-lock.json 양 version 필드, AGENTS.md H1, README.md H1, package.json description). log.md 역사와 wiki/raw 출처 라벨은 구조적 제외. scripts sync:version/check:version 신설, check:version verify 체인 편입. 1회 실행: mcp 3.1.0→3.2.0, lockfile 3.0.0→3.2.0 정렬(diff 4줄, churn 없음).
 - 문서: AGENTS.md lint 나열 5건 수정(validate-schema.js 누락분)+check:version 절 신설+scripts 레이아웃 주석 갱신(사용자 승인, 세션 중 수정 — 다음 세션부터 반영). explore/general 태스크 키의 의도적 참조 근거를 replication-checklist 3단계와 wiki/topics/guard-depth-version-ssot.md에 기록(explore 빌트인 resolve 실측 포함).
 - 잔여 리스크: mcp/server.js 폴백 상수 "3.1.0"(도달 불가 dead default), 캐시 잔해 packages/cgasgarth 빈 디렉터리(저장소 밖, 무해).
+
+## [2026-08-26] fix | v3.2 audit follow-up 2 — dead 폴백 상수 제거(fail-fast 전환)
+- 내용: mcp/server.js SERVER_VERSION IIFE의 도달 불가 폴백 상수 "3.1.0" 제거 — 루트 package.json read/parse 실패 또는 version 누락 시 명확한 Error를 throw해 조용한 오버라이트 부트 차단(fail-fast). scripts/sync-version.js 헤더 제외 목록에서 무효화된 server.js 불릿을 역사 주석으로 정리(TARGETS allow-list 5개 로직 무변경).
+- 근거: 사용자 배치 질의 확정(2026-08-26) — (1) 폴백 즉시 제거·fail-fast 전환 (2) dsa-* 에이전트 유지(플러그인 무조치) (3) 캐시 잔해는 사용자 수동 삭제 안내만(저장소 밖, 범위 외).
+- 테스트 영향: tests/ 전수 grep에서 "3.1.0"/"SERVER_VERSION" 단언 부재, "fallback" 1건은 force-delegation 파괴 명령 식별 폴백으로 무관 → 수정 없이 기존 25테스트 유지(실측 pass 25 / fail 0).
+- 남은 과제: dsa-* 유지 확정으로 추가 작업 없음. 캐시 잔해 packages/cgasgarth 빈 디렉터리는 사용자 수동 삭제 예정.

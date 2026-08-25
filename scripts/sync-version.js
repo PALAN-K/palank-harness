@@ -12,7 +12,8 @@
  *   - wiki/, raw/, index.md — prose mentions like "v3.1 신설" are provenance labels
  *   - code comments & skills/**— historical annotations
  *   - AGENTS.md section headers — "(v3.1 ...)" marks when a section was added
- *   - mcp/server.js fallback constant — dead-code default, root read always succeeds
+ *   - mcp/server.js — no version token since v3.2.x (dead fallback constant removed,
+ *     fail-fast read from root package.json at boot; nothing left to sync)
  *
  * Usage:
  *   node scripts/sync-version.js                      # apply fixes at repo root
