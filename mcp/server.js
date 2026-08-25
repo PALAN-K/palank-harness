@@ -21,6 +21,20 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const HARNESS_ROOT = path.resolve(__dirname, "..");
+
+// SSOT: server version derives from root package.json (eliminates drift at every release).
+// Fail-soft: on any read/parse failure keep booting with fallback.
+const SERVER_VERSION = (() => {
+  try {
+    return (
+      JSON.parse(fs.readFileSync(path.join(HARNESS_ROOT, "package.json"), "utf-8")).version ||
+      "3.1.0"
+    );
+  } catch {
+    return "3.1.0";
+  }
+})();
+
 const FILE_LIMIT = 4000; // per-file truncate
 const MAX_FILES = 5;
 
@@ -61,7 +75,7 @@ function scoreFile(relPath, content, kws) {
   return score;
 }
 
-const server = new Server({ name: "palank-domain", version: "3.0.0" }, { capabilities: { tools: {} } });
+const server = new Server({ name: "palank-domain", version: SERVER_VERSION }, { capabilities: { tools: {} } });
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
   tools: [
