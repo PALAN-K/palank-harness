@@ -1,0 +1,16 @@
+# Commit checklist — harness-gate (local nudge, CI is gate)
+# Every change that touches vault or harness must pass:
+
+# [ ] index.md + log.md updated together (if wiki/ changed) — SPEC.md:3
+# [ ] npm run lint — 0 errors (opencode.json + node --check)
+# [ ] node scripts/check_vault.js --strict . — 0 errors, 0 suspects (skeleton 0/0 pass)
+# [ ] npm test — 0 failures (or no tests yet)
+# [ ] Fingerprint drift clean — git diff --name-only <hash> HEAD -- <Monitored: paths> empty
+# [ ] No __pycache__ leak — npm pack --dry-run clean
+# [ ] AGENTS.md + SPEC.md in sync — AGENTS is constitution (how), SPEC is normative (why)
+
+# Message format:
+# type(scope): summary
+# - vault: index/log, Raw: citations, drift hash
+# - harness: opencode.json, skills, mcp, plugins, scripts
+# - docs: SPEC.md, README.md, PLAN.md

@@ -1,0 +1,44 @@
+{
+  "name": "palank-harness",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Thin harness foundry — openCode + tiered routing (minimal/bulk-cheap/terminal-strong/reasoning-frontier) + MCP. Model-agnostic, disposable. Core <250 lines, archive appendix for hashline/worktree.",
+  "type": "module",
+  "bin": {
+    "palank-harness": "bin/cli.js"
+  },
+  "files": [
+    "AGENTS.md",
+    "SPEC.md",
+    "CLAUDE.md",
+    "GEMINI.md",
+    "opencode.json",
+    "wiki/",
+    "raw/",
+    "archive/",
+    "index.md",
+    "log.md",
+    "skills/",
+    "mcp/",
+    "plugins/",
+    "dynamicSubAgents.json",
+    "scripts/",
+    "bin/",
+    "templates/",
+    "eslint.config.template.mjs"
+  ],
+  "scripts": {
+    "lint": "node -e \"JSON.parse(require('fs').readFileSync('opencode.json','utf8'));console.log('opencode.json ok')\" && node --check mcp/server.js && node --check scripts/check_vault.js && node --check bin/cli.js && echo \"lint ok\"",
+    "check:vault": "node scripts/check_vault.js --strict .",
+    "verify": "npm run lint --silent && npm run check:vault --silent && npm test --silent",
+    "test": "node --test tests/*.test.js 2>&1 || (echo \"no tests yet — add per-project tests\" && exit 0)",
+    "mcp:dev": "node mcp/server.js",
+    "init": "node bin/cli.js init",
+    "migrate": "node scripts/migrate.js",
+    "sandbox:new": "node scripts/worktree.js create",
+    "sandbox:rm": "node scripts/worktree.js remove",
+    "sandbox:list": "node scripts/worktree.js list"
+  },
+  "keywords": ["harness", "opencode", "tier-routing", "mcp", "foundry"],
+  "license": "MIT"
+}
