@@ -7,7 +7,7 @@ One line per page. Session reads this first, then pages.
 - [cache-placement](wiki/concepts/cache-placement.md) — 캐시 배치 프로토콜: stable prefix / late compaction / delegation=isolation(Aider·OpenHands 이식) (2026-08-25)
 
 ## topics
-(no pages yet)
+- [guard-depth-version-ssot](wiki/topics/guard-depth-version-ssot.md) — 2026-08-26 수리 라운드: bash Layer 1 완성·플러그인 npm 고정(@0.3.1)·링크 게이트·버전 SSOT, explore/general 태스크 키의 의도적 참조 (2026-08-26)
 
 ## references
-- [replication-guide](wiki/references/replication-guide.md) — v3.2 복제 체크리스트 요약: 0단계 출발지 자격(복제 금지)·7단계 절차·함정 6종 (2026-08-25)
+- [replication-guide](wiki/references/replication-guide.md) — v3.2 복제 체크리스트 요약: 0단계 출발지 자격(복제 금지)·7단계 절차·함정 7종 (2026-08-25)

@@ -13,7 +13,7 @@
 
 ## 0단계 — 출발지 자격 확인 (복제 전 필수)
 
-- [ ] `npm run verify` 전 게이트 PASS — lint + check:vault --strict + test + pack --dry-run
+- [ ] `npm run verify` 전 게이트 PASS — lint + check:vault --strict + test + check:version + pack --dry-run
 - [ ] `opencode debug config --print-logs` 출력에 "failed to load plugin" **없음**
       (P0 교훈: 플러그인 로더가 에러를 흡수해도 테스트는 녹색일 수 있다)
 - [ ] 수동 프로브 최소 1·2·3번 통과 이력 — 프로브 7종 목록은 log.md [2026-08-25] docs 엔트리
@@ -39,9 +39,18 @@
 
 1. relay baseURL — 이 프로젝트 전용 값 → 대상 환경 값
 2. model ID 4종 + small_model 재매핑
-3. 외부 plugin(cgasgarth/opencode-dynamic-subagents) 채용 재판단 — v3 코어 아님
+3. 외부 plugin 채용 재판단 — v3 코어 아님. **채용 시 npm 버전 고정 필수**
+   (현재: `opencode-dynamic-subagents@0.3.1`. 무버전 owner/repo spec은 조용히 관성이 된다 —
+   2026-08-26 실측: normal ≡ --pure 프로브, 빈 클론 캐시. 함정 목록 7번)
 4. mcp 상대경로 스폰(`node mcp/server.js`)의 cwd 런타임 확인
-- 선택: 무효 키 `write:"deny"` 제거(edit이 포괄 — v3.2에서는 유지 중)
+5. conductor.permission/task 맵 보존 — `edit:"deny"`+`bash:{"*":"deny"}`(Layer 1 완성),
+   task 키는 의도적 참조: `explore: allow`(빌트인 리서치 전용 서브에이전트 — Rule 5의
+   research-only 레인; Echo 게이트가 모든 Task 프롬프트에 보편 적용되므로 우회 레인이 될 수 없음.
+   실측: `opencode debug agent explore` resolve 확인, 2026-08-26) / `general: deny`(미래 버전의
+   범용 에이전트가 인터프리터 흐름 밖 build형 작업을 받지 못하게 하는 선제 가드, fail-closed 기본).
+   확대는 설정 변경 = log.md 감사 항목 동반.
+- 완료(2026-08-26): 무효 키 `write:"deny"` 제거 — 공식 Permissions 문서 실증상 `edit`이
+  write/patch를 포괄("edit — all file modifications (covers edit, write, patch)").
 
 ## 4단계 — 설치·재생성
 
@@ -59,6 +68,8 @@
 ## 6단계 — 검증
 
 - `npm run verify` PASS
+- `npm run check:version` — 라이브 버전 토큰(mcp manifests, AGENTS/README H1, description)이
+  루트 package.json 마스터와 동기됐는지 기계 검사(2026-08-26 신설; scripts/sync-version.js)
 - 수동 프로브(log.md [2026-08-25] docs 엔트리의 7종) 중 **최소 5종**, 특히:
   무마커 Task 차단(2번), conductor 직접 write 차단(4번), rm 차단(6번)
 
@@ -76,6 +87,8 @@
 4. Windows: 공백 경로(import.meta.url 기반 처리됨), PowerShell 5.1
 5. inventory 캐시(.opencode-inventory.json) 커밋 금지
 6. check_vault는 "drift 검증"이 아니다 — 해시 도달성만 확인(명칭 주의, P1-7)
+7. 무버전 owner/repo 플러그인 spec은 에러 없이 **관성**이 된다 — 2026-08-26 실측
+   (빈 클론 캐시 + normal≡--pure 프로브). npm `name@version` 고정만이 로드를 보증한다.
 
 ## 참조
 

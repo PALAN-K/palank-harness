@@ -11,7 +11,7 @@
 |-- skills/interpreter/    # diary -> schema -> optimal call (Echo-first)
 |-- skills/verify/         # mechanical gates: lint / vault / test / pack
 |-- mcp/                   # MCP servers — one per domain (palank-domain)
-|-- scripts/               # check_vault.js (vault linter), inventory.js (startup inventory as code)
+|-- scripts/               # check_vault.js (vault linter), inventory.js (inventory as code), validate-schema.js (Lock gate), sync-version.js (version SSOT)
 |-- plugins/               # force-delegation.js — runtime hard block (guard layer 2 of 3)
 `-- wiki/ + raw/ + index.md + log.md + tests/ + package.json   # vault + gates
 ```
@@ -35,10 +35,11 @@
 
 ## Verification
 
-- `npm run lint` — node --check on plugins/force-delegation.js, scripts/check_vault.js, scripts/inventory.js, mcp/server.js
-- `npm run check:vault` — scripts/check_vault.js --strict: every wiki page needs `> Raw:` into raw/, index parity, Vault-Base hash reachability
+- `npm run lint` — node --check on plugins/force-delegation.js, scripts/check_vault.js, scripts/inventory.js, scripts/validate-schema.js, mcp/server.js
+- `npm run check:vault` — scripts/check_vault.js --strict: every wiki page needs `> Raw:` into raw/, index parity, Vault-Base hash reachability, markdown link targets (index.md + wiki/**)
 - `npm test` — node:test suites in tests/
-- `npm run verify` — all of the above + `npm pack --dry-run` hygiene. Empty vault (0 pages, 0 rows) is a valid PASS skeleton.
+- `npm run check:version` — scripts/sync-version.js --check: live release tokens (mcp/package.json, mcp/package-lock.json, AGENTS.md H1, README.md H1, package.json description) derive from the root package.json master; drift exits 1. log.md history and wiki/raw provenance labels are excluded by design. Apply with `npm run sync:version`.
+- `npm run verify` — all of the above (`lint` + `check:vault` + `test` + `check:version`) + `npm pack --dry-run` hygiene. Empty vault (0 pages, 0 rows) is a valid PASS skeleton.
 
 ## Footnote
 

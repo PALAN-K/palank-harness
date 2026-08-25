@@ -25,13 +25,13 @@ v3.2 신설. palank-harness를 다른 프로젝트/머신으로 복제하는 표
 |---|---|---|
 | 1 | git 이력 포함 복제 | clone/bundle 권장 — Vault-Base 해시 도달성 유지 |
 | 2 | 자산 복사 | 리포 자산 + `~/.config/opencode/` 전역 자산 수동 이식; inventory·node_modules 제외 |
-| 3 | opencode.json 재지정 | relay baseURL · model ID 4종+small_model · 외부 plugin 재판단 · MCP cwd |
+| 3 | opencode.json 재지정 | relay baseURL · model ID 4종+small_model · 외부 plugin은 npm 버전 고정(`opencode-dynamic-subagents@0.3.1`) · MCP cwd |
 | 4 | 설치·재생성 | `cd mcp && npm install`, `npm run inventory` 재생성 |
 | 5 | 대상 프로젝트화 | name/description/engines 정비, 빈 볼트 재시드, index 재작성 |
 | 6 | 검증 | `npm run verify` + 수동 프로브 7종 중 최소 5종(2·4·6번 필수) |
 | 7 | 군 복제 | 첫 복제본 전 프로브 통과 후 확산 |
 
-## 함정 6종 (실측 기반)
+## 함정 7종 (실측 기반)
 
 1. git 없는 복제 → strict vault 적색(해시 미도달)
 2. `sc` 별칭 차단 ↔ Windows sc.exe 오탐 — 수용된 한계
@@ -39,11 +39,12 @@ v3.2 신설. palank-harness를 다른 프로젝트/머신으로 복제하는 표
 4. Windows 공백 경로(import.meta.url 처리)·PS 5.1
 5. inventory 캐시 커밋 금지
 6. check_vault는 drift 검증이 아니라 해시 도달성만 확인(P1-7)
+7. 무버전 owner/repo 플러그인 spec은 에러 없이 관성이 된다(2026-08-26 실측) — npm `name@version` 고정 필수
 
 ## 검증법
 
-- `npm run verify` = lint(node --check) + check:vault --strict(Raw 필수·index 패리티·해시 도달성)
-  + test + pack --dry-run 전체 통과.
+- `npm run verify` = lint(node --check) + check:vault --strict(Raw 필수·index 패리티·해시 도달성·링크 대상)
+  + test + check:version(버전 SSOT) + pack --dry-run 전체 통과.
 - 수동 프로브 7종 중 최소 5종 — 특히 무마커 Task 차단(2), conductor 직접 write 차단(4),
   rm 차단(6). 목록: log.md [2026-08-25] docs 엔트리.
 

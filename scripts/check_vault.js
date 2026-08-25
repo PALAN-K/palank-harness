@@ -5,6 +5,10 @@
  *   a) index parity  — wiki md file count (recursive) == index.md bullets
  *   b) raw citation  — EVERY wiki page requires "> Raw:" resolving into raw/
  *   c) hash reachability — "Vault-Base: git:<hash>" resolvable when vault is a git repo
+ *   d) markdown links — [text](path) targets must exist on vault surfaces
+ *     (index.md + wiki/**); scheme links (http/https/mailto...) and pure anchors (#)
+ *     are skipped; relative targets resolve against the vault ROOT by harness
+ *     convention (index.md bullets are root-relative).
  * Empty vault (0 pages, 0 rows) is a valid PASS skeleton.
  * Usage: node scripts/check_vault.js [--strict] [vaultDir=.]
  *
@@ -112,6 +116,31 @@ if (!fs.existsSync(path.join(vaultDir, ".git"))) {
     }
   }
   if (!baseFound) reports.push("info: hash reachability check skipped (no Vault-Base)");
+}
+
+// d) markdown link target existence — [text](path) on index.md + wiki pages.
+//    Skips scheme links (http/https/mailto/...) and anchors (#...); relative
+//    targets resolve against the vault ROOT (harness convention, not file-relative).
+{
+  const linkRe = /\[[^\]\n]*\]\(([^()\s]+)\)/g;
+  let linksChecked = 0;
+  for (const f of [indexPath, ...wikiFiles].filter((p) => fs.existsSync(p))) {
+    const rel = path.relative(vaultDir, f);
+    const content = fs.readFileSync(f, "utf-8");
+    for (const m of content.matchAll(linkRe)) {
+      const target = m[1];
+      if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(target)) continue; // scheme: http://, https://, mailto:, ...
+      if (target.startsWith("#")) continue; // pure in-page anchor
+      const clean = target.split("#")[0];
+      if (!clean) continue; // anchor-only variant after split
+      linksChecked++;
+      if (!fs.existsSync(path.resolve(vaultDir, clean))) {
+        report("error", `${rel}: markdown link target not found -> ${target}`);
+      }
+    }
+  }
+  if (linksChecked === 0) reports.push("info: markdown link check skipped (no relative links)");
+  else reports.push(`info: markdown link check ran (${linksChecked} relative links)`);
 }
 
 // summary

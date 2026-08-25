@@ -10,7 +10,9 @@
     "check:vault": "node scripts/check_vault.js --strict",
     "test": "node --test \"tests/*.test.js\"",
     "inventory": "node scripts/inventory.js --refresh",
-    "verify": "npm run lint && npm run check:vault && npm run test && npm pack --dry-run"
+    "sync:version": "node scripts/sync-version.js",
+    "check:version": "node scripts/sync-version.js --check",
+    "verify": "npm run lint && npm run check:vault && npm run test && npm run check:version && npm pack --dry-run"
   },
   "files": [
     "AGENTS.md",

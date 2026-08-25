@@ -22,3 +22,12 @@
 ## [2026-08-25] docs | v3.2 replication checklist 문서화 + engines 필드 신설
 - 복제 체크리스트 상세화: raw/notes/replication-checklist.md(원본 상세판) + wiki/references/replication-guide.md(요약, 볼트) — 0단계 출발지 자격(P0 사건 반영 복제 금지 조항)/1~7단계/함정 6종. package.json engines 신설: `"node": ">=22"` — 근거: node --test glob 인수 지원 v21.0.0(SEMVER-MAJOR, PR #47653; v21은 EOL 단기 Current라 최소 활성 LTS 라인 22 채택)+ESM("type": "module"), 실측 v24.11.0.
 - 수동 프로브 7종 번호 확정(이후 문서는 이 번호 참조): 1) `opencode debug config --print-logs`에 "failed to load plugin" 없음 2) 무마커 Task 프롬프트 차단(Echo 게이트 fail-closed) 3) `gate:echo-confirmed` 선언 Task 통과 4) conductor 직접 write/edit 차단 5) conductor bash 쓰기(Set-Content/리다이렉트/heredoc) 차단 6) 파괴 명령 rm/del/Remove-Item/ri 신원 불문 차단 7) `npm test` PASS(plugin-wiring.test.js 포함).
+
+## [2026-08-26] fix | v3.2 audit follow-up — guard depth, plugin pinning, link gate, version SSOT
+- 결정 8: bash Layer 1 완성 — conductor.permission에 `"bash": {"*":"deny"}` 추가(글로벌과 객체형 통일). 재프로브 실측: 해석 설정에 반영 확인. Layer 1이 이제 edit/write(포괄)/bash 전부 커버.
+- 결정 9: 외부 플러그인 유령 발견 → npm 고정·활성화. spec `cgasgarth/opencode-dynamic-subagents`는 관성임을 실측(normal ≡ --pure 프로브, 빈 클론 캐시 2026-08-22 잔해, node_modules 부재). 사용자 확정 하에 `opencode-dynamic-subagents@0.3.1`(npm 최신, SLSA provenance)로 교체 → 재프로브에서 dsa-* 서브에이전트 12개 생성, failed-to-load 부재. 함정 목록 7종으로 갱신("무버전 owner/repo spec은 조용히 관성이 된다").
+- 결정 10: write 키 제거 — 공식 Permissions 문서 실증 "`edit` covers edit/write/patch"(2026-08-25판). replication-checklist의 "유지 중" 표기 종결. _routing_note의 유령 4-tier(tier:minimal 등) 삭제 → SKILL.md Flow 8단계 실사용 3-tier 어휘와 정합.
+- 결정 11: check_vault 검사 d 신설 — `[text](path)` 대상 존재 검사(index.md+wiki/**; scheme/앵커 스킵, 상대경로는 저장소 루트 기준). 실패 분기 테스트 3종 추가(index-parity / hash-unreachable git 픽스처 / 끊긴 링크+정상 링크 병행 단언).
+- 결정 12: 버전 SSOT 도입 — scripts/sync-version.js(마스터=root package.json, TARGETS 허용 목록: mcp/package.json, mcp/package-lock.json 양 version 필드, AGENTS.md H1, README.md H1, package.json description). log.md 역사와 wiki/raw 출처 라벨은 구조적 제외. scripts sync:version/check:version 신설, check:version verify 체인 편입. 1회 실행: mcp 3.1.0→3.2.0, lockfile 3.0.0→3.2.0 정렬(diff 4줄, churn 없음).
+- 문서: AGENTS.md lint 나열 5건 수정(validate-schema.js 누락분)+check:version 절 신설+scripts 레이아웃 주석 갱신(사용자 승인, 세션 중 수정 — 다음 세션부터 반영). explore/general 태스크 키의 의도적 참조 근거를 replication-checklist 3단계와 wiki/topics/guard-depth-version-ssot.md에 기록(explore 빌트인 resolve 실측 포함).
+- 잔여 리스크: mcp/server.js 폴백 상수 "3.1.0"(도달 불가 dead default), 캐시 잔해 packages/cgasgarth 빈 디렉터리(저장소 밖, 무해).
