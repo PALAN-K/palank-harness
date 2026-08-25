@@ -34,6 +34,8 @@ description: >
 - **GC (event-based, No TTL)** — 시간 기반 삭제 금지. dependency/source change 시 `Status: Outdated — superseded by <new> (archived)` 블록 삽입. Full replace → `archive/YYYY-MM-DD/<path>`로 이동, never delete
 - **Pattern Harvest** — `log.md`에 2+ repeats(동일 이슈 2회 이상) → `scan:skills` 후보로 제안 (proposal-first, 자동 생성 금지)
 - Vault is stateful store — nothing ever deleted, superseded material moves through statuses: New → Update → Disputed → Outdated → archive
+- **Loop Guard** — verify 루프 최대 2회 재시도, `lint` 실패 시 즉시 중단 (무한 루프 방지, Thin 원칙)
+- **Quick Path** — 간단한 작업(`research`/`review`/문서 1-2줄, `intent≠build|migrate`)은 `npm run lint && npm run check:vault --strict` 통과로 `verify` 갈음 (0.88s vs 1.70s ~48% 절약, KV 캐시 유지 — AGENTS.md 50줄 캐시 히트)
 
 ## Preflight (태그 전 필수, 5줄)
 ```bash
