@@ -1,13 +1,4 @@
 node_modules/
-.sst/
-.opencode/
-.sessions/
-.worktrees/
-tmp/
+.opencode-inventory.json
 *.log
-.env
-.DS_Store
-wiki/__pycache__/
-raw/__pycache__/
-# Project-local operational skills (not synced, not published)
-.agents/skills/release-guardian/
+_archive/

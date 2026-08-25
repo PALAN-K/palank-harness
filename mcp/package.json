@@ -1,9 +1,9 @@
 {
   "name": "palank-mcp",
-  "version": "0.1.0",
+  "version": "3.0.0",
   "private": true,
   "type": "module",
-  "description": "MCP server stub for Palank Harness — project-extensible, optimized via @modelcontextprotocol/sdk",
+  "description": "Palank domain MCP server — search_wiki / get_context / verify_before_tag (real implementations)",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.0"
   },

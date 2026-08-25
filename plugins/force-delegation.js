@@ -1,12 +1,48 @@
 /**
- * Force-delegation hook — 2nd layer of 3-layer forced subagent guard
+ * force-delegation hook — layer 2 of the 3-layer forced-subagent guard (palank-harness v3)
  * Layer 1: opencode.json permission (edit/write deny on conductor) — prompt-level
  * Layer 2: this hook — runtime hard block, model-agnostic (even open-weight that ignores prompt)
  * Layer 3: AGENTS.md front-loaded prompt — few-shot examples
  *
- * Blocks any direct write/edit/bash-redirect from conductor, forces Task delegation.
+ * v3 changes vs v2 (_archive/plugins/force-delegation.js @ git:b14f1bb):
+ *   - matcher exported for tests: isBlocked(command) (+ default handler)
+ *   - PowerShell write-cmdlet coverage added:
+ *     Set-Content / Add-Content / Out-File / New-Item -ItemType File /
+ *     [System.IO.File]::WriteAllText|WriteAllLines|AppendAllText|WriteAllBytes /
+ *     [IO.File]::* / node -e "...fs write APIs..."
+ *
+ * Blocks any direct write/edit/bash-write from conductor, forces Task delegation.
  */
 
+// --- Unix / classic shell patterns (kept from v2) ---
+const UNIX_PATTERNS = [
+  /(^|\s)(>|>>|tee\s|sed\s+-i|heredoc|python\s+-c\s+.*open\(.*\.write)/,
+];
+
+// --- PowerShell write-cmdlet patterns (v3) ---
+const POWERSHELL_PATTERNS = [
+  /\bSet-Content\b/i,
+  /\bAdd-Content\b/i,
+  /\bOut-File\b/i,
+  /\[System\.IO\.File\]::(?:WriteAllText|WriteAllLines|AppendAllText|WriteAllBytes)\b/i,
+  /\[IO\.File\]::/i,
+  // node -e followed by an fs write-family API anywhere in the script body
+  /\bnode\s+-e\b[\s\S]*?\b(?:writeFile|appendFile|createWriteStream)\w*/i,
+];
+
+/**
+ * True when a shell command would mutate the filesystem via redirect,
+ * Unix classic tools, or PowerShell write cmdlets. Exported for tests.
+ */
+export function isBlocked(command) {
+  const cmd = String(command ?? "");
+  if (!cmd) return false;
+  // New-Item + -ItemType File can appear in any argument order
+  if (/\bNew-Item\b/i.test(cmd) && /-ItemType\s+File\b/i.test(cmd)) return true;
+  return [...UNIX_PATTERNS, ...POWERSHELL_PATTERNS].some((re) => re.test(cmd));
+}
+
+/** Default plugin entry — opencode calls setup({ on }). */
 export default async function setup({ on }) {
   on("tool.execute.before", async (input, ctx) => {
     const agent = ctx?.agent?.id || ctx?.agent || "";
@@ -17,16 +53,15 @@ export default async function setup({ on }) {
     // Block direct file mutation
     if (["write", "edit", "patch"].includes(tool)) {
       throw new Error(
-        `Blocked: conductor cannot use '${tool}' directly. Use Task tool with subagent_type="interpreter" or "verify" instead. See AGENTS.md:1.`
+        `Blocked: conductor cannot use '${tool}' directly. Use Task tool with subagent_type="interpreter" or "verify" instead. See AGENTS.md Rules 1/5.`
       );
     }
-    // Block bash redirects that would write files via shell
+    // Block bash/shell commands that would write files
     if (tool === "bash" || tool === "shell") {
       const cmd = (input?.args?.command || input?.input || "").toString();
-      const redirectRe = /(^|\s)(>|>>|tee\s|sed\s+-i|heredoc|python\s+-c\s+.*open\(.*\.write)/;
-      if (redirectRe.test(cmd)) {
+      if (isBlocked(cmd)) {
         throw new Error(
-          `Blocked: bash redirect detected. Conductor must not write via shell. Use Task→interpreter instead. Command: ${cmd.slice(0, 80)}`
+          `Blocked: shell write detected. Conductor must not write via shell. Use Task->interpreter instead. Command: ${cmd.slice(0, 80)}`
         );
       }
     }

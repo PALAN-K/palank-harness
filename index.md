@@ -1,14 +1,12 @@
-# Harness Knowledge Index
+# Index — palank-harness v3 knowledge catalog
 
-Catalog for 006 palank-harness — harness knowledge vault (static encyclopedia, Karpathy strategy).
-
-> Foundry is disposable, knowledge is asset. Every wiki page has exactly 1 line here.
+One line per page. Session reads this first, then pages.
 
 ## concepts
-- [thin-foundry](wiki/concepts/thin-foundry.md) — Thin Foundry — why thin, why disposable (2026-08-25)
+- [echo-first-interpreter](wiki/concepts/echo-first-interpreter.md) — Echo 게이트가 위임 앞을 막는 투명래퍼 인터프리터 재설계(소유자 6대 철학, v2→v3 변경) (2026-08-25)
 
 ## topics
-- (no pages yet)
+(no pages yet)
 
 ## references
-- (no pages yet)
+(no pages yet)

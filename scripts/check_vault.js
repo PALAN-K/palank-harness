@@ -1,9 +1,15 @@
 #!/usr/bin/env node
 /**
- * check_vault.js — harness-native mechanical verification (brand 0)
- * Replaces check_evidence.py — pure Node, ESM, no python.
- * 3 checks: index parity / raw citation / drift
+ * check_vault.js — harness-native mechanical vault verification (v3)
+ * Pure Node stdlib, ESM. Checks:
+ *   a) index parity  — wiki md file count (recursive) == index.md bullets
+ *   b) raw citation  — EVERY wiki page requires "> Raw:" resolving into raw/
+ *   c) drift         — "Vault-Base: git:<hash>" resolvable when vault is a git repo
+ * Empty vault (0 pages, 0 rows) is a valid PASS skeleton.
  * Usage: node scripts/check_vault.js [--strict] [vaultDir=.]
+ *
+ * v3 port of _archive/scripts/check_vault.js @ git:b14f1bb — archive paths removed,
+ * "> Raw:" now mandatory, drift check skipped outside a git repo (hermetic tests).
  */
 import fs from "fs";
 import path from "path";
@@ -11,8 +17,15 @@ import { spawnSync } from "child_process";
 
 const args = process.argv.slice(2);
 const strict = args.includes("--strict");
-const vaultArg = args.find(a => !a.startsWith("-")) || ".";
+const vaultArg = args.find((a) => !a.startsWith("-")) || ".";
 const vaultDir = path.resolve(vaultArg);
+
+let errors = 0;
+const reports = [];
+function report(level, msg) {
+  reports.push(`${level}: ${msg}`);
+  if (level === "error") errors++;
+}
 
 function walk(dir, out = []) {
   if (!fs.existsSync(dir)) return out;
@@ -24,27 +37,14 @@ function walk(dir, out = []) {
   return out;
 }
 
-let errors = 0, suspects = 0, unreferenced = 0;
-const reports = [];
-
-function report(level, msg) {
-  reports.push(`${level}: ${msg}`);
-  if (level === "error") errors++;
-  if (level === "suspect") suspects++;
-  if (level === "unreferenced") unreferenced++;
-}
-
 // a) index.md parity: wiki/**/*.md vs index.md bullets
 const wikiDir = path.join(vaultDir, "wiki");
-const wikiFiles = walk(wikiDir).filter(f => f.endsWith(".md") && path.basename(f) !== ".gitkeep");
+const wikiFiles = walk(wikiDir).filter((f) => f.endsWith(".md") && path.basename(f) !== ".gitkeep");
 const indexPath = path.join(vaultDir, "index.md");
 let indexBullets = 0;
-let indexContent = "";
 if (fs.existsSync(indexPath)) {
-  indexContent = fs.readFileSync(indexPath, "utf-8");
-  const lines = indexContent.split("\n");
   let inSection = false;
-  for (const line of lines) {
+  for (const line of fs.readFileSync(indexPath, "utf-8").split("\n")) {
     if (line.startsWith("## ")) inSection = true;
     if (inSection && line.startsWith("- ")) {
       if (line.includes("(no pages yet)")) continue;
@@ -55,7 +55,7 @@ if (fs.existsSync(indexPath)) {
   report("error", "index.md missing");
 }
 
-// skeleton is not error — wiki 0 && index 0 → PASS (empty vault is valid initial state)
+// skeleton is not error — wiki 0 && index 0 -> PASS (empty vault is valid initial state)
 if (wikiFiles.length === 0 && indexBullets === 0) {
   reports.push("info: skeleton vault — 0 pages, 0 index rows (parity ok)");
 } else if (wikiFiles.length !== indexBullets) {
@@ -64,53 +64,60 @@ if (wikiFiles.length === 0 && indexBullets === 0) {
   reports.push(`info: index parity ok (${wikiFiles.length} pages)`);
 }
 
-// b) Raw citation check: each wiki file with "> Raw:" or "> Source:" must have raw/ target
+// b) raw citation check — MANDATORY in v3: every page needs "> Raw:" into raw/
 if (wikiFiles.length === 0) {
   reports.push("info: raw citation check skipped (no pages yet)");
 } else {
+  let citeErrors = 0;
   for (const f of wikiFiles) {
+    const rel = path.relative(vaultDir, f);
     const content = fs.readFileSync(f, "utf-8");
-    if (content.includes("> Raw:") || content.includes("> Source:")) {
-      const matches = [...content.matchAll(/>\s*(Raw|Source):\s*`?([^`\s\n]+)`?/g)];
-      for (const m of matches) {
-        const rawRef = m[2].replace(/[,;\]\)]+$/, "");
-        const rawPath = path.join(vaultDir, rawRef);
-        // normalize raw/ prefix check
-        if (rawRef.startsWith("raw/")) {
-          if (!fs.existsSync(rawPath)) {
-            report("error", `raw citation missing: ${path.relative(vaultDir, f)} → ${rawRef} not found`);
-          }
-        }
+    const cites = [...content.matchAll(/>\s*Raw:\s*`?([^`\s\n]+)`?/g)];
+    if (cites.length === 0) {
+      report("error", `${rel}: missing required '> Raw:' citation`);
+      citeErrors++;
+      continue;
+    }
+    for (const c of cites) {
+      const ref = c[1].replace(/[,;\]\)]+$/, "");
+      if (!ref.startsWith("raw/")) {
+        report("error", `${rel}: Raw citation must point into raw/ -> ${ref}`);
+        citeErrors++;
+      } else if (!fs.existsSync(path.join(vaultDir, ref))) {
+        report("error", `${rel}: raw target not found -> ${ref}`);
+        citeErrors++;
       }
     }
   }
-  if (errors === 0) reports.push("info: raw citation check ok");
+  if (citeErrors === 0) reports.push("info: raw citation check ok");
 }
 
-// c) Drift check: Vault-Base: git:<hash>
-const allCheckFiles = [indexPath, ...wikiFiles].filter(p => fs.existsSync(p));
-const driftRe = /Vault-Base:\s*git:([a-f0-9]{7,40})/g;
-let driftFound = false;
-for (const f of allCheckFiles) {
-  const content = fs.readFileSync(f, "utf-8");
-  let m;
-  while ((m = driftRe.exec(content)) !== null) {
-    driftFound = true;
-    const hash = m[1];
-    const res = spawnSync("git", ["cat-file", "-e", hash], { stdio: "ignore" });
-    if (res.status !== 0) {
-      report("error", `drift hash unreachable: ${hash} in ${path.relative(vaultDir, f)} (fetch-depth:0 필요)`);
-    } else {
-      reports.push(`info: drift hash ok: ${hash}`);
+// c) drift check: Vault-Base: git:<hash> — only meaningful inside a git repo
+if (!fs.existsSync(path.join(vaultDir, ".git"))) {
+  reports.push("info: drift check skipped (not a git repo)");
+} else {
+  const driftRe = /Vault-Base:\s*git:([a-f0-9]{7,40})/g;
+  let driftFound = false;
+  for (const f of [indexPath, ...wikiFiles].filter((p) => fs.existsSync(p))) {
+    const content = fs.readFileSync(f, "utf-8");
+    let m;
+    while ((m = driftRe.exec(content)) !== null) {
+      driftFound = true;
+      const res = spawnSync("git", ["cat-file", "-e", m[1]], { cwd: vaultDir, stdio: "ignore" });
+      if (res.status !== 0) {
+        report("error", `drift hash unreachable: ${m[1]} in ${path.relative(vaultDir, f)}`);
+      } else {
+        reports.push(`info: drift hash ok: ${m[1]}`);
+      }
     }
   }
+  if (!driftFound) reports.push("info: drift check skipped (no Vault-Base)");
 }
-if (!driftFound) reports.push("info: drift check skipped (no Vault-Base)");
 
 // summary
-const summary = `check_vault: ${errors} errors, ${suspects} suspects, ${unreferenced} unreferenced — ${wikiFiles.length} wiki files, ${indexBullets} index rows`;
-reports.push(summary);
+reports.push(
+  `check_vault: ${errors} errors — ${wikiFiles.length} wiki files, ${indexBullets} index rows${strict ? " [strict]" : ""}`
+);
 for (const r of reports) console.log(r);
 
-if (strict && (errors > 0 || suspects > 0)) process.exit(1);
-if (errors > 0 && strict) process.exit(1);
+if (strict && errors > 0) process.exit(1);
