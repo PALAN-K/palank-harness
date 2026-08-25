@@ -4,7 +4,7 @@
  * Pure Node stdlib, ESM. Checks:
  *   a) index parity  — wiki md file count (recursive) == index.md bullets
  *   b) raw citation  — EVERY wiki page requires "> Raw:" resolving into raw/
- *   c) drift         — "Vault-Base: git:<hash>" resolvable when vault is a git repo
+ *   c) hash reachability — "Vault-Base: git:<hash>" resolvable when vault is a git repo
  * Empty vault (0 pages, 0 rows) is a valid PASS skeleton.
  * Usage: node scripts/check_vault.js [--strict] [vaultDir=.]
  *
@@ -92,26 +92,26 @@ if (wikiFiles.length === 0) {
   if (citeErrors === 0) reports.push("info: raw citation check ok");
 }
 
-// c) drift check: Vault-Base: git:<hash> — only meaningful inside a git repo
+// c) Vault-Base hash reachability — only meaningful inside a git repo
 if (!fs.existsSync(path.join(vaultDir, ".git"))) {
-  reports.push("info: drift check skipped (not a git repo)");
+  reports.push("info: hash reachability check skipped (not a git repo)");
 } else {
-  const driftRe = /Vault-Base:\s*git:([a-f0-9]{7,40})/g;
-  let driftFound = false;
+  const baseRe = /Vault-Base:\s*git:([a-f0-9]{7,40})/g;
+  let baseFound = false;
   for (const f of [indexPath, ...wikiFiles].filter((p) => fs.existsSync(p))) {
     const content = fs.readFileSync(f, "utf-8");
     let m;
-    while ((m = driftRe.exec(content)) !== null) {
-      driftFound = true;
+    while ((m = baseRe.exec(content)) !== null) {
+      baseFound = true;
       const res = spawnSync("git", ["cat-file", "-e", m[1]], { cwd: vaultDir, stdio: "ignore" });
       if (res.status !== 0) {
-        report("error", `drift hash unreachable: ${m[1]} in ${path.relative(vaultDir, f)}`);
+        report("error", `hash unreachable: ${m[1]} in ${path.relative(vaultDir, f)}`);
       } else {
-        reports.push(`info: drift hash ok: ${m[1]}`);
+        reports.push(`info: hash reachable: ${m[1]}`);
       }
     }
   }
-  if (!driftFound) reports.push("info: drift check skipped (no Vault-Base)");
+  if (!baseFound) reports.push("info: hash reachability check skipped (no Vault-Base)");
 }
 
 // summary

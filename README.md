@@ -1,4 +1,4 @@
-# palank-harness v3 — Echo-first interpreter on opencode
+# palank-harness v3.2 — Echo-first interpreter on opencode
 
 opencode 위에 얹는 투명래퍼 인터프리터 하네스. 사용자가 일기처럼 말해도
 **Listen → Echo → Interview → Lock → 최적 opencode 호출**로 해석·위임한다.

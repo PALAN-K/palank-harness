@@ -46,3 +46,41 @@ test("allows reads and ordinary commands", () => {
     assert.equal(isBlocked(cmd), false, `should allow: ${cmd}`);
   }
 });
+
+test("blocks destructive + space-less redirect + heredoc + PS aliases (v3.2 P1-2)", () => {
+  for (const cmd of [
+    "rm -rf build",
+    "del old.txt",
+    "Remove-Item -Path old.txt",
+    "ri app.log",
+    "echo hi >out.txt", // space-less redirect
+    "echo hi >>out.log",
+    "git status 2>err.log",
+    "cat <<EOF", // heredoc syntax
+    "node -e \"console.log($x = @'herestring'@)\"", // PS here-string opener
+    "sc -Path a.txt -Value x", // Set-Content alias
+    "ac log.txt extra", // Add-Content alias
+    "ni new.txt", // New-Item alias
+    "mi a.txt backup.txt", // Move-Item alias
+  ]) {
+    assert.equal(isBlocked(cmd), true, `should block: ${cmd}`);
+  }
+});
+
+test("stream merges and null sinks stay allowed (over-blocking guard)", () => {
+  for (const cmd of [
+    "git status 2>&1",
+    "Get-ChildItem missing-dir 2>$null",
+    "Write-Host done >$null",
+    'node -e "[1,2].map(n => n * 2)"', // arrow fn must not trip redirect regex
+  ]) {
+    assert.equal(isBlocked(cmd), false, `should allow: ${cmd}`);
+  }
+});
+
+test("isDestructive marks rm/del/Remove-Item/ri family (universal fallback)", async () => {
+  const { isDestructive } = await import("../plugins/force-delegation.js");
+  assert.equal(isDestructive("rm -rf build"), true);
+  assert.equal(isDestructive("Remove-Item -Recurse x"), true);
+  assert.equal(isDestructive("git status"), false);
+});

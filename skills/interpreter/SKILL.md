@@ -26,7 +26,9 @@ description: >
    질문 선정 우선순위 = **Impact × Uncertainty 스캔**.
    배치 2-5, **max 1라운드**. confidence 숫자는 어디에도 등장 금지.
 4. **Lock** — 스키마 `{intent, files, schema, opencode_call, model, mcp, echo:{summary, confirmed}}`.
-   `echo.confirmed !== true`면 Lock 불가(타입 수준 거부).
+   `echo.confirmed !== true`면 Lock 불가(타입 수준 거부). **dispatch 전 검증기 실행 필수**:
+   `node scripts/validate-schema.js '<json>'` (stdlib 검증기, exit 0=유효) — 무효 스키마는
+   dispatch 단계로 진행 불가. v3.2부터 이 거부는 문장이 아니라 실코드다.
 5. **Classify** — `research|brainstorm` vs `build|fix|migrate|review`.
 6. **Read (build 계열만)** — 3-layer: AGENTS.md(헌법) → index.md(카탈로그) → wiki/raw
    (MCP get_context, 5파일 제한).
@@ -50,6 +52,16 @@ description: >
 - Never pass raw diary to builder — 항상 files+schema+opencode_call+echo로 위임.
 - Interview는 누락 필드만, optional은 기본값 유지, max 1라운드.
 - research-only 조사 질의는 Echo 면제 + 직접 답변(위임 아님).
+
+## 게이트 마커의 본질적 한계 (v3.2 명시)
+
+`gate:echo-confirmed` / `gate:research-exempt` 마커는 모델의 **자체선언**이며, 실제 사용자 확인
+이벤트와 자동 결합되지 않는다 — 마커를 쓰면 확인이 "있었다"고 주장할 뿐, 그 진위를 시스템이
+보증하지 못한다(본질적 한계; 확인 이벤트의 암호적 증명 없한 한 제거 불가). 따라서 현재 강제선은
+게이트웨이의 **일관성 검사**까지다: plugins/force-delegation.js가 마커 미선언 Task를 fail-closed로
+차단하므로 "선언 없는 위임"은 불가능하지만, "거짓 선언"은 프롬프트 규율(Rule 4)과 세션 감사
+(log.md)에 의존한다. Echo 요약은 항상 사용자 눈에 보이는 메시지로 제시된다 — 위조 여부의 1차
+검증자는 사용자다.
 
 ## References
 
