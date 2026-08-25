@@ -1,0 +1,53 @@
+# Replication Guide
+
+Vault-Base: git:423ff5d3ffeed29a7c85339d36831913a0d70471
+
+> Raw: raw/notes/replication-checklist.md
+
+## 요약
+
+v3.2 신설. palank-harness를 다른 프로젝트/머신으로 복제하는 표준 절차.
+**출발지 자격(0단계)을 갖추지 못한 복제는 금지**다 — "green tests, dead guard"(P0)처럼
+테스트가 녹색이어도 가드가 죽었으면 그 결함까지 복제된다.
+
+## 복제 금지 조건 (0단계)
+
+아래 중 하나라도 충족되면 복제 금지:
+
+- `npm run verify` 미통과
+- `opencode debug config --print-logs`에 "failed to load plugin" 존재
+- 수동 프로브 1·2·3번(배선 확인·무마커 Task 차단·마커 Task 통과) 통과 이력 없음
+  — 목록: log.md [2026-08-25] docs 엔트리
+
+## 7단계 요약
+
+| 단계 | 이름 | 핵심 |
+|---|---|---|
+| 1 | git 이력 포함 복제 | clone/bundle 권장 — Vault-Base 해시 도달성 유지 |
+| 2 | 자산 복사 | 리포 자산 + `~/.config/opencode/` 전역 자산 수동 이식; inventory·node_modules 제외 |
+| 3 | opencode.json 재지정 | relay baseURL · model ID 4종+small_model · 외부 plugin 재판단 · MCP cwd |
+| 4 | 설치·재생성 | `cd mcp && npm install`, `npm run inventory` 재생성 |
+| 5 | 대상 프로젝트화 | name/description/engines 정비, 빈 볼트 재시드, index 재작성 |
+| 6 | 검증 | `npm run verify` + 수동 프로브 7종 중 최소 5종(2·4·6번 필수) |
+| 7 | 군 복제 | 첫 복제본 전 프로브 통과 후 확산 |
+
+## 함정 6종 (실측 기반)
+
+1. git 없는 복제 → strict vault 적색(해시 미도달)
+2. `sc` 별칭 차단 ↔ Windows sc.exe 오탐 — 수용된 한계
+3. Node 버전 — node --test glob(v21+)·ESM, engines 참조, 실측 v24
+4. Windows 공백 경로(import.meta.url 처리)·PS 5.1
+5. inventory 캐시 커밋 금지
+6. check_vault는 drift 검증이 아니라 해시 도달성만 확인(P1-7)
+
+## 검증법
+
+- `npm run verify` = lint(node --check) + check:vault --strict(Raw 필수·index 패리티·해시 도달성)
+  + test + pack --dry-run 전체 통과.
+- 수동 프로브 7종 중 최소 5종 — 특히 무마커 Task 차단(2), conductor 직접 write 차단(4),
+  rm 차단(6). 목록: log.md [2026-08-25] docs 엔트리.
+
+## 참조
+
+- `raw/notes/replication-checklist.md` — 원본 상세판
+- `log.md` — P0 사건과 수동 프로브 7종

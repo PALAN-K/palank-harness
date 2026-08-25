@@ -3,6 +3,7 @@
   "version": "3.2.0",
   "private": true,
   "type": "module",
+  "engines": { "node": ">=22" },
   "description": "palank-harness v3.2 — echo-first transparent-wrapper interpreter on opencode",
   "scripts": {
     "lint": "node --check plugins/force-delegation.js && node --check scripts/check_vault.js && node --check scripts/inventory.js && node --check scripts/validate-schema.js && node --check mcp/server.js",

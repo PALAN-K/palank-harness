@@ -10,4 +10,4 @@ One line per page. Session reads this first, then pages.
 (no pages yet)
 
 ## references
-(no pages yet)
+- [replication-guide](wiki/references/replication-guide.md) — v3.2 복제 체크리스트 요약: 0단계 출발지 자격(복제 금지)·7단계 절차·함정 6종 (2026-08-25)
