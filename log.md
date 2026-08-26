@@ -37,3 +37,8 @@
 - 근거: 사용자 배치 질의 확정(2026-08-26) — (1) 폴백 즉시 제거·fail-fast 전환 (2) dsa-* 에이전트 유지(플러그인 무조치) (3) 캐시 잔해는 사용자 수동 삭제 안내만(저장소 밖, 범위 외).
 - 테스트 영향: tests/ 전수 grep에서 "3.1.0"/"SERVER_VERSION" 단언 부재, "fallback" 1건은 force-delegation 파괴 명령 식별 폴백으로 무관 → 수정 없이 기존 25테스트 유지(실측 pass 25 / fail 0).
 - 남은 과제: dsa-* 유지 확정으로 추가 작업 없음. 캐시 잔해 packages/cgasgarth 빈 디렉터리는 사용자 수동 삭제 예정.
+
+## [2026-08-26] chore | publishing identity — MIT license, package metadata, tarball completeness
+- 내용: LICENSE 신설(표준 MIT, Copyright (c) 2026 PALAN-K) + package.json 메타 3필드(`"license": "MIT"`, `"repository": "github:PALAN-K/palank-harness"`, keywords 6종 — opencode/harness/interpreter/ai-agents/llm/developer-tools) + files 허용목록에 opencode.json·tests/ 추가(tarball 완전성 — 기존 목록엔 머신 값과 테스트가 빠져 있었다) + README 사전 요구사항에 LLM 제공자 접속 수단 항목 신설(relay 프록시 기본값 → 이식 시 자체 엔드포인트 교체 경고).
+- 결정 13: private:true 유지 — 상품화 정체성(MIT·메타·tarball 완비)만 선제 정비하고 npm 게시 여부는 별도 결정으로 유보.
+- 검증: check:version 0 drift + npm run verify exit 0 + npm pack --dry-run에서 opencode.json·tests/*.test.js 포함 확인.

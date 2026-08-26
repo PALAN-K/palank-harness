@@ -14,6 +14,9 @@
 
 - **opencode CLI** — 인터프리터 실행기이자 플러그인 로더.
   프로브: `opencode debug config --print-logs`
+- **LLM 제공자 접속 수단** — `opencode.json`의 relay baseURL·모델 ID에 대응하는
+  계정/API 키. 기본값은 프로젝트 전용 프록시이므로 이식 시 반드시 자신의
+  엔드포인트로 교체할 것(업데이트 절의 보호 경로 참조).
 - **Node >=22** — `package.json` `engines.node`. 근거: `npm test`가
   `node --test "tests/*.test.js"` 처럼 glob 인수를 지정하는 node --test(v21+ 도입)를 쓰고,
   ESM(`"type": "module"`)이다. 실측은 v24.
