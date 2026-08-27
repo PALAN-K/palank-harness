@@ -42,3 +42,10 @@
 - 내용: LICENSE 신설(표준 MIT, Copyright (c) 2026 PALAN-K) + package.json 메타 3필드(`"license": "MIT"`, `"repository": "github:PALAN-K/palank-harness"`, keywords 6종 — opencode/harness/interpreter/ai-agents/llm/developer-tools) + files 허용목록에 opencode.json·tests/ 추가(tarball 완전성 — 기존 목록엔 머신 값과 테스트가 빠져 있었다) + README 사전 요구사항에 LLM 제공자 접속 수단 항목 신설(relay 프록시 기본값 → 이식 시 자체 엔드포인트 교체 경고).
 - 결정 13: private:true 유지 — 상품화 정체성(MIT·메타·tarball 완비)만 선제 정비하고 npm 게시 여부는 별도 결정으로 유보.
 - 검증: check:version 0 drift + npm run verify exit 0 + npm pack --dry-run에서 opencode.json·tests/*.test.js 포함 확인.
+
+## [2026-08-27] chore | refresh inventory + verify PASS (dual vault N/A) [verify PASS]
+- inventory 갱신 — `npm run inventory --refresh` 재실행(006: 2026-08-27T08:41:40Z, 008: 2026-08-27T08:42:14Z) — `.opencode-inventory.json`은 gitignore 유지로 미커밋.
+- verify 체인 확인 — `verify`는 이미 `lint && check:vault && test && check:version && pack` 정렬 완료(2026-08-26 SSOT), drift 0 유지.
+- vault 단일화 유지 — 006은 canonical `wiki/`+`raw/`+`index.md` 단일 vault 체제이므로 `.wiki` 이중 vault 처리 해당 없음(008만 archive).
+- raw/data — 006은 `raw/data` 미사용으로 `.gitkeep` 불필요.
+- 검증: `npm run verify` PASS — lint/vault/test/version/pack 전 통과(tarball 32 files, 52.7 kB), `sync-version --check` 0 drift.
