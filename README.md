@@ -24,6 +24,12 @@
 
 ## 설치 (새 프로젝트 이식)
 
+> **금지 — thin 설치 원칙 (모든 AI 필수 준수, AGENTS.md 헌법 참조)**
+> - `opencode init`, `npx harness-bootstrap`, `.opencode/agent/*.md` 수동 생성 **절대 금지** — thin 설치는 `006-palank-harness`에서 **파일 복사**만으로 수행: `AGENTS.md`, `opencode.json`, `scripts/`, `plugins/`, `skills/`, `mcp/` → 대상 repo 루트로 `cp -a`. `.opencode/` 디렉터리 자체는 생성 금지(런타임 산출물 아님).
+> - Windows UNC(`\\wsl.localhost\Ubuntu\home\...`)로는 읽기만, 쓰기는 WSL `~/projects/<repo>` Linux 절대경로로만.
+> - 전역 오염 시 즉시 삭제: `python3 -c "import shutil,pathlib; shutil.rmtree(pathlib.Path('.opencode'))"` → `npm run inventory --refresh`로 3 agents 복구 확인.
+> - 위반은 `npm run verify`의 `check_vault --strict`(e항) + `inventory --strict`가 기계적으로 FAIL 차단 (사람이 아닌 기계가 검증).
+
 한 줄 요약:
 
 > git 이력 포함 복제 → `opencode.json` 머신 값 교체(relay URL·모델 ID) →

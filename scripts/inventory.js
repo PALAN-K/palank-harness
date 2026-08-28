@@ -4,8 +4,9 @@
  * Replaces the v2 prose spec (_archive/scripts/optional/interpreter-wrapper.md @ b14f1bb).
  * Every run discovers the LIVE opencode agents/tools; static mapping tables are forbidden.
  * Cache: .opencode-inventory.json (24h validity).
- * CLI: node scripts/inventory.js [--refresh]   (npm run inventory = --refresh)
+ * CLI: node scripts/inventory.js [--refresh] [--strict]   (npm run inventory = --refresh)
  * Pure Node stdlib. Discovery is best-effort — parse failures are tolerated.
+ * --strict: forbidden .opencode/agent 오염이 감지되면 exit 1 (check_vault와 동일한 pit-of-success 게이트).
  */
 import fs from "fs";
 import os from "os";
@@ -164,6 +165,31 @@ function unavailable() {
 function emit(inv) {
   fs.writeFileSync(CACHE_PATH, JSON.stringify(inv, null, 2));
   console.log(JSON.stringify(inv, null, 2));
+  // e) fail-closed 오염 경고 — thin 3 agents 외 forbidden이 filesystem glob으로 유입되면 경고
+  const FORBIDDEN = new Set(["harness", "reviewer", "researcher", "build", "plan"]);
+  const ALLOWED = new Set(["conductor", "interpreter", "verify"]);
+  const polluted = (inv.agents || []).filter(
+    (a) => FORBIDDEN.has(a.name) && String(a.source || "").includes("filesystem glob")
+  );
+  if (polluted.length > 0) {
+    const names = polluted.map((a) => a.name).join(", ");
+    console.error(
+      `WARNING: forbidden .opencode/agent detected [${names}] — thin harness는 3 agents(conductor/interpreter/verify)만 사용합니다. 전역 harness-bootstrap 오염으로 추정: python3 -c "import shutil,pathlib; shutil.rmtree(pathlib.Path('.opencode'))" 로 정리 후 npm run inventory --refresh (AGENTS.md 금지 절 참조).`
+    );
+    if (process.argv.includes("--strict")) process.exit(1);
+  }
+  // .opencode/agent 자체가 존재하면 경고 (agents에 안 잡혀도)
+  try {
+    const legacyAgentDir = path.join(ROOT, ".opencode", "agent");
+    if (fs.existsSync(legacyAgentDir)) {
+      const leftover = fs.readdirSync(legacyAgentDir).filter((f) => f.endsWith(".md"));
+      if (leftover.length > 0 && polluted.length === 0) {
+        console.error(
+          `WARNING: .opencode/agent/*.md still exists [${leftover.join(", ")}] — inventory에서는 미집계이나 vault 린터가 FAIL 처리합니다. 삭제 요망.`
+        );
+      }
+    }
+  } catch {}
 }
 
 // --- main ---

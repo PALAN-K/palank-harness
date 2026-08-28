@@ -9,6 +9,7 @@
  *     (index.md + wiki/**); scheme links (http/https/mailto...) and pure anchors (#)
  *     are skipped; relative targets resolve against the vault ROOT by harness
  *     convention (index.md bullets are root-relative).
+ *   e) forbidden pollution — .opencode/agent/*.md or .opencode/skills must not exist
  * Empty vault (0 pages, 0 rows) is a valid PASS skeleton.
  * Usage: node scripts/check_vault.js [--strict] [vaultDir=.]
  *
@@ -141,6 +142,32 @@ if (!fs.existsSync(path.join(vaultDir, ".git"))) {
   }
   if (linksChecked === 0) reports.push("info: markdown link check skipped (no relative links)");
   else reports.push(`info: markdown link check ran (${linksChecked} relative links)`);
+}
+
+// e) forbidden .opencode agent pollution — thin harness는 3 agents만 허용 (pit of success)
+{
+  const agentDir = path.join(vaultDir, ".opencode", "agent");
+  if (fs.existsSync(agentDir)) {
+    for (const e of fs.readdirSync(agentDir, { withFileTypes: true })) {
+      if (e.isFile() && e.name.endsWith(".md")) {
+        report(
+          "error",
+          `forbidden .opencode/agent/${e.name} detected — thin harness는 3 agents(conductor/interpreter/verify)만 사용; harness/reviewer/researcher 잔재는 전역 harness-bootstrap 오염 — AGENTS.md 금지 절 참조, 삭제: python3 -c "import shutil,pathlib; shutil.rmtree(pathlib.Path('.opencode'))"`
+        );
+      }
+    }
+  }
+  // .opencode/skills 하위도 금지 (프로젝트 skills/는 허용, .opencode/skills는 오염)
+  const skillsPollution = path.join(vaultDir, ".opencode", "skills");
+  if (fs.existsSync(skillsPollution)) {
+    const polluted = walk(skillsPollution).filter((f) => f.endsWith(".md"));
+    if (polluted.length > 0) {
+      report(
+        "error",
+        `forbidden .opencode/skills pollution detected (${polluted.length} files) — 프로젝트 skills/만 사용, .opencode/skills는 삭제`
+      );
+    }
+  }
 }
 
 // summary

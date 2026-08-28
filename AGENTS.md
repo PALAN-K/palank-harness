@@ -27,6 +27,13 @@
 5. **ALWAYS delegate via Task to interpreter/verify/explore** — never direct writes from conductor; explore delegation is allowed for research-only lookups. 3-layer enforcement: config deny (`opencode.json`) + `plugins/force-delegation.js` + prompt.
 6. **Verification over vibes.** verify runs the machine itself — a model's "pass" is not a pass. hashline/worktree are NOT core; recover from git history `b14f1bb` if ever needed.
 
+## 금지 — thin 설치·오염 방지 (모든 AI 필수 준수 — pit of success)
+
+- `.opencode/agent/*.md` 수동 생성 금지 — thin 헌법은 `opencode.json`의 3 agents(`conductor`/`interpreter`/`verify`)만 사용한다. `harness`, `reviewer`, `researcher` 등 추가 파일은 전역 오염이며 생성·복사 금지. 발견 시 즉시 삭제: `python3 -c "import shutil,pathlib; shutil.rmtree(pathlib.Path('.opencode'))"`
+- 전역 `harness-bootstrap` 스킬, `opencode init` 금지 — thin 설치는 `006 palank-harness`에서 파일 복사(`AGENTS.md`, `opencode.json`, `scripts/`, `plugins/`, `skills/`, `mcp/`)만으로 수행한다. `npx harness-bootstrap` / `opencode init`으로 생성된 `.opencode/`는 오염으로 간주해 삭제한다.
+- WSL 경로는 `~/projects/<repo>` (Linux 절대경로)만 사용한다. Windows UNC(`\\wsl.localhost\...`)는 읽기만 허용, 쓰기 금지.
+- 의심 시 `npm run inventory`로 agents가 3개인지 확인 — `scripts/check_vault.js`와 `scripts/inventory.js`가 금지 파일을 FAIL로 차단한다.
+
 ## Cache Economics (v3.1 — design guidance, 미실측)
 
 1. **Stable prefix**: this constitution is immutable during a session — never edit mid-session; restart instead. Prompt assembly places volatile content (inventory output, task context) AFTER the stable prefix so reloads become cache hits (Aider `--cache-prompts`).
