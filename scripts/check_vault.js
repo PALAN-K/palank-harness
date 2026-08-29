@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+// ⚠️ thin v3.2 — harness-bootstrap / opencode init 금지 — AGENTS.md 금지 절 참조. thin 설치는 cp -a AGENTS.md opencode.json scripts/ plugins/ skills/ mcp/ 파일 복사만으로 수행, npx harness-bootstrap / opencode init / .opencode/agent/*.md 수동 생성 절대 금지. 오염 시 python3 -c "import shutil,pathlib; shutil.rmtree(pathlib.Path('.opencode'))"
+// WSL: Linux 절대경로(/home/jayeo/projects/...)만 쓰기 허용, UNC(\\wsl.localhost, \\wsl$) 쓰기 금지 — strict 시 FAIL
 /**
  * check_vault.js — harness-native mechanical vault verification (v3)
  * Pure Node stdlib, ESM. Checks:
@@ -167,6 +169,60 @@ if (!fs.existsSync(path.join(vaultDir, ".git"))) {
         `forbidden .opencode/skills pollution detected (${polluted.length} files) — 프로젝트 skills/만 사용, .opencode/skills는 삭제`
       );
     }
+  }
+}
+
+// f) WSL UNC path guard — Linux 절대경로만 허용, UNC(\\wsl.localhost, \\wsl$) strict FAIL
+{
+  const UNC_RE = /^\\\\wsl/i;
+  const hasUNC = (s) =>
+    typeof s === "string" && (UNC_RE.test(s) || s.includes("\\\\wsl.localhost") || s.includes("\\\\wsl$"));
+  let uncDetected = false;
+  let uncHint = "";
+  // path argument & resolved dir
+  if (hasUNC(vaultArg)) {
+    uncDetected = true;
+    uncHint = `vaultArg=${vaultArg}`;
+  } else if (hasUNC(vaultDir)) {
+    uncDetected = true;
+    uncHint = `vaultDir=${vaultDir}`;
+  } else if (hasUNC(process.argv.join(" "))) {
+    uncDetected = true;
+    uncHint = `argv=${process.argv.join(" ")}`;
+  }
+  // opencode.json content (if vault contains it)
+  if (!uncDetected) {
+    try {
+      const ocPath = path.join(vaultDir, "opencode.json");
+      if (fs.existsSync(ocPath)) {
+        const raw = fs.readFileSync(ocPath, "utf-8");
+        if (hasUNC(raw)) {
+          uncDetected = true;
+          uncHint = `opencode.json contains UNC`;
+        }
+      }
+    } catch {}
+  }
+  // inventory cache path content (if exists, guard its content too)
+  if (!uncDetected) {
+    try {
+      const invPath = path.join(vaultDir, ".opencode-inventory.json");
+      if (fs.existsSync(invPath)) {
+        const rawInv = fs.readFileSync(invPath, "utf-8");
+        if (hasUNC(rawInv)) {
+          uncDetected = true;
+          uncHint = `.opencode-inventory.json contains UNC`;
+        }
+      }
+    } catch {}
+  }
+  if (uncDetected) {
+    report(
+      "error",
+      `FAIL: WSL UNC path forbidden — use ~/projects/<repo> Linux absolute (/home/jayeo/projects/...) (${uncHint})`
+    );
+  } else {
+    reports.push("info: WSL UNC guard ok (no \\\\wsl path detected)");
   }
 }
 

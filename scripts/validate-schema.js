@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// ⚠️ thin v3.2 (palank-harness)에서는 사용 금지 — AGENTS.md 금지 절 참조. thin 설치는 cp -a AGENTS.md opencode.json scripts/ plugins/ skills/ mcp/ 파일 복사만으로 수행, npx harness-bootstrap / opencode init / .opencode/agent/*.md 수동 생성 절대 금지. 오염 시 python3 -c "import shutil,pathlib; shutil.rmtree(pathlib.Path('.opencode'))"
 /**
  * validate-schema.js — Lock schema validator (P1-6, palank-harness v3.2)
  * Pure Node stdlib, ESM. Makes the interpreter's "type-level refusal" claim real code:

@@ -1,5 +1,16 @@
 # palank-harness v3.2 — Echo-first interpreter on opencode
 
+> **⚠️ thin v3.2 — 설치는 파일 복사만 (WSL은 Linux 절대경로만, UNC 쓰기 금지) — AGENTS.md 헌법 참조**
+> thin 설치는 `006-palank-harness`에서 **파일 복사**만으로 수행 — `npx harness-bootstrap` / `opencode init` / `.opencode/agent/*.md` 수동 생성 **절대 금지**.
+> Windows UNC(`\\wsl.localhost\...`)는 읽기만, 쓰기는 WSL `~/projects/<repo>` Linux 절대경로로만. 오염 시 즉시 삭제: `python3 -c "import shutil,pathlib; shutil.rmtree(pathlib.Path('.opencode'))"`
+
+```bash
+# thin 설치는 파일 복사만 (WSL은 Linux 절대경로 사용)
+cp -a AGENTS.md opencode.json scripts/ plugins/ skills/ mcp/ ~/projects/<target>/
+# 금지: npx harness-bootstrap, opencode init, .opencode/agent/*.md 수동 생성
+# 오염 시: python3 -c "import shutil,pathlib; shutil.rmtree(pathlib.Path('.opencode'))"
+```
+
 ## 이것이 무엇인가
 
 - opencode 위에 얹는 **투명래퍼 인터프리터**. 사용자가 일기처럼 말해도
@@ -29,6 +40,13 @@
 > - Windows UNC(`\\wsl.localhost\Ubuntu\home\...`)로는 읽기만, 쓰기는 WSL `~/projects/<repo>` Linux 절대경로로만.
 > - 전역 오염 시 즉시 삭제: `python3 -c "import shutil,pathlib; shutil.rmtree(pathlib.Path('.opencode'))"` → `npm run inventory --refresh`로 3 agents 복구 확인.
 > - 위반은 `npm run verify`의 `check_vault --strict`(e항) + `inventory --strict`가 기계적으로 FAIL 차단 (사람이 아닌 기계가 검증).
+
+```bash
+# thin 설치는 파일 복사만 (WSL은 Linux 절대경로 사용)
+cp -a AGENTS.md opencode.json scripts/ plugins/ skills/ mcp/ ~/projects/<target>/
+# 금지: npx harness-bootstrap, opencode init, .opencode/agent/*.md 수동 생성
+# 오염 시: python3 -c "import shutil,pathlib; shutil.rmtree(pathlib.Path('.opencode'))"
+```
 
 한 줄 요약:
 

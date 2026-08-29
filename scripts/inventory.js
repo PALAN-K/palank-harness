@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+// ⚠️ thin v3.2 — harness-bootstrap / opencode init 금지 — AGENTS.md 금지 절 참조. thin 설치는 cp -a AGENTS.md opencode.json scripts/ plugins/ skills/ mcp/ 파일 복사만으로 수행, npx harness-bootstrap / opencode init / .opencode/agent/*.md 수동 생성 절대 금지. 오염 시 python3 -c "import shutil,pathlib; shutil.rmtree(pathlib.Path('.opencode'))"
+// WSL: Linux 절대경로(/home/jayeo/projects/...)만 쓰기 허용, UNC(\\wsl.localhost, \\wsl$) 쓰기 금지 — strict 시 FAIL
 /**
  * inventory.js — startup inventory as executable code (v3).
  * Replaces the v2 prose spec (_archive/scripts/optional/interpreter-wrapper.md @ b14f1bb).
@@ -163,6 +165,25 @@ function unavailable() {
 }
 
 function emit(inv) {
+  // f) WSL UNC guard — Linux 절대경로만 허용, UNC strict FAIL
+  {
+    const UNC_RE = /^\\\\wsl/i;
+    const hasUNC = (s) =>
+      typeof s === "string" && (UNC_RE.test(s) || s.includes("\\\\wsl.localhost") || s.includes("\\\\wsl$"));
+    const argvJoined = process.argv.join(" ");
+    const invStr = JSON.stringify(inv);
+    let uncHint = "";
+    if (hasUNC(ROOT)) uncHint = `ROOT=${ROOT}`;
+    else if (hasUNC(CACHE_PATH)) uncHint = `CACHE_PATH=${CACHE_PATH}`;
+    else if (hasUNC(argvJoined)) uncHint = `argv=${argvJoined.slice(0, 120)}`;
+    else if (hasUNC(invStr)) uncHint = `inventory contains UNC`;
+    if (uncHint) {
+      console.error(
+        `FAIL: WSL UNC path forbidden — use ~/projects/<repo> Linux absolute (/home/jayeo/projects/...) (${uncHint})`
+      );
+      if (process.argv.includes("--strict")) process.exit(1);
+    }
+  }
   fs.writeFileSync(CACHE_PATH, JSON.stringify(inv, null, 2));
   console.log(JSON.stringify(inv, null, 2));
   // e) fail-closed 오염 경고 — thin 3 agents 외 forbidden이 filesystem glob으로 유입되면 경고
@@ -193,6 +214,35 @@ function emit(inv) {
 }
 
 // --- main ---
+// f) early WSL UNC guard — also covers cache-hit path (emit not called)
+{
+  const UNC_RE = /^\\\\wsl/i;
+  const hasUNC = (s) =>
+    typeof s === "string" && (UNC_RE.test(s) || s.includes("\\\\wsl.localhost") || s.includes("\\\\wsl$"));
+  const argvJoined = process.argv.join(" ");
+  let uncHint = "";
+  if (hasUNC(ROOT)) uncHint = `ROOT=${ROOT}`;
+  else if (hasUNC(CACHE_PATH)) uncHint = `CACHE_PATH=${CACHE_PATH}`;
+  else if (hasUNC(argvJoined)) uncHint = `argv=${argvJoined.slice(0, 120)}`;
+  if (uncHint) {
+    console.error(
+      `FAIL: WSL UNC path forbidden — use ~/projects/<repo> Linux absolute (/home/jayeo/projects/...) (${uncHint})`
+    );
+    if (process.argv.includes("--strict")) process.exit(1);
+  }
+  // also scan cached inventory json if exists
+  try {
+    if (fs.existsSync(CACHE_PATH)) {
+      const raw = fs.readFileSync(CACHE_PATH, "utf-8");
+      if (hasUNC(raw)) {
+        console.error(
+          `FAIL: WSL UNC path forbidden — use ~/projects/<repo> Linux absolute (/home/jayeo/projects/...) (.opencode-inventory.json contains UNC)`
+        );
+        if (process.argv.includes("--strict")) process.exit(1);
+      }
+    }
+  } catch {}
+}
 const refresh = process.argv.includes("--refresh");
 if (!refresh && fs.existsSync(CACHE_PATH)) {
   try {
