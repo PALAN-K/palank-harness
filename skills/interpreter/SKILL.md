@@ -25,10 +25,15 @@ description: >
    사용자는 **"yes" 한 글자로 전체 추천안 수락 가능** 또는 개별 답변 /
    질문 선정 우선순위 = **Impact × Uncertainty 스캔**.
    배치 2-5, **max 1라운드**. confidence 숫자는 어디에도 등장 금지.
+3.5 **Tier (코드 판정, 질문 아님)** — `node scripts/tiered-verify.js --check`로
+    FULL/QUICK/SKIPPED 3단계를 코드로 판정. 질문으로 묻지 않음. Echo 요약에
+    `Tier: FULL|QUICK|SKIPPED — <reason>` 1줄을 포함해 사용자가 티어를 눈으로 확인.
+    판정식은 Fail-Closed 5단계(Blacklist/untracked > 파일수2 > 라인10(11-30 .md만 QUICK) > .md외부 > raw/README≤5 SKIPPED, wiki는 QUICK 격상, H1 버전토큰 터치 시 무조건 FULL).
+    SKIPPED는 증거 JSON(stdout 1줄 + sidecar `.verify-tier.json`) 필수, 증거 없으면 exit 2 차단.
 4. **Lock** — 스키마 `{intent, files, schema, opencode_call, model, mcp, echo:{summary, confirmed}}`.
-   `echo.confirmed !== true`면 Lock 불가(타입 수준 거부). **dispatch 전 검증기 실행 필수**:
-   `node scripts/validate-schema.js '<json>'` (stdlib 검증기, exit 0=유효) — 무효 스키마는
-   dispatch 단계로 진행 불가. v3.2부터 이 거부는 문장이 아니라 실코드다.
+    `echo.confirmed !== true`면 Lock 불가(타입 수준 거부). **dispatch 전 검증기 실행 필수**:
+    `node scripts/validate-schema.js '<json>'` (stdlib 검증기, exit 0=유효) — 무효 스키마는
+    dispatch 단계로 진행 불가. v3.2부터 이 거부는 문장이 아니라 실코드다.
 5. **Classify** — `research|brainstorm` vs `build|fix|migrate|review`.
 6. **Read (build 계열만)** — 3-layer: AGENTS.md(헌법) → index.md(카탈로그) → wiki/raw
    (MCP get_context, 5파일 제한).

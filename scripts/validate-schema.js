@@ -53,6 +53,39 @@ export function validateSchema(value) {
       );
     }
   }
+  // Optional trivial tier validation (Fail-Closed): if trivial present, validate tier/reason/evidence
+  if ("trivial" in value) {
+    const t = value.trivial;
+    if (typeof t !== "object" || t === null || Array.isArray(t)) {
+      errors.push("trivial must be an object {tier, reason, evidence} if present");
+    } else {
+      const allowed = new Set(["FULL", "QUICK", "SKIPPED"]);
+      if (!allowed.has(t.tier)) {
+        errors.push(`trivial.tier must be one of FULL|QUICK|SKIPPED (got ${JSON.stringify(t.tier)})`);
+      }
+      if (typeof t.reason !== "string" || t.reason.trim() === "") {
+        errors.push("trivial.reason must be a non-empty string");
+      }
+      if (t.tier === "SKIPPED") {
+        if (typeof t.evidence !== "object" || t.evidence === null || Array.isArray(t.evidence)) {
+          errors.push("trivial.evidence must be a non-empty object when tier is SKIPPED (fail-closed)");
+        } else {
+          if (Object.keys(t.evidence).length === 0) {
+            errors.push("trivial.evidence must be non-empty when tier is SKIPPED (fail-closed)");
+          }
+          // evidence should contain files/totalLines for traceability
+          if (!("files" in t.evidence)) {
+            errors.push("trivial.evidence must contain 'files' (fail-closed)");
+          }
+        }
+      } else {
+        // For QUICK/FULL, evidence may be null or object, but if present must be object|null
+        if ("evidence" in t && t.evidence !== null && typeof t.evidence !== "object") {
+          errors.push("trivial.evidence must be object or null for QUICK/FULL");
+        }
+      }
+    }
+  }
   return { valid: errors.length === 0, errors };
 }
 
