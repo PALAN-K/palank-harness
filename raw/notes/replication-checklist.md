@@ -38,7 +38,7 @@
 ## 3단계 — opencode.json 재지정 (머신/프로젝트 종속 4곳)
 
 1. relay baseURL — 이 프로젝트 전용 값 → 대상 환경 값
-2. model ID 4종 + small_model 재매핑
+2. model ID 1종(muse-spark-1.2-contributor)+deep/fast variants 재매핑
 3. 외부 plugin 채용 재판단 — v3 코어 아님. **채용 시 npm 버전 고정 필수**
    (현재: `opencode-dynamic-subagents@0.3.1`. 무버전 owner/repo spec은 조용히 관성이 된다 —
    2026-08-26 실측: normal ≡ --pure 프로브, 빈 클론 캐시. 함정 목록 7번)

@@ -16,6 +16,8 @@ import {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
+const __opencode = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../opencode.json"), "utf8"));
+const SMALL_MODEL = __opencode.small_model;
 
 // Helper to build fixture state
 function fixture({ files = [], untracked = [], diffContent = "", totalLines } = {}) {
@@ -327,7 +329,7 @@ test("validateSchema rejects SKIPPED without evidence (fail-closed)", async () =
     files: ["raw/notes.md"],
     schema: {},
     opencode_call: "npm run verify:tiered",
-    model: "muse-spark-1.2-contributor",
+    model: SMALL_MODEL,
     mcp: "palank-domain",
     echo: { summary: "test", confirmed: true },
   };

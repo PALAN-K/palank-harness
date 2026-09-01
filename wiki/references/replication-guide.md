@@ -25,7 +25,7 @@ v3.2 신설. palank-harness를 다른 프로젝트/머신으로 복제하는 표
 |---|---|---|
 | 1 | git 이력 포함 복제 | clone/bundle 권장 — Vault-Base 해시 도달성 유지 |
 | 2 | 자산 복사 | 리포 자산 + `~/.config/opencode/` 전역 자산 수동 이식; inventory·node_modules 제외 |
-| 3 | opencode.json 재지정 | relay baseURL · model ID 4종+small_model · 외부 plugin은 npm 버전 고정(`opencode-dynamic-subagents@0.3.1`) · MCP cwd |
+| 3 | opencode.json 재지정 | relay baseURL · model ID 1종(muse-spark-1.2-contributor)+deep/fast variants · 외부 plugin은 npm 버전 고정(`opencode-dynamic-subagents@0.3.1`) · MCP cwd |
 | 4 | 설치·재생성 | `cd mcp && npm install`, `npm run inventory` 재생성 |
 | 5 | 대상 프로젝트화 | name/description/engines 정비, 빈 볼트 재시드, index 재작성 |
 | 6 | 검증 | `npm run verify` + 수동 프로브 7종 중 최소 5종(2·4·6번 필수) |

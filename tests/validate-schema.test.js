@@ -1,13 +1,21 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { validateSchema } from "../scripts/validate-schema.js";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const __opencode = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../opencode.json"), "utf8"));
+const SMALL_MODEL = __opencode.small_model;
 
 const VALID = {
   intent: "P0 복구 — force-delegation 가드를 공식 계약으로 재작성",
   files: ["plugins/force-delegation.js", "tests/plugin-wiring.test.js"],
   schema: { kind: "fix", risk: "runtime-guard" },
   opencode_call: "opencode run --agent verify 'npm run verify'",
-  model: "opencode-go/muse-spark-1.2-contributor",
+  model: SMALL_MODEL,
   mcp: { palank_domain: ["search_wiki"] },
   echo: { summary: "작업은 가드 재작성, 범위는 plugins+tests, 결과물은 통과 게이트.", confirmed: true },
 };
