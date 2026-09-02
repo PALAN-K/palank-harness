@@ -1,0 +1,68 @@
+{
+  "version": "3.2.0",
+  "generated_at": "2026-09-02T09:36:30Z",
+  "sources": [
+    "git log --stat -n 50 (top touched: AGENTS.md:17, package.json:17, log.md:16, README.md:13, opencode.json:12, mcp/server.js:10, skills/verify/SKILL.md:10, index.md:9, scripts/check_vault.js:9, skills/interpreter/SKILL.md:9, scripts/migrate.js:9, plugins/force-delegation.js:6)",
+    "package.json scripts: lint (node --check *6), check:vault (node scripts/check_vault.js --strict), test (node --test), inventory (node scripts/inventory.js --refresh), sync:version/check:version (node scripts/sync-version.js), verify (lint+check:vault+test+check:version+pack), verify:quick, verify:tiered/tiered (node scripts/tiered-verify.js)",
+    "opencode upstream https://opencode.ai/docs/permissions (2026-09-02) — precedence: last matching rule wins, wildcard * (?), agent precedence, --auto semantics",
+    "scripts/*.js + mcp/server.js + plugins/force-delegation.js (spawnSync git cat-file/rev-parse/diff --numstat/status --porcelain, node --check, npm run verify)",
+    "~/.config/opencode/opencode.json Global permission.bash baseline (ls*/cat*/pwd*/echo*/grep*/rg*/find*/head*/tail*/wc*/which*/tree*/du*/df*/stat*/file*/git log*/status*/diff*/show*/branch*/remote*/fetch*/pull*/tag*/stash*/reset*/checkout*/npm run */node*/python3* — 40+ allows, *:ask)",
+    "log.md verify chain history (npm run verify 4, check:version 2)"
+  ],
+  "metadata": {
+    "cap": 35,
+    "total_candidates": 34,
+    "tier_counts": {
+      "tier_r": 14,
+      "tier_w": 10,
+      "tier_x_deny": 9
+    },
+    "generated_at": "2026-09-02T09:36:30Z",
+    "policy": "Deny > Write > Read — last_match_wins",
+    "precedence": "last_match_wins",
+    "glob_syntax": "* matches zero or more of any character, ? matches exactly one; all other chars literal; bash permission matches parsed command like 'git status --porcelain' against pattern 'git status*' ; project permission.bash example: {\"*\":\"ask\",\"git stash*\":\"allow\",\"rm *\":\"deny\"} with deny last.",
+    "pipe_injection_isolation": "Tier X isolates injection vectors: '*|*' (pipe) and '*;*' (semicolon) capture any command containing | or ; . Even if earlier tier allowed prefix (e.g., 'echo*'), deny in Tier X wins due to last-match ordering. Hardened with curl */wget */export * (exfiltration/env leak isolation) — cap 35, 9 deny entries.",
+    "bare_star_check": "0 bare '*' in allow tiers — verified; global/project '*':'ask' is baseline not counted in candidates; no candidate equals '*' or '?'.",
+    "dual_layer_note": "Global (~/.config/opencode/opencode.json) + Project template (opencode.json permission.bash) dual overlay — pilot/oneshot needs git stash*/reset*/checkout* + npm run verify*/check:version* allow on both layers; this SSOT is project-local proposal to be merged with global baseline. Global already covers node*/python3*/npm install* so candidate keeps them minimal.",
+    "validation_plan": "JSON.parse OK + npm run verify (lint+check:vault --strict+test+check:version+pack) PASS + Tier X pipe present + bare star 0"
+  },
+  "tier_r": [
+    "ls*",
+    "cat*",
+    "pwd*",
+    "echo*",
+    "grep*",
+    "rg*",
+    "find*",
+    "head*",
+    "tail*",
+    "wc*",
+    "which*",
+    "tree*",
+    "git log*",
+    "git status*"
+  ],
+  "tier_w": [
+    "git diff*",
+    "git show*",
+    "git branch*",
+    "git stash*",
+    "git reset*",
+    "git checkout*",
+    "npm run verify*",
+    "npm run check:version*",
+    "npm run lint*",
+    "node*"
+  ],
+  "tier_x_deny": [
+    "rm *",
+    "del *",
+    "Remove-Item*",
+    "sudo *",
+    "*|*",
+    "*;*",
+    "curl *",
+    "wget *",
+    "export *"
+  ]
+}
