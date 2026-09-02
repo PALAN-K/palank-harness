@@ -49,3 +49,11 @@
 - vault 단일화 유지 — 006은 canonical `wiki/`+`raw/`+`index.md` 단일 vault 체제이므로 `.wiki` 이중 vault 처리 해당 없음(008만 archive).
 - raw/data — 006은 `raw/data` 미사용으로 `.gitkeep` 불필요.
 - 검증: `npm run verify` PASS — lint/vault/test/version/pack 전 통과(tarball 32 files, 52.7 kB), `sync-version --check` 0 drift.
+
+## [2026-09-02] feat | pilot dual-layer permission — foundry distribution (pilot/oneshot auto)
+- 결정 14: Dual-layer permission — Global(`~/.config/opencode/opencode.json`) + Project Template Top-level(`opencode.json` permission.bash) 이중 오버레이로 pilot/oneshot 자동화의 `ask` 마찰 제거(분배형 foundry 모델).
+- Global 편집: `git stash list*` → `git stash*` 단일화(zombie 제거), `git reset*`/`git checkout*`/`npm run verify*`/`npm run check:version*` 추가 — 기존 ls*/cat*/node*/git branch* 등 유지, `npm run tiered*` 미존재 확인(리뷰 보정: node*가 이미 커버). `python3 -m json.tool` 검증 PASS.
+- Project 템플릿 편집: Top-level `permission.bash` 신설 — `*`:`ask` 기본 + 5종 `allow`(`git stash*`, `git reset*`, `git checkout*`, `npm run verify*`, `npm run check:version*`) — small_model 뒤, agent 앞 배치. conductor `permission:{edit:deny,bash:{*:deny}}` 불변 유지(Guard Layer 1). `python3 -m json.tool` 검증 PASS.
+- 문서 반영: replication-guide.md에 Global 5종 bullet 추가, 본 log append-only 기록.
+- 리뷰 보정: Medium/Low — tiered* 제거(zombie), stash* 단일화(중복 제거), verify*/check:version* 신설(ask 해소).
+- 검증: `opencode debug config | jq .permission.bash` 5종 allow 확인, `npm run lint`/`inventory --refresh`/ `verify` PASS, `opencode mcp list` ✓ 양 MCP 유지, Global/Project diff 분리 확인.

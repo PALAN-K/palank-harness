@@ -3,6 +3,16 @@
   "_thin_warning": "⚠️ thin v3.2 (palank-harness)에서는 사용 금지 — AGENTS.md 금지 절 참조. thin 설치는 cp -a AGENTS.md opencode.json scripts/ plugins/ skills/ mcp/ 파일 복사만으로 수행, npx harness-bootstrap / opencode init / .opencode/agent/*.md 수동 생성 절대 금지. 오염 시 python3 -c \"import shutil,pathlib; shutil.rmtree(pathlib.Path('.opencode'))\"",
   "_routing_note": "SSOT: provider/model registry — small_model -> opencode-go/muse-spark-1.2-contributor (titles/summary). Dispatch follows the live 3-tier vocabulary of skills/interpreter/SKILL.md Flow step 8: 'verify' one-shot gate / 'session' long-context / 'mcp' domain tools; per-run agent+model choice is inventory-driven (no static tier table). Change models only here; docs reference this note, never raw model IDs.",
   "small_model": "opencode-go/muse-spark-1.2-contributor",
+  "permission": {
+    "bash": {
+      "*": "ask",
+      "git stash*": "allow",
+      "git reset*": "allow",
+      "git checkout*": "allow",
+      "npm run verify*": "allow",
+      "npm run check:version*": "allow"
+    }
+  },
   "agent": {
     "conductor": {
       "mode": "primary",

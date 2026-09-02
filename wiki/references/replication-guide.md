@@ -52,3 +52,4 @@ v3.2 신설. palank-harness를 다른 프로젝트/머신으로 복제하는 표
 
 - `raw/notes/replication-checklist.md` — 원본 상세판
 - `log.md` — P0 사건과 수동 프로브 7종
+- Global permission 5종(분배형 pilot 자동화): `~/.config/opencode/opencode.json`에 `git stash*`/`git reset*`/`git checkout*`/`npm run verify*`/`npm run check:version*` 허용 — `*`:`ask` 기본 유지, Project Top-level `permission.bash` 오버레이와 이중 적용(foundry distribution)
