@@ -52,6 +52,21 @@ export function validateSchema(value) {
         `echo.confirmed must be strictly boolean true (got ${JSON.stringify(echo.confirmed)}) — unconfirmed schemas cannot Lock`
       );
     }
+    // Optional echo.auto (pilot/kamikaze synthetic auto-confirmed) — must be boolean if present
+    if ("auto" in echo && typeof echo.auto !== "boolean") {
+      errors.push("echo.auto must be boolean if present (pilot/kamikaze synthetic auto-confirmed)");
+    }
+  }
+  // Optional mode enum (3-mode MVP, backward compat: absent => guardian)
+  if ("mode" in value) {
+    const allowedModes = new Set(["guardian", "pilot", "kamikaze"]);
+    if (typeof value.mode !== "string" || !allowedModes.has(value.mode)) {
+      errors.push(`mode must be one of guardian|pilot|kamikaze if present (got ${JSON.stringify(value.mode)})`);
+    }
+  }
+  // Strict cross-check: auto:true should only appear with pilot/kamikaze (guardian auto is suspicious; absent mode defaults to guardian)
+  if (value.echo?.auto === true && (!("mode" in value) || value.mode === "guardian")) {
+    errors.push("echo.auto:true is only allowed with mode pilot|kamikaze (guardian must wait for explicit yes)");
   }
   // Optional trivial tier validation (Fail-Closed): if trivial present, validate tier/reason/evidence
   if ("trivial" in value) {
