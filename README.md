@@ -57,7 +57,7 @@ cp -a AGENTS.md opencode.json scripts/ plugins/ skills/ mcp/ ~/projects/<target>
 `npm run verify` PASS + `"failed to load plugin"` 부재 + 수동 프로브 1·2·3번 통과 이력,
 셋 중 하나라도 없으면 금지("green tests, dead guard", P0).
 
-상세 7단계 + 복제 금지 조항 전문: [wiki/references/replication-guide.md](wiki/references/replication-guide.md)
+상세 7단계 + 복제 금지 조항 전문: [wiki/references/replication-guide.md](wiki/references/replication-guide.md) — 용어 분리표는 [wiki/concepts/terminology.md](wiki/concepts/terminology.md) (replication≠distribution≠scaffold, foundry≠harness)
 
 ## 업데이트 (기존 복제본 → upstream 동기화)
 
@@ -98,6 +98,7 @@ node scripts/validate-schema.js '<json>'  # Lock 스키마 검증 (exit 0 유효
 | `wiki/` + `raw/` + `index.md` | 지식 볼트 — 모든 주장에 Raw 인용, check_vault가 패리티·해시 도달성 검증 |
 | `log.md` | 결정 이력 — append-only 감사 장부, 업데이트 노트 겸용 |
 | [wiki/references/replication-guide.md](wiki/references/replication-guide.md) | 이식 절차 — 7단계 요약(볼트 페이지), 상세판은 raw/notes |
+| [wiki/concepts/terminology.md](wiki/concepts/terminology.md) | 용어 분리 — replication≠distribution≠scaffold, foundry≠harness 5행 표 + REPO_ROOT 별칭 4종 |
 
 ## 문제해결
 
@@ -105,4 +106,4 @@ node scripts/validate-schema.js '<json>'  # Lock 스키마 검증 (exit 0 유효
 - **`sc` 별칭 차단이 Windows sc.exe(서비스 제어)와 오탐** — 수용된 한계(`plugins/force-delegation.js` 주석).
 - **Node 버전 부족** → node --test glob 인수 실패 — engines `>=22`(실측 v24).
 
-전체 함정 6종(실측 기반): [raw/notes/replication-checklist.md](raw/notes/replication-checklist.md)
+전체 함정 6종(실측 기반): [raw/notes/replication-checklist.md](raw/notes/replication-checklist.md) — 용어·별칭 상세: [raw/notes/glossary.md](raw/notes/glossary.md)

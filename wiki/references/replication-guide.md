@@ -48,8 +48,13 @@ v3.2 신설. palank-harness를 다른 프로젝트/머신으로 복제하는 표
 - 수동 프로브 7종 중 최소 5종 — 특히 무마커 Task 차단(2), conductor 직접 write 차단(4),
   rm 차단(6). 목록: log.md [2026-08-25] docs 엔트리.
 
+## 용어 분리
+
+- 용어 혼동은 이식 실패로 직결된다 — [terminology](wiki/concepts/terminology.md) 5행 표 참고: replication≠distribution≠scaffold, foundry≠harness, REPO_ROOT 4종 alias(Add not Remove).
+
 ## 참조
 
 - `raw/notes/replication-checklist.md` — 원본 상세판
+- `raw/notes/glossary.md` — 5대 용어·별칭 상세(Raw)
 - `log.md` — P0 사건과 수동 프로브 7종
 - Global permission 5종(분배형 pilot 자동화): `~/.config/opencode/opencode.json`에 `git stash*`/`git reset*`/`git checkout*`/`npm run verify*`/`npm run check:version*` 허용 — `*`:`ask` 기본 유지, Project Top-level `permission.bash` 오버레이와 이중 적용(foundry distribution)

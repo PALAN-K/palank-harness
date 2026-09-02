@@ -40,8 +40,10 @@ import { spawnSync } from "child_process";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ROOT = path.resolve(__dirname, "..");
-const EVIDENCE_PATH = path.join(ROOT, ".verify-tier.json");
+// REPO_ROOT: single repo root — serves 3 roles (harness/vault/instance) in thin layout
+const REPO_ROOT = path.resolve(__dirname, "..");
+const ROOT = REPO_ROOT; // alias: keep backward compat (Add not Remove)
+const EVIDENCE_PATH = path.join(REPO_ROOT, ".verify-tier.json");
 
 // ── Config SSOT ──
 export const MAX_FILES = 2;

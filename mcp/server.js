@@ -20,13 +20,15 @@ import { spawnSync } from "child_process";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const HARNESS_ROOT = path.resolve(__dirname, "..");
+// REPO_ROOT: single repo root — serves 3 roles (harness root / vault root / instance root) in thin layout; vaultDir is derived separately in check_vault.
+const REPO_ROOT = path.resolve(__dirname, "..");
+const HARNESS_ROOT = REPO_ROOT; // alias: repo root == harness root + vault/instance compat (Add not Remove)
 
 // SSOT: server version derives from root package.json (eliminates drift at every release).
 // Fail-fast: unreadable/unparseable package.json or missing version throws — the server
 // must never boot with a silently substituted version (dead fallback removed in v3.2).
 const SERVER_VERSION = (() => {
-  const pkgPath = path.join(HARNESS_ROOT, "package.json");
+  const pkgPath = path.join(REPO_ROOT, "package.json");
   let parsed;
   try {
     parsed = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
@@ -58,7 +60,7 @@ function walkMd(dir, out = []) {
 
 function readHead(rel, limit) {
   try {
-    return fs.readFileSync(path.join(HARNESS_ROOT, rel), "utf-8").slice(0, limit);
+    return fs.readFileSync(path.join(REPO_ROOT, rel), "utf-8").slice(0, limit);
   } catch {
     return "";
   }
@@ -116,11 +118,11 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
     const q = String(args.query || "").toLowerCase();
     let index = "";
     try {
-      index = fs.readFileSync(path.join(HARNESS_ROOT, "index.md"), "utf-8");
+      index = fs.readFileSync(path.join(REPO_ROOT, "index.md"), "utf-8");
     } catch {}
     const hits = [];
     for (const base of ["wiki", "raw"]) {
-      for (const p of walkMd(path.join(HARNESS_ROOT, base))) {
+      for (const p of walkMd(path.join(REPO_ROOT, base))) {
         let c = "";
         try {
           c = fs.readFileSync(p, "utf-8");
@@ -130,7 +132,7 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
         const lower = c.toLowerCase();
         if (q && lower.includes(q)) {
           const line = c.split("\n").findIndex((l) => l.toLowerCase().includes(q)) + 1;
-          hits.push(path.relative(HARNESS_ROOT, p).replace(/\\/g, "/") + ":" + line);
+          hits.push(path.relative(REPO_ROOT, p).replace(/\\/g, "/") + ":" + line);
         }
       }
     }
@@ -151,8 +153,8 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
     const kws = keywords(args.intent);
     const ranked = [];
     for (const base of ["wiki", "raw"]) {
-      for (const p of walkMd(path.join(HARNESS_ROOT, base))) {
-        const rel = path.relative(HARNESS_ROOT, p).replace(/\\/g, "/");
+      for (const p of walkMd(path.join(REPO_ROOT, base))) {
+        const rel = path.relative(REPO_ROOT, p).replace(/\\/g, "/");
         let c = "";
         try {
           c = fs.readFileSync(p, "utf8");
@@ -184,7 +186,7 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
 
   if (name === "verify_before_tag") {
     const res = spawnSync("npm", ["run", "verify"], {
-      cwd: HARNESS_ROOT,
+      cwd: REPO_ROOT,
       encoding: "utf8",
       timeout: 120000,
       shell: process.platform === "win32",

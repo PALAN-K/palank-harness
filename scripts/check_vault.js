@@ -25,7 +25,9 @@ import { spawnSync } from "child_process";
 const args = process.argv.slice(2);
 const strict = args.includes("--strict");
 const vaultArg = args.find((a) => !a.startsWith("-")) || ".";
-const vaultDir = path.resolve(vaultArg);
+const vaultDir = path.resolve(vaultArg); // VAULT_ROOT: vault root (may == REPO_ROOT in thin layout, but logically distinct — Add not Remove)
+const VAULT_ROOT = vaultDir; // alias: vaultDir == VAULT_ROOT (Add not Remove, thin layout may == REPO_ROOT)
+// REPO_ROOT: single repo root — see mcp/server.js & scripts/inventory.js (3 roles: harness/vault/instance collapsed in thin layout; VAULT_ROOT is logically distinct)
 
 let errors = 0;
 const reports = [];

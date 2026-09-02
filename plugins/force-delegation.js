@@ -124,6 +124,7 @@ async function resolveAgent(client, sessionID) {
 }
 
 /** Official plugin entry (opencode contract since 0.x): returns a Hooks object. */
+// B-1: SDK Project (≠ repo/vault/instance) — `project` is opencode SDK's project handle, distinct from REPO_ROOT/vault root/instance root
 export default async function forceDelegation({ project, client, $, directory, worktree } = {}) {
   return {
     "tool.execute.before": async (input, output) => {

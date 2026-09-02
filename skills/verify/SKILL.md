@@ -78,6 +78,10 @@ npm pack --dry-run
 특정 모델에만 가드를 쓰면 모델 전용이 되어 교체 시 무너진다. 타입과 코드(스크립트+게이트)로
 강제하면 모든 티어가 같은 게이트를 통과한다 — 이것이 얇은 하네스의 핵심.
 
+## 용어
+
+- replication≠distribution≠scaffold, foundry≠harness 분리는 [wiki/concepts/terminology.md](wiki/concepts/terminology.md) 5행 표 및 [raw/notes/glossary.md](raw/notes/glossary.md) 상세판 참조 — 경로 별칭 4종(REPO_ROOT/HARNESS_ROOT/ROOT/VAULT_ROOT)은 Add not Remove.
+
 ## History
 
 v2 verify(72줄)에서 hashline 섹션·archive 포인터를 제거하고 게이트만 남긴 v3 포트.

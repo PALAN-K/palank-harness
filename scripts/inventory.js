@@ -17,8 +17,10 @@ import { spawnSync } from "child_process";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ROOT = path.resolve(__dirname, "..");
-const CACHE_PATH = path.join(ROOT, ".opencode-inventory.json");
+// REPO_ROOT: single repo root — serves 3 roles (harness/vault/instance) in thin layout
+const REPO_ROOT = path.resolve(__dirname, "..");
+const ROOT = REPO_ROOT; // alias: keep backward compat (Add not Remove)
+const CACHE_PATH = path.join(REPO_ROOT, ".opencode-inventory.json");
 const MAX_AGE_MS = 24 * 60 * 60 * 1000;
 const SHELL = process.platform === "win32";
 
