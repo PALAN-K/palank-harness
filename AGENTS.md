@@ -13,6 +13,7 @@
 |-- mcp/                   # MCP servers — one per domain (palank-domain)
 |-- scripts/               # check_vault.js (vault linter), inventory.js (inventory as code), validate-schema.js (Lock gate), sync-version.js (version SSOT), tiered-verify.js (tier gate, Fail-Closed 3-stage)
 |-- plugins/               # force-delegation.js — runtime hard block (guard layer 2 of 3)
+|-- foundry/               # foundry-only, excluded from npm pack (brainstorm/verify-history)
 `-- wiki/ + raw/ + index.md + log.md + tests/ + package.json   # vault + gates
 ```
 

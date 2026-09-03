@@ -5,3 +5,4 @@ node_modules/
 *.log
 _archive/
 # thin harness: .opencode/는 오염 — 절대 커밋 금지 (AGENTS.md 금지 절, check_vault e항)
+# foundry/verify-history.jsonl is INTENTIONALLY tracked (audit) — do not ignore

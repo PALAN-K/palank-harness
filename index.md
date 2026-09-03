@@ -12,3 +12,18 @@ One line per page. Session reads this first, then pages.
 
 ## references
 - [replication-guide](wiki/references/replication-guide.md) — v3.2 복제 체크리스트 요약: 0단계 출발지 자격(복제 금지)·7단계 절차·함정 7종 (2026-08-25)
+
+## architecture
+<!-- empty, .gitkeep only -->
+
+## decisions
+<!-- empty, .gitkeep only -->
+
+## releases
+<!-- empty, .gitkeep only -->
+
+## gotchas
+<!-- empty, .gitkeep only -->
+
+## archive
+<!-- empty, .gitkeep only -->

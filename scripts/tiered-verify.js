@@ -482,6 +482,10 @@ function main() {
       process.exit(2);
     }
     console.log(jsonLine);
+    try {
+      fs.mkdirSync(path.join(ROOT, "foundry"), { recursive: true });
+      fs.appendFileSync(path.join(ROOT, "foundry/verify-history.jsonl"), JSON.stringify({ ...payload, ts: new Date().toISOString() }) + "\n");
+    } catch {}
     if (!opts.dryRun) {
       try {
         fs.writeFileSync(EVIDENCE_PATH, jsonLine + "\n", "utf8");
@@ -502,6 +506,10 @@ function main() {
       generated_at: timestamp,
     };
     console.log(JSON.stringify(payload));
+    try {
+      fs.mkdirSync(path.join(ROOT, "foundry"), { recursive: true });
+      fs.appendFileSync(path.join(ROOT, "foundry/verify-history.jsonl"), JSON.stringify({ ...payload, ts: new Date().toISOString() }) + "\n");
+    } catch {}
     // Do not write sidecar for QUICK/FULL; but ensure stale sidecar is not misleading — leave it? Spec doesn't say to delete.
     // Exit 1 signals delegation needed
     process.exit(1);

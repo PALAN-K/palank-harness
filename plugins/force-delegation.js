@@ -49,11 +49,13 @@ const POWERSHELL_PATTERNS = [
 
 // --- Destructive commands (P1-2): blocked for EVERYONE when identity is unknown,
 //     and always for conductor via isBlocked() ---
+const NO_VERIFY_RE = /\B--no-verify\b/;
 const DESTRUCTIVE_PATTERNS = [
   /\brm\b/,            // also catches `npm rm` (package.json mutation) — intended
   /\bdel\b/i,
   /\bri\b/i,           // Remove-Item alias
   /\bRemove-Item\b/i,
+  NO_VERIFY_RE,
 ];
 
 // --- Echo gate marker (v3.1) ---

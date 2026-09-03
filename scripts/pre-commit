@@ -1,0 +1,25 @@
+#!/bin/sh
+# pre-commit — thin harness hermetic guard (foundry + vault)
+# Zero-dep, fail-closed. Foundry is hermetic per-project.
+[ ! -f scripts/check_vault.js ] && exit 0
+[ ! -f scripts/tiered-verify.js ] && exit 0
+
+node scripts/tiered-verify.js --check
+EC=$?
+if [ $EC -eq 0 ]; then
+  echo "✓ tiered SKIPPED (evidence written, foundry/verify-history.jsonl appended)"
+  exit 0
+fi
+if [ $EC -eq 2 ]; then
+  echo "✗ tiered evidence tampered — commit blocked"
+  exit 2
+fi
+echo "▶ tiered QUICK/FULL → npm run verify"
+npm run verify
+VERIFY_EC=$?
+if [ $VERIFY_EC -ne 0 ]; then
+  echo "✗ verify failed — commit blocked"
+  exit $VERIFY_EC
+fi
+echo "✓ verify PASS (foundry log appended)"
+exit 0
