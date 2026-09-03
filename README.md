@@ -1,6 +1,6 @@
-# palank-harness v3.2 — Echo-first interpreter on opencode
+# palank-harness v3.3 — Echo-first interpreter on opencode
 
-> **⚠️ thin v3.2 — 설치는 파일 복사만 (WSL은 Linux 절대경로만, UNC 쓰기 금지) — AGENTS.md 헌법 참조**
+> **⚠️ thin v3.3 — 설치는 파일 복사만 (WSL은 Linux 절대경로만, UNC 쓰기 금지) — AGENTS.md 헌법 참조**
 > thin 설치는 `006-palank-harness`에서 **파일 복사**만으로 수행 — `npx harness-bootstrap` / `opencode init` / `.opencode/agent/*.md` 수동 생성 **절대 금지**.
 > Windows UNC(`\\wsl.localhost\...`)는 읽기만, 쓰기는 WSL `~/projects/<repo>` Linux 절대경로로만. 오염 시 즉시 삭제: `python3 -c "import shutil,pathlib; shutil.rmtree(pathlib.Path('.opencode'))"`
 
@@ -81,12 +81,14 @@ git fetch upstream
 ## 일상 명령어
 
 ```bash
-npm run verify                            # 전체 게이트: lint + check:vault --strict + test + pack --dry-run
+npm run verify                            # 전체 게이트: lint + check:vault --strict + test + check:version + pack --dry-run
+npm run verify:tiered                     # 3-stage tier 게이트(foundry/verify-history.jsonl 기록, Fail-Closed)
 npm run inventory                         # startup inventory 재생성 (.opencode-inventory.json, 24h 캐시, 커밋 금지)
 node scripts/validate-schema.js '<json>'  # Lock 스키마 검증 (exit 0 유효 / 1 무효 / 2 usage)
 ```
 
-- `npm run verify` = `package.json` scripts 그대로 lint + check:vault + test + pack 순 발동.
+- `npm run verify` = lint + check:vault + test + check:version + pack 순 발동(AGENTS.md Verification 절 SSOT).
+- pre-commit 훅(`scripts/pre-commit` → `npm run verify`)이 커밋 전 게이트 강제, `foundry/verify-history.jsonl`에 이력 append.
 - Lock 스키마 필수 필드: `intent, files, schema, opencode_call, model, mcp, echo` —
   `echo.confirmed`는 엄격 boolean `true`(미확인 스키마는 Lock 불가).
 
@@ -94,8 +96,9 @@ node scripts/validate-schema.js '<json>'  # Lock 스키마 검증 (exit 0 유효
 
 | 문서 | 역할 |
 |---|---|
-| `AGENTS.md` | 헌법 — 세션 중 불변(수정은 세션 재시작으로) |
-| `wiki/` + `raw/` + `index.md` | 지식 볼트 — 모든 주장에 Raw 인용, check_vault가 패리티·해시 도달성 검증 |
+| `AGENTS.md` | 헌법 — 세션 중 불변(수정은 세션 재시작으로), Layout 8줄 SSOT |
+| `wiki/` + `raw/` + `index.md` | 지식 볼트 — 7-structure(`architecture/decisions/releases/gotchas/archive` + `concepts/topics/references`), Raw 인용·패리티·해시 검증 |
+| `foundry/` | 공장 전용 — brainstorm/templates/verify-history, hermetic·`npm pack` 제외, 하네스 밖 |
 | `log.md` | 결정 이력 — append-only 감사 장부, 업데이트 노트 겸용 |
 | [wiki/references/replication-guide.md](wiki/references/replication-guide.md) | 이식 절차 — 7단계 요약(볼트 페이지), 상세판은 raw/notes |
 | [wiki/concepts/terminology.md](wiki/concepts/terminology.md) | 용어 분리 — replication≠distribution≠scaffold, foundry≠harness 5행 표 + REPO_ROOT 별칭 4종 |

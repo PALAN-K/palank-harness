@@ -1,4 +1,4 @@
-# AGENTS.md — palank-harness v3.2 (thin constitution)
+# AGENTS.md — palank-harness v3.3 (thin constitution)
 
 > Transparent-wrapper interpreter on opencode. Single source for ALL models — no per-model fork.
 
