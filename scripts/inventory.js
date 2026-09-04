@@ -6,7 +6,7 @@
  * Replaces the v2 prose spec (_archive/scripts/optional/interpreter-wrapper.md @ b14f1bb).
  * Every run discovers the LIVE opencode agents/tools; static mapping tables are forbidden.
  * Cache: .opencode-inventory.json (24h validity).
- * CLI: node scripts/inventory.js [--refresh] [--strict]   (npm run inventory = --refresh)
+ * CLI: node scripts/inventory.js [--refresh] [--strict]   (npm run inventory = cache-first 24h, npm run inventory:refresh = live)
  * Pure Node stdlib. Discovery is best-effort — parse failures are tolerated.
  * --strict: forbidden .opencode/agent 오염이 감지되면 exit 1 (check_vault와 동일한 pit-of-success 게이트).
  */

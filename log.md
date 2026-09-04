@@ -67,3 +67,11 @@
 - package.json 3.2.0→3.3.0, `npm run sync:version` 5토큰 동기화(AGENTS.md H1, README.md H1, package.json description, mcp/package.json, mcp/package-lock.json 2 fields) 0 drift.
 - README 본문 갱신: `foundry/` hermetic·pack 제외, wiki 7-structure(`architecture/decisions/releases/gotchas/archive` + `concepts/topics/references`), 일상 명령어 `verify:tiered`·pre-commit 훅→verify·verify-history.jsonl — thin·직관 유지, AGENTS.md SSOT.
 - 검증: `npm run verify` PASS (lint + check:vault --strict 5/5 + test + check:version 0 drift v3.3.0 + pack foundry 제외), H1 v3.3 확인, tag v3.3.0.
+
+## [2026-09-04] v3.3.1 — fix: tiered 자기오염 1~4 (FULL 고착·이중실행·탐침스톰 해소, 빌드모드 직행) [lint + 51/51 PASS]
+- 1단계 집계 제외: `scripts/tiered-verify.js`에 `HISTORY_EXCLUDE` + `isHistoryFile()` — `getGitState()`가 `foundry/verify-history.jsonl`·`.verify-tier.json`을 집계에서 제외(`excludedHistory` 별도 보고), history 단독 시 `SKIPPED(audit-only)`. BLACKLIST 무손상.
+- 2단계 미기록 가드: 양 분기 `appendFileSync`를 `if (!opts.dryRun && !opts.fixture)`로 감쌈 — 실측 `--check`만 1줄, 테스트·dry-run 오염 0.
+- 3단계 tier 분기: 신규 `scripts/verify-tiered.js` 래퍼 — SKIPPED→종료 / QUICK→`verify:quick` / FULL→`verify` / 변조(exit 2)→차단. `package.json verify:tiered` + `scripts/pre-commit`을 래퍼 호출로 교체, `lint`에 신파일 추가. exit 계약·51 테스트 무손상.
+- 4단계 캐시 우선: `npm run inventory`에서 `--refresh` 제거(24h 캐시 우선) + `inventory:refresh` 신설. 멀티터미널 탐침 스톰 해소 (1곳만 refresh, 나머지 캐시 히트).
+- package.json 3.3.0→3.3.1, `npm run sync:version` 5타깃 0 drift (토큰 v3.3 유지). README 본문 갱신(일상 명령어 tier 분기·inventory 듀얼·pre-commit 래퍼), foundry/brainstorm/2026-09-04-tiered-fixes-1-to-4.md 기록.
+- 검증: `wsl npm run lint` PASS, `--dry-run` files에서 history 제외·미기록 확인, `wsl npm test -- tests/tiered-verify.test.js` 51/51 PASS ×2회 후에도 history 70줄 유지.

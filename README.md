@@ -38,7 +38,7 @@ cp -a AGENTS.md opencode.json scripts/ plugins/ skills/ mcp/ ~/projects/<target>
 > **금지 — thin 설치 원칙 (모든 AI 필수 준수, AGENTS.md 헌법 참조)**
 > - `opencode init`, `npx harness-bootstrap`, `.opencode/agent/*.md` 수동 생성 **절대 금지** — thin 설치는 `006-palank-harness`에서 **파일 복사**만으로 수행: `AGENTS.md`, `opencode.json`, `scripts/`, `plugins/`, `skills/`, `mcp/` → 대상 repo 루트로 `cp -a`. `.opencode/` 디렉터리 자체는 생성 금지(런타임 산출물 아님).
 > - Windows UNC(`\\wsl.localhost\Ubuntu\home\...`)로는 읽기만, 쓰기는 WSL `~/projects/<repo>` Linux 절대경로로만.
-> - 전역 오염 시 즉시 삭제: `python3 -c "import shutil,pathlib; shutil.rmtree(pathlib.Path('.opencode'))"` → `npm run inventory --refresh`로 3 agents 복구 확인.
+> - 전역 오염 시 즉시 삭제: `python3 -c "import shutil,pathlib; shutil.rmtree(pathlib.Path('.opencode'))"` → `npm run inventory:refresh`로 3 agents 복구 확인.
 > - 위반은 `npm run verify`의 `check_vault --strict`(e항) + `inventory --strict`가 기계적으로 FAIL 차단 (사람이 아닌 기계가 검증).
 
 ```bash
@@ -72,7 +72,7 @@ git fetch upstream
    - `opencode.json`의 머신 값 — relay URL(baseURL) · 모델 ID(small_model 포함)
    - `wiki/` · `raw/` — 이 프로젝트의 지식 볼트
    - `package.json`의 프로젝트 메타(name/description)
-4. 의존 변경 시: `cd mcp && npm install` 후 `npm run inventory` 재생성
+4. 의존 변경 시: `cd mcp && npm install` 후 `npm run inventory:refresh` 재생성
 5. 검증: `npm run verify` + 플러그인 로드 프로브 —
    `opencode debug config --print-logs` 출력에 `"failed to load plugin"` 부재 확인(P0 재발 방지선)
 6. 동기화 버전 기록: 복제본 `log.md`에 `synced to upstream vX.Y.Z` 엔트리 추가
@@ -82,13 +82,15 @@ git fetch upstream
 
 ```bash
 npm run verify                            # 전체 게이트: lint + check:vault --strict + test + check:version + pack --dry-run
-npm run verify:tiered                     # 3-stage tier 게이트(foundry/verify-history.jsonl 기록, Fail-Closed)
-npm run inventory                         # startup inventory 재생성 (.opencode-inventory.json, 24h 캐시, 커밋 금지)
+npm run verify:tiered                     # tier 분기 게이트(SKIPPED→종료, QUICK→verify:quick, FULL→verify, Fail-Closed)
+npm run verify:quick                      # 가벼운 게이트: lint + check:vault + test (QUICK용)
+npm run inventory                         # startup inventory (24h 캐시 우선, .opencode-inventory.json, 커밋 금지)
+npm run inventory:refresh                 # startup inventory 실시간 강제 갱신 (pull·모델변경 직후 1회)
 node scripts/validate-schema.js '<json>'  # Lock 스키마 검증 (exit 0 유효 / 1 무효 / 2 usage)
 ```
 
 - `npm run verify` = lint + check:vault + test + check:version + pack 순 발동(AGENTS.md Verification 절 SSOT).
-- pre-commit 훅(`scripts/pre-commit` → `npm run verify`)이 커밋 전 게이트 강제, `foundry/verify-history.jsonl`에 이력 append.
+- pre-commit 훅(`scripts/pre-commit` → `scripts/verify-tiered.js`)이 tier 판정 후 SKIPPED→종료 / QUICK→`verify:quick` / FULL→`verify` 분기, 실측만 `foundry/verify-history.jsonl`에 1줄 기록(--dry-run·fixture 미기록).
 - Lock 스키마 필수 필드: `intent, files, schema, opencode_call, model, mcp, echo` —
   `echo.confirmed`는 엄격 boolean `true`(미확인 스키마는 Lock 불가).
 

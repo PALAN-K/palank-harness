@@ -63,6 +63,16 @@ export const BLACKLIST = [
   "skills/**",
 ];
 
+// Audit history exclusion (NOT blacklist): audit append-only files must not
+// pollute tier aggregation. Kept separate from BLACKLIST by design —
+// blacklist hit => FULL, history exclusion => ignored in counts.
+export const HISTORY_EXCLUDE = ["foundry/verify-history.jsonl", ".verify-tier.json"];
+
+export function isHistoryFile(file) {
+  const f = String(file).replace(/\\/g, "/").replace(/^\.\//, "").trim();
+  return HISTORY_EXCLUDE.includes(f);
+}
+
 export function getEvidencePath() {
   return EVIDENCE_PATH;
 }
@@ -199,12 +209,20 @@ export function getGitState() {
   const numstatOut = runGit(["diff", "HEAD", "--numstat"]);
   const tracked = parseNumstat(numstatOut);
   const diffContent = runGit(["diff", "HEAD", "-U0", "--no-color"]);
-  const totalLines = tracked.reduce((sum, f) => sum + f.added + f.deleted, 0);
+  // History exclusion: audit files must not pollute tier counts (FULL 고착 해소).
+  // Append logic untouched — main() still appends every run for audit preservation.
+  const filteredTracked = tracked.filter((t) => !isHistoryFile(t.file));
+  const filteredUntracked = untracked.filter((f) => !isHistoryFile(f));
+  const excludedHistory = [
+    ...tracked.filter((t) => isHistoryFile(t.file)).map((t) => t.file),
+    ...untracked.filter((f) => isHistoryFile(f)),
+  ];
+  const totalLines = filteredTracked.reduce((sum, f) => sum + f.added + f.deleted, 0);
   // Note: untracked line count not known; treat as needing FULL anyway via priority 1, so totalLines only for tracked.
   // For completeness, if untracked files exist, we could count their lines for evidence, but not needed for tier decision beyond FULL.
   // However to satisfy threshold logic for evidential purposes, we can add untracked file line counts by reading file.
   let untrackedLines = 0;
-  for (const f of untracked) {
+  for (const f of filteredUntracked) {
     try {
       const full = path.join(ROOT, f);
       if (fs.existsSync(full) && fs.statSync(full).isFile()) {
@@ -214,11 +232,12 @@ export function getGitState() {
     } catch {}
   }
   return {
-    tracked,
-    untracked,
+    tracked: filteredTracked,
+    untracked: filteredUntracked,
     diffContent,
     totalLines: totalLines + untrackedLines, // include for evidence, but tier 1 already FULL if untracked
-    allFiles: [...tracked.map((t) => t.file), ...untracked],
+    allFiles: [...filteredTracked.map((t) => t.file), ...filteredUntracked],
+    excludedHistory,
   };
 }
 
@@ -282,7 +301,18 @@ export function evaluateTier(state) {
   }
 
   // Edge: no files? treat as FULL (no trivial change to skip)
+  // Exception: audit-only (history files excluded in getGitState) => SKIPPED,
+  // otherwise history-only diff would stay FULL forever (FULL 고착).
   if (allFiles.length === 0) {
+    const excluded = Array.isArray(state.excludedHistory) ? state.excludedHistory : [];
+    if (excluded.length > 0) {
+      const evidence = buildEvidence(allFiles, totalLines, untracked, blacklistedHit, state);
+      return {
+        tier: "SKIPPED",
+        reason: `audit-only history files excluded (${excluded.join(", ")}), no relevant changes => SKIPPED`,
+        evidence,
+      };
+    }
     return {
       tier: "FULL",
       reason: "no changed files (empty diff)",
@@ -482,10 +512,12 @@ function main() {
       process.exit(2);
     }
     console.log(jsonLine);
-    try {
-      fs.mkdirSync(path.join(ROOT, "foundry"), { recursive: true });
-      fs.appendFileSync(path.join(ROOT, "foundry/verify-history.jsonl"), JSON.stringify({ ...payload, ts: new Date().toISOString() }) + "\n");
-    } catch {}
+    if (!opts.dryRun && !opts.fixture) {
+      try {
+        fs.mkdirSync(path.join(ROOT, "foundry"), { recursive: true });
+        fs.appendFileSync(path.join(ROOT, "foundry/verify-history.jsonl"), JSON.stringify({ ...payload, ts: new Date().toISOString() }) + "\n");
+      } catch {}
+    }
     if (!opts.dryRun) {
       try {
         fs.writeFileSync(EVIDENCE_PATH, jsonLine + "\n", "utf8");
@@ -506,10 +538,12 @@ function main() {
       generated_at: timestamp,
     };
     console.log(JSON.stringify(payload));
-    try {
-      fs.mkdirSync(path.join(ROOT, "foundry"), { recursive: true });
-      fs.appendFileSync(path.join(ROOT, "foundry/verify-history.jsonl"), JSON.stringify({ ...payload, ts: new Date().toISOString() }) + "\n");
-    } catch {}
+    if (!opts.dryRun && !opts.fixture) {
+      try {
+        fs.mkdirSync(path.join(ROOT, "foundry"), { recursive: true });
+        fs.appendFileSync(path.join(ROOT, "foundry/verify-history.jsonl"), JSON.stringify({ ...payload, ts: new Date().toISOString() }) + "\n");
+      } catch {}
+    }
     // Do not write sidecar for QUICK/FULL; but ensure stale sidecar is not misleading — leave it? Spec doesn't say to delete.
     // Exit 1 signals delegation needed
     process.exit(1);
