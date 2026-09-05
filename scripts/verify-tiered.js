@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-// verify-tiered.js — tier-aware verify dispatcher (fix #3)
-// Runs tiered --check ONCE (single history append for real checks),
+// verify-tiered.js — tier-aware verify dispatcher (fix #3, P1 CQS)
+// Runs tiered --check ONCE (CQS query-only, no history append),
 // then delegates by tier: SKIPPED→exit 0, QUICK→verify:quick, FULL→verify.
+// Explicit audit needs --log (node scripts/tiered-verify.js --check --log).
 // Fail-closed: tampered (exit 2) blocks, unparsable tier → full verify.
 import { spawnSync } from "child_process";
 import path from "path";

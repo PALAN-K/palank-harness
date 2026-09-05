@@ -26,6 +26,8 @@ test("blocks unix shell writes (v2 patterns kept)", () => {
     "echo hi >> out.txt",
     "tail -f app.log | tee copy.log",
     "sed -i 's/a/b/' file.txt",
+    "python -c \"open('a.txt','w').write('x')\"",
+    "python3 -c \"open('a.txt','w').write('x')\"",
   ]) {
     assert.equal(isBlocked(cmd), true, `should block: ${cmd}`);
   }
@@ -83,4 +85,19 @@ test("isDestructive marks rm/del/Remove-Item/ri family (universal fallback)", as
   assert.equal(isDestructive("rm -rf build"), true);
   assert.equal(isDestructive("Remove-Item -Recurse x"), true);
   assert.equal(isDestructive("git status"), false);
+});
+
+test("allows sc.exe Service Control while still blocking sc alias (P3' refinement)", () => {
+  for (const cmd of ["sc.exe query", "sc.exe stop MyService", "SC.EXE start MyService"]) {
+    assert.equal(isBlocked(cmd), false, `should allow: ${cmd}`);
+  }
+  for (const cmd of [
+    "sc -Path a.txt -Value x",
+    "sc log.txt extra",
+    "ac log.txt extra",
+    "ni new.txt",
+    "mi a.txt backup.txt",
+  ]) {
+    assert.equal(isBlocked(cmd), true, `should still block: ${cmd}`);
+  }
 });

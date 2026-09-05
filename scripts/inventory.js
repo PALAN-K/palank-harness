@@ -172,7 +172,7 @@ function emit(inv) {
     const UNC_RE = /^\\\\wsl/i;
     const hasUNC = (s) =>
       typeof s === "string" && (UNC_RE.test(s) || s.includes("\\\\wsl.localhost") || s.includes("\\\\wsl$"));
-    const argvJoined = process.argv.join(" ");
+    const argvJoined = process.argv.slice(2).join(" ");
     const invStr = JSON.stringify(inv);
     let uncHint = "";
     if (hasUNC(ROOT)) uncHint = `ROOT=${ROOT}`;
@@ -186,7 +186,15 @@ function emit(inv) {
       if (process.argv.includes("--strict")) process.exit(1);
     }
   }
-  fs.writeFileSync(CACHE_PATH, JSON.stringify(inv, null, 2));
+  // atomic cache write (tmp+rename) — tiered-verify.js:527-529 pattern, tmp residue cleanup on error
+  const tmpPath = `${CACHE_PATH}.tmp.${process.pid}`;
+  try {
+    fs.writeFileSync(tmpPath, JSON.stringify(inv, null, 2), "utf8");
+    fs.renameSync(tmpPath, CACHE_PATH);
+  } catch (e) {
+    try { fs.unlinkSync(tmpPath); } catch {}
+    throw e;
+  }
   console.log(JSON.stringify(inv, null, 2));
   // e) fail-closed 오염 경고 — thin 3 agents 외 forbidden이 filesystem glob으로 유입되면 경고
   const FORBIDDEN = new Set(["harness", "reviewer", "researcher", "build", "plan"]);
@@ -221,26 +229,39 @@ function emit(inv) {
   const UNC_RE = /^\\\\wsl/i;
   const hasUNC = (s) =>
     typeof s === "string" && (UNC_RE.test(s) || s.includes("\\\\wsl.localhost") || s.includes("\\\\wsl$"));
-  const argvJoined = process.argv.join(" ");
+  const argvJoined = process.argv.slice(2).join(" ");
+  const isStrict = process.argv.includes("--strict");
   let uncHint = "";
   if (hasUNC(ROOT)) uncHint = `ROOT=${ROOT}`;
   else if (hasUNC(CACHE_PATH)) uncHint = `CACHE_PATH=${CACHE_PATH}`;
   else if (hasUNC(argvJoined)) uncHint = `argv=${argvJoined.slice(0, 120)}`;
   if (uncHint) {
-    console.error(
-      `FAIL: WSL UNC path forbidden — use ~/projects/<repo> Linux absolute (/home/jayeo/projects/...) (${uncHint})`
-    );
-    if (process.argv.includes("--strict")) process.exit(1);
+    if (isStrict) {
+      console.error(
+        `FAIL: WSL UNC path forbidden — use ~/projects/<repo> Linux absolute (/home/jayeo/projects/...) (${uncHint})`
+      );
+      process.exit(1);
+    } else {
+      console.error(
+        `WARNING: WSL UNC path forbidden — use ~/projects/<repo> Linux absolute (/home/jayeo/projects/...) (${uncHint})`
+      );
+    }
   }
   // also scan cached inventory json if exists
   try {
     if (fs.existsSync(CACHE_PATH)) {
       const raw = fs.readFileSync(CACHE_PATH, "utf-8");
       if (hasUNC(raw)) {
-        console.error(
-          `FAIL: WSL UNC path forbidden — use ~/projects/<repo> Linux absolute (/home/jayeo/projects/...) (.opencode-inventory.json contains UNC)`
-        );
-        if (process.argv.includes("--strict")) process.exit(1);
+        if (isStrict) {
+          console.error(
+            `FAIL: WSL UNC path forbidden — use ~/projects/<repo> Linux absolute (/home/jayeo/projects/...) (.opencode-inventory.json contains UNC)`
+          );
+          process.exit(1);
+        } else {
+          console.error(
+            `WARNING: WSL UNC path forbidden — use ~/projects/<repo> Linux absolute (/home/jayeo/projects/...) (.opencode-inventory.json contains UNC)`
+          );
+        }
       }
     }
   } catch {}

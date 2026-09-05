@@ -27,7 +27,7 @@ Cap 초과 시 잘라내고, 잘라낸 사실을 finding evidence에 명시. 절
 
 1. **AGENTS.md** — 헌법 (stable prefix)
 2. **index.md** — vault 카탈로그 (1줄/페이지)
-3. **get_context 5** — `config-scanner_get_context` intent-ranked wiki/raw 최대 5파일 (~4000자/파일) — AGENTS.md 선두는 이미 있으므로 중복 제외
+3. **get_context 5** — `palank-domain_get_context` intent-ranked wiki/raw 최대 5파일 (~4000자/파일) — AGENTS.md 선두는 이미 있으므로 중복 제외
 4. **git diff HEAD** — 전체 DIFF (Final 리뷰) 또는 PLAN 문서/스펙 DIFF (Plan 리뷰) — `git diff HEAD --numstat` + `git diff HEAD -U3` 최소
 5. **log.md 5** — 최근 5개 decision 블록 (맥락 오염·재발 패턴 탐지)
 6. **Code vs Data 3-file (MANDATORY)** — 이번 Task가 다루는 실제 데이터 파일(JSON/MD/params/config/raw/*.md 등)을 **코드와 별개로 직접 open**하여 3개 이상 확인. 코드에서 `readFile("data.json")`이면 data.json을 실제로 읽어 필드·스키마를 대조. 미오픈 시 `data` 타입 finding으로 즉시 보고 (저가 모델 환각 1차 차단).

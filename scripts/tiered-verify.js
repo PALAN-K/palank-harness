@@ -27,7 +27,8 @@
  *  - SKIPPED with valid evidence => exit 0
  *
  * CLI:
- *  node scripts/tiered-verify.js --check        # determine from git, write sidecar if SKIPPED
+ *  node scripts/tiered-verify.js --check        # determine from git, write sidecar if SKIPPED (CQS: query-only, no history)
+ *  node scripts/tiered-verify.js --check --log  # same + append 1 line to foundry/verify-history.jsonl (explicit audit)
  *  node scripts/tiered-verify.js --dry-run      # same but no sidecar
  *  node scripts/tiered-verify.js --fixture '<json>' --check # inject fake state for tests
  *  Fixture schema: { files:[{file,added,deleted}], untracked:[file], diffContent:string, totalLines?:number }
@@ -210,7 +211,7 @@ export function getGitState() {
   const tracked = parseNumstat(numstatOut);
   const diffContent = runGit(["diff", "HEAD", "-U0", "--no-color"]);
   // History exclusion: audit files must not pollute tier counts (FULL 고착 해소).
-  // Append logic untouched — main() still appends every run for audit preservation.
+  // CQS (P1): --check is query-only, history append only with explicit --log.
   const filteredTracked = tracked.filter((t) => !isHistoryFile(t.file));
   const filteredUntracked = untracked.filter((f) => !isHistoryFile(f));
   const excludedHistory = [
@@ -419,11 +420,13 @@ function parseArgs(argv) {
     dryRun: false,
     fixture: null,
     help: false,
+    log: false,
   };
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
     if (a === "--check") opts.check = true;
     else if (a === "--dry-run") opts.dryRun = true;
+    else if (a === "--log") opts.log = true;
     else if (a === "--fixture") {
       const next = args[++i];
       if (!next) {
@@ -448,7 +451,8 @@ function parseArgs(argv) {
 function printHelp() {
   console.log(`tiered-verify — Fail-Closed Tiered Verify (Phase 1)
 Usage:
-  node scripts/tiered-verify.js --check                 # git state -> tier, write .verify-tier.json if SKIPPED
+  node scripts/tiered-verify.js --check                 # git state -> tier, write .verify-tier.json if SKIPPED (CQS: query-only, no history)
+  node scripts/tiered-verify.js --check --log           # same as --check + append 1 line to foundry/verify-history.jsonl (explicit audit)
   node scripts/tiered-verify.js --dry-run               # same but no sidecar
   node scripts/tiered-verify.js --fixture '<json>' --check # test seam
 
@@ -512,7 +516,7 @@ function main() {
       process.exit(2);
     }
     console.log(jsonLine);
-    if (!opts.dryRun && !opts.fixture) {
+    if (!opts.dryRun && !opts.fixture && opts.log) {
       try {
         fs.mkdirSync(path.join(ROOT, "foundry"), { recursive: true });
         fs.appendFileSync(path.join(ROOT, "foundry/verify-history.jsonl"), JSON.stringify({ ...payload, ts: new Date().toISOString() }) + "\n");
@@ -520,7 +524,9 @@ function main() {
     }
     if (!opts.dryRun) {
       try {
-        fs.writeFileSync(EVIDENCE_PATH, jsonLine + "\n", "utf8");
+        const tmpPath = `${EVIDENCE_PATH}.tmp.${process.pid}`;
+        fs.writeFileSync(tmpPath, jsonLine + "\n", "utf8");
+        fs.renameSync(tmpPath, EVIDENCE_PATH);
       } catch (e) {
         console.error(`failed to write sidecar ${EVIDENCE_PATH}: ${e.message}`);
         process.exit(2);
@@ -538,13 +544,18 @@ function main() {
       generated_at: timestamp,
     };
     console.log(JSON.stringify(payload));
-    if (!opts.dryRun && !opts.fixture) {
+    if (!opts.dryRun && !opts.fixture && opts.log) {
       try {
         fs.mkdirSync(path.join(ROOT, "foundry"), { recursive: true });
         fs.appendFileSync(path.join(ROOT, "foundry/verify-history.jsonl"), JSON.stringify({ ...payload, ts: new Date().toISOString() }) + "\n");
       } catch {}
     }
-    // Do not write sidecar for QUICK/FULL; but ensure stale sidecar is not misleading — leave it? Spec doesn't say to delete.
+    // Fail-Closed: remove stale sidecar on QUICK/FULL so old SKIPPED evidence cannot cause false-pass
+    if (!opts.dryRun && fs.existsSync(EVIDENCE_PATH)) {
+      try {
+        fs.unlinkSync(EVIDENCE_PATH);
+      } catch {}
+    }
     // Exit 1 signals delegation needed
     process.exit(1);
   }

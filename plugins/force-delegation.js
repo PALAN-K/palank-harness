@@ -22,7 +22,7 @@
 
 // --- Unix / classic shell patterns (kept from v2/v3, extended in v3.2) ---
 const UNIX_PATTERNS = [
-  /(^|\s)(tee\s|sed\s+-i|heredoc|python\s+-c\s+.*open\(.*\.write)/,
+  /(^|\s)(tee\s|sed\s+-i|heredoc|python3?\s+-c\s+.*open\(.*\.write)/,
   // P1-2: redirects, spaced AND space-less (>f, >>f, 2>err.log). Stream merges
   // (2>&1) and null sinks (> $null / > NUL) are exempt so pure reads survive.
   /(^|\s|[0-9])>{1,2}\s*(?!&[0-9]\b)(?!\$null\b)(?!\bNUL\b)\S/i,
@@ -39,10 +39,11 @@ const POWERSHELL_PATTERNS = [
   /\[IO\.File\]::/i,
   // node -e followed by an fs write-family API anywhere in the script body
   /\bnode\s+-e\b[\s\S]*?\b(?:writeFile|appendFile|createWriteStream)\w*/i,
-  // P1-2: PS write-cmdlet aliases sc(Set-Content) ac(Add-Content) ni(New-Item) mi(Move-Item*).
-  // Known trade-off: "sc.exe ..." (Service Control) collides with the sc alias —
-  // accepted per contract; harness sessions practically never invoke sc.exe.
-  /\b(?:sc|ac|ni|mi)\b/i,
+  // P3': PS write-cmdlet aliases sc(Set-Content) ac(Add-Content) ni(New-Item) mi(Move-Item*).
+  // Conditional refinement only (P3 full-name proposal rejected): keep alias blocking,
+  // exempt "<alias>.exe" so Service Control escapes via sc.exe (bare "sc query" still
+  // blocked fail-closed — use sc.exe to disambiguate).
+  /\b(?:sc|ac|ni|mi)\b(?!\.exe\b)/i,
   // P1-2: PS here-string openers @' / @" (any real here-string contains one)
   /@['"]/,
 ];
@@ -138,7 +139,7 @@ export default async function forceDelegation({ project, client, $, directory, w
         const prompt = output?.args?.prompt;
         if (!taskGateOk(prompt)) {
           throw new Error(
-            "Echo gate not satisfied: Task prompt must declare `gate:echo-confirmed` (user confirmed intent summary) or `gate:research-exempt` (research-only). See skills/interpreter/SKILL.md Flow step 2."
+            "Echo gate not satisfied: Task prompt must declare `gate:echo-confirmed` (user confirmed intent summary) or `gate:research-exempt` (research-only). See skills/interpreter/SKILL.md Flow step 2. Delegate via Task(subagent_type=\"interpreter\", prompt=\"gate:echo-confirmed intent=... scope/files=[...] done=...\")"
           );
         }
         return;
@@ -155,7 +156,7 @@ export default async function forceDelegation({ project, client, $, directory, w
         // leave other checks to Layer 1 config permission (conductor edit/write deny).
         if ((tool === "bash" || tool === "shell") && isDestructive(cmd)) {
           throw new Error(
-            `Blocked: destructive command detected (agent identity unresolved, universal rule). Delegate file mutation via Task->interpreter. Command: ${cmd.slice(0, 80)}`
+            `Blocked: destructive command detected (agent identity unresolved, universal rule). Delegate via Task(subagent_type="interpreter", prompt="gate:echo-confirmed intent=... scope/files=[...] done=..."). Command: ${cmd.slice(0, 80)}`
           );
         }
         return;
@@ -165,13 +166,13 @@ export default async function forceDelegation({ project, client, $, directory, w
       // 3) Conductor guard: no direct file mutation tools...
       if (["write", "edit", "patch"].includes(tool)) {
         throw new Error(
-          `Blocked: conductor cannot use '${tool}' directly. Use Task tool with subagent_type="interpreter" or "verify" instead. See AGENTS.md Rules 1/5.`
+          `Blocked: conductor cannot use '${tool}' directly. Use Task tool with subagent_type="interpreter" or "verify" instead. See AGENTS.md Rules 1/5. Example: Task(subagent_type="interpreter", prompt="gate:echo-confirmed intent=... scope/files=[...] done=...")`
         );
       }
       // ...and no shell-side writes either.
       if ((tool === "bash" || tool === "shell") && isBlocked(cmd)) {
         throw new Error(
-          `Blocked: shell write detected. Conductor must not write via shell. Use Task->interpreter instead. Command: ${cmd.slice(0, 80)}`
+          `Blocked: shell write detected. Conductor must not write via shell. Delegate via Task(subagent_type="interpreter", prompt="gate:echo-confirmed intent=... scope/files=[...] done=..."). Command: ${cmd.slice(0, 80)}`
         );
       }
     },

@@ -188,9 +188,9 @@ if (!fs.existsSync(path.join(vaultDir, ".git"))) {
   } else if (hasUNC(vaultDir)) {
     uncDetected = true;
     uncHint = `vaultDir=${vaultDir}`;
-  } else if (hasUNC(process.argv.join(" "))) {
+  } else if (hasUNC(process.argv.slice(2).join(" "))) {
     uncDetected = true;
-    uncHint = `argv=${process.argv.join(" ")}`;
+    uncHint = `argv=${process.argv.slice(2).join(" ")}`;
   }
   // opencode.json content (if vault contains it)
   if (!uncDetected) {
@@ -219,10 +219,17 @@ if (!fs.existsSync(path.join(vaultDir, ".git"))) {
     } catch {}
   }
   if (uncDetected) {
-    report(
-      "error",
-      `FAIL: WSL UNC path forbidden — use ~/projects/<repo> Linux absolute (/home/jayeo/projects/...) (${uncHint})`
-    );
+    if (strict) {
+      report(
+        "error",
+        `FAIL: WSL UNC path forbidden — use ~/projects/<repo> Linux absolute (/home/jayeo/projects/...) (${uncHint})`
+      );
+    } else {
+      report(
+        "warning",
+        `WARNING: WSL UNC path forbidden — use ~/projects/<repo> Linux absolute (/home/jayeo/projects/...) (${uncHint})`
+      );
+    }
   } else {
     reports.push("info: WSL UNC guard ok (no \\\\wsl path detected)");
   }

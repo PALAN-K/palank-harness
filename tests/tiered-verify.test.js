@@ -321,6 +321,65 @@ test("CLI --dry-run does not write sidecar", () => {
   assert.equal(fs.existsSync(getEvidencePath()), false);
 });
 
+// ── P1 CQS: --check query-only, --log explicit audit ──
+test("P1 CQS: --check is query-only (history +0, 2x same tier)", () => {
+  const histPath = path.join(ROOT, "foundry/verify-history.jsonl");
+  const readLines = () => {
+    try {
+      const c = fs.readFileSync(histPath, "utf8");
+      if (!c.trim()) return [];
+      return c.trim().split("\n");
+    } catch {
+      return [];
+    }
+  };
+  const before = readLines().length;
+  const runCheck = () =>
+    spawnSync("node", [path.join(ROOT, "scripts/tiered-verify.js"), "--check"], {
+      encoding: "utf8",
+      cwd: ROOT,
+    });
+  const r1 = runCheck();
+  const r2 = runCheck();
+  assert.ok(r1.status === 0 || r1.status === 1, `first --check exit ${r1.status} stderr=${r1.stderr}`);
+  assert.ok(r2.status === 0 || r2.status === 1, `second --check exit ${r2.status} stderr=${r2.stderr}`);
+  const o1 = JSON.parse(String(r1.stdout).trim().split("\n").pop());
+  const o2 = JSON.parse(String(r2.stdout).trim().split("\n").pop());
+  assert.equal(o1.tier, o2.tier, "2x same tier");
+  assert.equal(o1.reason, o2.reason, "2x same reason");
+  const after = readLines().length;
+  assert.equal(after, before, `CQS: --check must not append history (before=${before} after=${after})`);
+});
+
+test("P1 CQS: --check --log appends exactly 1 line", () => {
+  const histPath = path.join(ROOT, "foundry/verify-history.jsonl");
+  const readRaw = () => {
+    try {
+      return fs.readFileSync(histPath, "utf8");
+    } catch {
+      return "";
+    }
+  };
+  const countLines = (s) => (!s.trim() ? 0 : s.trim().split("\n").length);
+  const beforeRaw = readRaw();
+  const before = countLines(beforeRaw);
+  const r = spawnSync("node", [path.join(ROOT, "scripts/tiered-verify.js"), "--check", "--log"], {
+    encoding: "utf8",
+    cwd: ROOT,
+  });
+  assert.ok(r.status === 0 || r.status === 1, `--check --log exit ${r.status} stderr=${r.stderr}`);
+  const afterRaw = readRaw();
+  const after = countLines(afterRaw);
+  assert.equal(after, before + 1, `CQS: --check --log must append 1 (before=${before} after=${after})`);
+  const last = afterRaw.trim().split("\n").pop();
+  const obj = JSON.parse(last);
+  assert.ok(["FULL", "QUICK", "SKIPPED"].includes(obj.tier), `logged tier valid, got ${obj.tier}`);
+  // cleanup: restore to keep tests idempotent (net 0)
+  try {
+    fs.writeFileSync(histPath, beforeRaw, "utf8");
+  } catch {}
+});
+
 // ── validate-schema trivial validation (fail-closed) ──
 test("validateSchema rejects SKIPPED without evidence (fail-closed)", async () => {
   const { validateSchema } = await import("../scripts/validate-schema.js");
