@@ -11,72 +11,94 @@
  * unless md/log/package.json change (avoids perpetual drift / FULL stickiness).
  * Stdlib only, ESM. Exit 0 on success, 1 on missing SSOT.
  *
- * Usage: node scripts/sync-architecture.js
+ * Usage:
+ *   node scripts/sync-architecture.js                      # apply fixes at repo root
+ *   node scripts/sync-architecture.js --check              # report only; exit 1 on drift
+ *   node scripts/sync-architecture.js [--check] --root DIR # operate on a fixture root (test seam)
  */
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
+import { fileURLToPath, pathToFileURL } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ROOT = path.resolve(__dirname, "..");
-const OVERVIEW_MD = path.join(ROOT, "wiki", "architecture", "006-overview.md");
-const PIPELINE_MD = path.join(ROOT, "wiki", "architecture", "006-pipeline.md");
-const PKG_JSON = path.join(ROOT, "package.json");
-const LOG_MD = path.join(ROOT, "log.md");
-const HTML_PATH = path.join(ROOT, "architecture.html");
 
-function readOrFail(p, label) {
+function parseArgs(argv) {
+  let check = false;
+  let root = null;
+  for (let i = 0; i < argv.length; i++) {
+    if (argv[i] === "--check") check = true;
+    else if (argv[i] === "--root") root = argv[++i];
+    else if (argv[i] === "-h" || argv[i] === "--help") {
+      console.log("usage: node scripts/sync-architecture.js [--check] [--root DIR]");
+      process.exit(0);
+    }
+  }
+  return { check, root: root ? path.resolve(root) : path.resolve(__dirname, "..") };
+}
+
+function pathsFor(root) {
+  return {
+    overview: path.join(root, "wiki", "architecture", "006-overview.md"),
+    pipeline: path.join(root, "wiki", "architecture", "006-pipeline.md"),
+    pkg: path.join(root, "package.json"),
+    log: path.join(root, "log.md"),
+    html: path.join(root, "architecture.html"),
+  };
+}
+
+function readOrFail(p, label, root) {
   if (!fs.existsSync(p)) {
-    console.error(`[sync-architecture] missing SSOT ${label}: ${path.relative(ROOT, p)}`);
+    console.error(`[sync-architecture] missing SSOT ${label}: ${path.relative(root, p)}`);
     process.exit(1);
   }
   return fs.readFileSync(p, "utf-8");
 }
 
-function esc(s) {
+export function esc(s) {
   return String(s)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
 }
 
-const overview = readOrFail(OVERVIEW_MD, "overview md");
-const pipeline = readOrFail(PIPELINE_MD, "pipeline md");
-const pkgRaw = readOrFail(PKG_JSON, "package.json");
-let version = "unknown";
-try {
-  version = JSON.parse(pkgRaw).version || "unknown";
-} catch (e) {
-  console.error(`[sync-architecture] package.json parse failed: ${e.message}`);
-  process.exit(1);
+export function getTierRows(overview) {
+  return overview
+    .split("\n")
+    .filter((l) => l.startsWith("| **"))
+    .map((l) => l.trim());
 }
-const log = readOrFail(LOG_MD, "log.md");
 
-// Latest changelog entry: last "## " section (append-only ledger, stable, no timestamp)
-let latestLog = "";
-const sections = log.split(/^## /m);
-if (sections.length > 1) {
-  latestLog = ("## " + sections[sections.length - 1]).trim();
-} else {
-  latestLog = log.trim().slice(0, 1200);
+export function getLatestLog(log) {
+  let latestLog = "";
+  const sections = log.split(/^## /m);
+  if (sections.length > 1) {
+    latestLog = ("## " + sections[sections.length - 1]).trim();
+  } else {
+    latestLog = log.trim().slice(0, 1200);
+  }
+  if (latestLog.length > 2000) latestLog = latestLog.slice(0, 2000) + "\n...";
+  return latestLog;
 }
-// Keep html stable: cap length, no volatile date
-if (latestLog.length > 2000) latestLog = latestLog.slice(0, 2000) + "\n...";
 
-// Tier rows: parse Allowlist table lines starting with "| **" (stable, md-driven)
-const tierRows = overview
-  .split("\n")
-  .filter((l) => l.startsWith("| **"))
-  .map((l) => l.trim());
-const tierCount = tierRows.length;
+export function checkAllowlist(overview, root) {
+  const tierRows = getTierRows(overview);
+  const missing = [];
+  for (const row of tierRows) {
+    for (const m of row.matchAll(/`([^`]+)`/g)) {
+      const cand = m[1].trim();
+      if (!cand) continue;
+      if (cand.includes("*")) continue; // glob (wiki/**, raw/**) — not a concrete file
+      if (!cand.includes("/") && !cand.includes(".")) continue; // not a path
+      // strip trailing punctuation
+      const clean = cand.replace(/[,;\]\)]+$/, "");
+      const full = path.join(root, clean);
+      if (!fs.existsSync(full)) missing.push(clean);
+    }
+  }
+  return [...new Set(missing)];
+}
 
-// Pipeline steps: count lines starting with "[" or "产" no — count "[N." markers stably
-const pipeSteps = pipeline
-  .split("\n")
-  .filter((l) => /^\[.+?\]/.test(l.trim()) || /^\[사용자/.test(l.trim()))
-  .length;
-
-function tierRowsHtml() {
+function tierRowsHtml(tierRows) {
   if (tierRows.length === 0) return "<tr><td colspan='4'>No tier rows in overview md</td></tr>";
   return tierRows
     .map((r) => {
@@ -90,7 +112,9 @@ function tierRowsHtml() {
     .join("\n");
 }
 
-const html = `<!DOCTYPE html>
+export function renderHtml({ version, tierRows, latestLog }) {
+  const tierCount = tierRows.length;
+  return `<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
@@ -122,7 +146,7 @@ const html = `<!DOCTYPE html>
 <div class="ssot"><strong>SSOT:</strong> md=master (Ledger) · canvas (<code>architecture.excalidraw</code>)=mirror+inbox (View+Inbox, diary only, Echo gate required) · html=this file=derived auto-view · Changelog truth=<code>package.json</code>+<code>log.md</code>. Canvas to code only via <code>gate:echo-confirmed</code> Task.</div>
 <h2>3-Tier Allowlist (from 006-overview.md, ${tierCount} rows)</h2>
 <table><thead><tr><th>계층</th><th>컴포넌트</th><th>역할</th><th>소스</th></tr></thead><tbody>
-${tierRowsHtml()}
+${tierRowsHtml(tierRows)}
 </tbody></table>
 <h2>Pipeline (from 006-pipeline.md)</h2>
 <p style="color:var(--muted)">Diary → Echo → Interview → Lock → Dispatch → Verify. Full flow lives in <code>wiki/architecture/006-pipeline.md</code>.</p>
@@ -135,6 +159,70 @@ ${tierRowsHtml()}
 </body>
 </html>
 `;
+}
 
-fs.writeFileSync(HTML_PATH, html, "utf-8");
-console.log(`[sync-architecture] md->html ok: version=${version} tiers=${tierCount} overview=${overview.length}B pipeline=${pipeline.length}B -> architecture.html ${html.length}B (0 errors)`);
+export function buildHtml(root) {
+  const p = pathsFor(root);
+  const overview = readOrFail(p.overview, "overview md", root);
+  const pipeline = readOrFail(p.pipeline, "pipeline md", root);
+  const pkgRaw = readOrFail(p.pkg, "package.json", root);
+  let version = "unknown";
+  try {
+    version = JSON.parse(pkgRaw).version || "unknown";
+  } catch (e) {
+    console.error(`[sync-architecture] package.json parse failed: ${e.message}`);
+    process.exit(1);
+  }
+  const log = readOrFail(p.log, "log.md", root);
+  const latestLog = getLatestLog(log);
+  const tierRows = getTierRows(overview);
+  const tierCount = tierRows.length;
+  const html = renderHtml({ version, tierRows, latestLog });
+  const missing = checkAllowlist(overview, root);
+  return { html, version, tierCount, overviewLen: overview.length, pipelineLen: pipeline.length, missing };
+}
+
+export function syncApply(root) {
+  const { html, version, tierCount, overviewLen, pipelineLen, missing } = buildHtml(root);
+  const p = pathsFor(root);
+  for (const m of missing) {
+    console.log(`[MISSING_COMPONENT] ${m} (from 006-overview.md Allowlist, file not found)`);
+  }
+  fs.writeFileSync(p.html, html, "utf-8");
+  console.log(
+    `[sync-architecture] md->html ok: version=${version} tiers=${tierCount} overview=${overviewLen}B pipeline=${pipelineLen}B -> architecture.html ${html.length}B (0 errors)`
+  );
+  return { version, tierCount, missing };
+}
+
+export function syncCheck(root) {
+  const { html: expected, version, tierCount, missing } = buildHtml(root);
+  const p = pathsFor(root);
+  for (const m of missing) {
+    console.log(`[MISSING_COMPONENT] ${m} (from 006-overview.md Allowlist, file not found)`);
+  }
+  let actual = null;
+  try {
+    actual = fs.readFileSync(p.html, "utf-8");
+  } catch {
+    actual = null;
+  }
+  if (actual !== expected) {
+    console.error(`FAIL: architecture.html is stale — run 'npm run sync:architecture'`);
+    process.exit(1);
+  }
+  console.log(
+    `[sync-architecture] [OK] architecture.html is fresh: version=${version} tiers=${tierCount} -> architecture.html ${expected.length}B (0 errors)`
+  );
+  return { version, tierCount, missing };
+}
+
+function main() {
+  const { check, root } = parseArgs(process.argv.slice(2));
+  if (check) syncCheck(root);
+  else syncApply(root);
+}
+
+if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) {
+  main();
+}

@@ -39,3 +39,9 @@ Vault-Base: git:b14f1bbcfd574590a6cd13b5b662fa3e994bca2e
 - Flow: wiki/architecture/006-pipeline.md
 - Renderer: scripts/sync-architecture.js
 - Skill: skills/excalidraw/SKILL.md
+
+## Frontmatter 기각 (2026-09-05)
+
+- `wiki/architecture/*.md`에 YAML frontmatter를 도입하지 않는다 — YAGNI (파서·게이트 추가 없이 `Vault-Base`+`> Raw:` 텍스트 규약으로 충분).
+- 필요 시점까지 연기하며, 도입 시 본 ADR 후속으로 `sync-architecture.js --check` 파서 확장과 함께 결정한다.
+- 본 결정은 drift 게이트와 무관하며, html 재생성은 md 본문만으로 수행한다.

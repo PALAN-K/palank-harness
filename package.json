@@ -23,11 +23,12 @@
     "inventory:refresh": "node scripts/inventory.js --refresh",
     "sync:version": "node scripts/sync-version.js",
     "check:version": "node scripts/sync-version.js --check",
-    "verify": "npm run lint && npm run check:vault && npm run test && npm run check:version && npm pack --dry-run",
+    "verify": "npm run lint && npm run check:vault && npm run test && npm run check:version && npm run check:architecture && npm pack --dry-run",
     "verify:quick": "npm run lint && npm run check:vault -- --strict && npm test",
     "verify:tiered": "node scripts/verify-tiered.js",
     "tiered": "node scripts/tiered-verify.js --check",
-    "sync:architecture": "node scripts/sync-architecture.js"
+    "sync:architecture": "node scripts/sync-architecture.js",
+    "check:architecture": "node scripts/sync-architecture.js --check"
   },
   "files": [
     "AGENTS.md",

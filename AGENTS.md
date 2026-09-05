@@ -47,7 +47,7 @@
 - `npm run check:vault` — scripts/check_vault.js --strict: every wiki page needs `> Raw:` into raw/, index parity, Vault-Base hash reachability, markdown link targets (index.md + wiki/**)
 - `npm test` — node:test suites in tests/
 - `npm run check:version` — scripts/sync-version.js --check: live release tokens (mcp/package.json, mcp/package-lock.json, AGENTS.md H1, README.md H1, package.json description) derive from the root package.json master; drift exits 1. log.md history and wiki/raw provenance labels are excluded by design. Apply with `npm run sync:version`.
-- `npm run verify` — all of the above (`lint` + `check:vault` + `test` + `check:version`) + `npm pack --dry-run` hygiene. Empty vault (0 pages, 0 rows) is a valid PASS skeleton.
+- `npm run verify` — all of the above (`lint` + `check:vault` + `test` + `check:version` + `check:architecture`) + `npm pack --dry-run` hygiene. Empty vault (0 pages, 0 rows) is a valid PASS skeleton.
 
 ## Footnote
 

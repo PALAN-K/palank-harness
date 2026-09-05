@@ -48,12 +48,10 @@
 <h2>Pipeline (from 006-pipeline.md)</h2>
 <p style="color:var(--muted)">Diary → Echo → Interview → Lock → Dispatch → Verify. Full flow lives in <code>wiki/architecture/006-pipeline.md</code>.</p>
 <h2 style="margin-top:20px">Latest Changelog (from log.md ledger)</h2>
-<pre>## [2026-09-05] feat | visual architecture dogfooding — vault-native SSOT + 3-tier architecture [verify PASS]
-- 결정 15: Visual Architecture Schema의 vault-native 채택 — SSOT는 wiki/architecture/*.md(수기)로 확정, check_vault index parity/raw citation/hash reachability를 그대로 상속(신규 차단 게이트 0개, zero-code leverage).
-- 결정 16: Companion 뷰어 분리 — architecture.html(30KB 제로 의존 단일 뷰어)은 인간의 시각적 직관용 렌더링 산출물로 배치하고 기계적 parity/검증 대상에서 격하(3중 SSOT drift 차단).
-- 결정 17: Allowlist SSOT 수립 — wiki/architecture/006-overview.md에 3계층 컴포넌트·파일 매핑표를 정의하여 바이브코딩 시 백엔드 직관 유지 및 reviewer의 Zombie 잔재·Scope 오염 검출 기준으로 활용.
-- 파일 목록: wiki/architecture/006-overview.md, wiki/architecture/006-pipeline.md, index.md(architecture 2 bullets), architecture.html, foundry/brainstorm/2026-09-05-visual-architecture-dogfood.md, log.md(본 절).
-- 검증: check_vault --strict 7/7 parity PASS (0 errors), npm run lint PASS, npm test PASS.</pre>
+<pre>## [2026-09-05] feat(arch) | sync-architecture --check drift gate + 7 tests [verify PASS]
+- `sync-architecture.js --check` drift 게이트 신설 + `verify` 체인 편입, 7테스트 봉인(idempotent·stale·allowlist 포함).
+- `001-canvas-demotion.md` frontmatter 기각 3줄 + `replication-guide.md` excalidraw 이식 3줄 문서화.
+- 검증: 본트리 `npm run verify` PASS + 격리 worktree verify returncode 0, push 금지·원자적 2차 커밋 봉인.</pre>
 <h2 style="margin-top:20px">Canvas inbox note</h2>
 <p style="color:var(--muted)">Sticky notes in <code>architecture.excalidraw</code> are diary input. They never auto-execute. Interpreter captures them as diary, presents Echo summary, waits for <code>yes</code> (guardian), then Locks schema and dispatches via Task. This html file never reads canvas annotations as truth.</p>
 <footer>006 palank-harness v3.3.1 · md-to-html one-way · regen: <code>npm run sync:architecture</code> · SSOT: <code>wiki/architecture/*.md</code></footer>

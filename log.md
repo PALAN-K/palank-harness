@@ -83,3 +83,8 @@
 - 파일 목록: wiki/architecture/006-overview.md, wiki/architecture/006-pipeline.md, index.md(architecture 2 bullets), architecture.html, foundry/brainstorm/2026-09-05-visual-architecture-dogfood.md, log.md(본 절).
 - 검증: check_vault --strict 7/7 parity PASS (0 errors), npm run lint PASS, npm test PASS.
 
+## [2026-09-05] feat(arch) | sync-architecture --check drift gate + 7 tests [verify PASS]
+- `sync-architecture.js --check` drift 게이트 신설 + `verify` 체인 편입, 7테스트 봉인(idempotent·stale·allowlist 포함).
+- `001-canvas-demotion.md` frontmatter 기각 3줄 + `replication-guide.md` excalidraw 이식 3줄 문서화.
+- 검증: 본트리 `npm run verify` PASS + 격리 worktree verify returncode 0, push 금지·원자적 2차 커밋 봉인.
+

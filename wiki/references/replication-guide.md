@@ -52,6 +52,11 @@ v3.2 신설. palank-harness를 다른 프로젝트/머신으로 복제하는 표
 
 - 용어 혼동은 이식 실패로 직결된다 — [terminology](wiki/concepts/terminology.md) 5행 표 참고: replication≠distribution≠scaffold, foundry≠harness, REPO_ROOT 4종 alias(Add not Remove).
 
+## Excalidraw 이식 (thin)
+- thin 복사 후 `wiki/architecture/*.md` 이식 — excalidraw는 mirror+inbox로만 취급.
+- `npm run sync:architecture`로 `architecture.html` 재생성 (idempotent).
+- `npm run check:architecture` fresh 확인 — `npm run verify`에 포함됨.
+
 ## 참조
 
 - `raw/notes/replication-checklist.md` — 원본 상세판
