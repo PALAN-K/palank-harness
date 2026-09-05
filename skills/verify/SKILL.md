@@ -51,7 +51,7 @@ description: >
 
 - **FULL** — 코어/설정/스크립트/스킬(Blacklist) hit, untracked 존재, 파일수>2, 라인>30, 비-.md 포함, H1 버전토큰 터치 → `npm run verify` 전체 게이트(lint+vault+test+version+architecture+pack) 필수. `tiered-verify --check` exit 1.
   - 빈diff(empty diff, audit-only 제외)→FULL exit 1.
-- **QUICK** — `.md`만 1-2파일, ≤30줄, 11-30줄은 .md만 허용, 단일 wiki ≤5줄 포함 → `npm run verify:quick` (lint+vault+test) 으로 갈음. exit 1 이지만 quick 경로로 위임. 코드는 `scripts/tiered-verify.js`의 `evaluateTier()` 참조.
+- **QUICK** — `.md`만 1-2파일, ≤30줄, 11-30줄은 .md만 허용, 단일 wiki ≤5줄 포함 → `npm run verify:quick` (lint+vault+test) 으로 갈음. exit 1 이지만 quick 경로로 위임. QUICK evidence null 설계 — audit는 history+exit1 위임, sidecar는 SKIPPED만 (`tiered-verify.js:536-545`, `:525-534` vs `:554-558`). 코드는 `scripts/tiered-verify.js`의 `evaluateTier()` 참조.
 - **SKIPPED** — `raw/` 또는 `README.md` body 단일 파일 ≤5줄, H1 미터치, Blacklist/untracked/file수/확장자 모두 통과 → 증거 JSON(stdout 1줄) + sidecar `.verify-tier.json` 생성 후 heavy verify 생략 허용. exit 0. 증거 없는 SKIPPED 시도는 exit 2로 차단(fail-closed).
 - **CQS (`--check` query-only)** — `--check`는 history query-only (기록 없음, `--log` 명시 시에만 `foundry/verify-history.jsonl` 1줄 append). sidecar `.verify-tier.json`은 잔존 (SKIPPED 증거라 `--dry-run` 없이 유지, 엄밀측정은 `--dry-run`으로 sidecar까지 억제). 근거: `scripts/tiered-verify.js:519,547` (history `&& opts.log`), `:525-534` (sidecar `if (!opts.dryRun)`), `:554-558` (QUICK/FULL stale sidecar 제거 `if (!opts.dryRun)`).
 
