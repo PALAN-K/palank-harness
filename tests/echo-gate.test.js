@@ -20,8 +20,8 @@ test("blocks Task prompts without gate marker (fail-closed)", () => {
 test("allows Task prompts declaring gate:echo-confirmed", () => {
   for (const prompt of [
     "gate:echo-confirmed",
-    "작업은 로그인 버그 수정, 범위는 auth.js. gate:echo-confirmed",
-    "trailing marker gate:echo-confirmed\n",
+    "gate:echo-confirmed 작업은 로그인 버그 수정, 범위는 auth.js",
+    "gate:echo-confirmed trailing marker\n",
   ]) {
     assert.equal(taskGateOk(prompt), true, `should allow: ${prompt}`);
   }
@@ -30,7 +30,7 @@ test("allows Task prompts declaring gate:echo-confirmed", () => {
 test("allows Task prompts declaring gate:research-exempt", () => {
   for (const prompt of [
     "gate:research-exempt",
-    "research vault for cache policy. gate:research-exempt",
+    "gate:research-exempt research vault for cache policy",
   ]) {
     assert.equal(taskGateOk(prompt), true, `should allow: ${prompt}`);
   }

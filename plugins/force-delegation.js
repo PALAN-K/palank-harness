@@ -59,8 +59,8 @@ const DESTRUCTIVE_PATTERNS = [
   NO_VERIFY_RE,
 ];
 
-// --- Echo gate marker (v3.1) ---
-const GATE_RE = /gate:(echo-confirmed|research-exempt)/;
+// --- Echo gate marker (v3.1, L3-2 precise match) ---
+const GATE_RE = /^\s*gate:(echo-confirmed|research-exempt)\b/m;
 
 // Agents whose direct mutations are forbidden (primary orchestrators)
 const CONDUCTOR_RE = /^(conductor|main)$/i;

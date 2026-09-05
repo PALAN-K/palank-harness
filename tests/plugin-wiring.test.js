@@ -76,7 +76,7 @@ test("Task gate universal + fail-closed even with an empty client (no identity n
   );
   await hooks["tool.execute.before"](
     { ...HOOK_INPUT, tool: "task" },
-    { args: { prompt: "research vault policy. gate:research-exempt" } }
+    { args: { prompt: "gate:research-exempt research vault policy" } }
   );
 });
 

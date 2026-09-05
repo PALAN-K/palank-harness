@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { isBlocked } from "../plugins/force-delegation.js";
+import { isBlocked, taskGateOk } from "../plugins/force-delegation.js";
 
 test("blocks PowerShell write cmdlets (v3 patterns)", () => {
   for (const cmd of [
@@ -100,4 +100,30 @@ test("allows sc.exe Service Control while still blocking sc alias (P3' refinemen
   ]) {
     assert.equal(isBlocked(cmd), true, `should still block: ${cmd}`);
   }
+});
+
+test("gate precise match: leading gate passes, body citation rejected (L3-2)", () => {
+  for (const p of [
+    "gate:echo-confirmed intent=X scope/files=[a] done=Y",
+    "  gate:echo-confirmed intent=X scope/files=[a] done=Y",
+    "gate:research-exempt intent=research scope/files=[wiki] done=notes",
+    "\tgate:research-exempt intent=research",
+    "intro line\ngate:echo-confirmed intent=X scope/files=[a] done=Y",
+    "intro\n  gate:echo-confirmed intent=X",
+  ]) {
+    assert.equal(taskGateOk(p), true, `should pass: ${JSON.stringify(p)}`);
+  }
+  for (const p of [
+    "use `gate:echo-confirmed` as example",
+    "see gate:echo-confirmed in docs",
+    'Example: Task(prompt="gate:echo-confirmed intent=...")',
+    "본문에서 gate:echo-confirmed 인용은 거부",
+    "prefix gate:echo-confirmed suffix",
+    "gate:echo-confirmedX",
+    "",
+  ]) {
+    assert.equal(taskGateOk(p), false, `should reject: ${JSON.stringify(p)}`);
+  }
+  assert.equal(taskGateOk(undefined), false, "should reject undefined");
+  assert.equal(taskGateOk(null), false, "should reject null");
 });
