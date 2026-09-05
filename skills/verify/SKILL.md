@@ -49,7 +49,7 @@ description: >
 
 `scripts/tiered-verify.js`가 **코드**로 판정 — 질문 아님, 프롬프트 우회 불가.
 
-- **FULL** — 코어/설정/스크립트/스킬(Blacklist) hit, untracked 존재, 파일수>2, 라인>30, 비-.md 포함, H1 버전토큰 터치 → `npm run verify` 전체 게이트(lint+vault+test+version+architecture+pack) 필수. `tiered-verify --check` exit 1.
+- **FULL** — 코어/설정/스크립트/스킬(Blacklist) hit, untracked 존재, 파일수>2, 라인>30, 비-.md 포함, H1 버전토큰 터치 → `npm run verify` FULL한정 전체 게이트 6단 고정(1 lint+2 vault+3 test+4 version+5 architecture+6 pack) 필수. `tiered-verify --check` exit 1. QUICK·SKIPPED는 증거조건부 경량·생략 (완벽강제 아님).
   - 빈diff(empty diff, audit-only 제외)→FULL exit 1.
 - **QUICK** — `.md`만 1-2파일, ≤30줄, 11-30줄은 .md만 허용, 단일 wiki ≤5줄 포함 → `npm run verify:quick` (lint+vault+test) 으로 갈음. exit 1 이지만 quick 경로로 위임. QUICK evidence null 설계 — audit는 history+exit1 위임, sidecar는 SKIPPED만 (`tiered-verify.js:536-545`, `:525-534` vs `:554-558`). 코드는 `scripts/tiered-verify.js`의 `evaluateTier()` 참조.
 - **SKIPPED** — `raw/` 또는 `README.md` body 단일 파일 ≤5줄, H1 미터치, Blacklist/untracked/file수/확장자 모두 통과 → 증거 JSON(stdout 1줄) + sidecar `.verify-tier.json` 생성 후 heavy verify 생략 허용. exit 0. 증거 없는 SKIPPED 시도는 exit 2로 차단(fail-closed).
@@ -59,13 +59,15 @@ description: >
 
 증거 스키마: `{tier, reason, evidence:{files, totalLines, untracked, blacklisted, timestamp, gitHead}}` — SKIPPED 시 `trivial:{tier,reason,evidence}`로 Lock 스키마에도 첨부 가능(validate-schema.js 검증).
 
-## Preflight (태그 전 필수, FULL)
+## Preflight (태그/push 전 FULL한정 — QUICK·SKIPPED는 증거조건부 경량·생략)
 
 ```bash
-npm run verify  # FULL: lint+vault+test+version+architecture+pack (pre-push 동일)
+npm run verify  # FULL 6단 고정: 1 lint + 2 check:vault + 3 test + 4 check:version + 5 check:architecture + 6 pack --dry-run (pre-push 동일)
+# freeze: verify:quick = lint+vault+test 고정 (version/arch 제외, drift는 FULL에서 포착)
+# CQS 분기: verify:tiered → SKIPPED 종료(exit 0, 증거 JSON) / QUICK verify:quick / FULL verify (exit 1 위임, exit 2 변조 차단)
 ```
 
-실패 시 태그 금지.
+FULL 실패 시 태그/push 금지. QUICK(`verify:quick`)/SKIPPED(증거 JSON+sidecar)는 tier 증거 조건부로 경량·생략 허용 (완벽강제 아님).
 
 ## Hard rules
 

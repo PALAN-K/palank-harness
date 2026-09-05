@@ -41,16 +41,16 @@ v3.2 신설. palank-harness를 다른 프로젝트/머신으로 복제하는 표
 6. check_vault는 drift 검증이 아니라 해시 도달성만 확인(P1-7)
 7. 무버전 owner/repo 플러그인 spec은 에러 없이 관성이 된다(2026-08-26 실측) — npm `name@version` 고정 필수
 
-## 검증법
+## 검증법 (FULL한정 6단 고정 — QUICK·SKIPPED는 증거조건부 경량·생략)
 
-- `npm run verify` = lint(node --check) + check:vault --strict(Raw 필수·index 패리티·해시 도달성·링크 대상)
-  + test + check:version(버전 SSOT) + pack --dry-run 전체 통과.
-- pre-commit 훅(`scripts/pre-commit` → `scripts/verify-tiered.js` 경유): tier 판정 후 SKIPPED→종료 / QUICK→`verify:quick` / FULL→`verify` 분기.
+- `npm run verify` (FULL) 6단 고정 — 1 lint(node --check) + 2 check:vault --strict(Raw 필수·index 패리티·해시 도달성·링크 대상) + 3 test + 4 check:version(버전 SSOT) + 5 check:architecture(md-master fresh) + 6 pack --dry-run 순 발동. FULL 실패 시 공유/태그 금지 (완벽강제 아님).
+- `npm run verify:quick` freeze — lint+vault+test 고정 (version/arch 제외는 일상 단축용, drift는 FULL(push/tag 전)에서 포착).
+- pre-commit 훅(`scripts/pre-commit` → `scripts/verify-tiered.js` 경유): tiered `--check` CQS query-only 1회 후 SKIPPED→종료(증거 JSON, exit 0) / QUICK→`verify:quick` / FULL→`verify` (exit 1 위임, exit 2 변조 차단) 분기.
 - pre-push 훅(`scripts/pre-push` → `npm run verify` 직호 FULL, tiered 경유 아님, QUICK 우회 금지).
 - 훅 연결은 수동 2줄(`ln -sf ../../scripts/pre-commit .git/hooks/pre-commit`, `ln -sf ../../scripts/pre-push .git/hooks/pre-push` + `chmod +x`) — husky 미사용 zero-dep.
 - 수동 프로브 7종 중 최소 5종 — 특히 무마커 Task 차단(2), conductor 직접 write 차단(4),
   rm 차단(6). 목록: log.md [2026-08-25] docs 엔트리.
-- 첫복제는 untracked/빈diff로 FULL 귀결 — `npm run verify` 필수.
+- 첫복제는 untracked/빈diff로 FULL 귀결 — `npm run verify` FULL한정 필수.
 
 ## 용어 분리
 

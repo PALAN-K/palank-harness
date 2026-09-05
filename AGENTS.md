@@ -41,13 +41,16 @@
 2. **Late compaction**: compact only at threshold — early compaction invalidates the whole cache; amortize the one rebuild over the long tail (OpenHands condenser).
 3. **Delegation = isolation**: forced subagent delegation keeps the main thread's prefix small and stable — the economic rationale behind Rule 5.
 
-## Verification
+## Verification (FULL한정 6단 고정 — QUICK·SKIPPED는 증거조건부 경량·생략)
 
+- `npm run verify` (FULL) 6단 고정 — 1 `lint` + 2 `check:vault` + 3 `test` + 4 `check:version` + 5 `check:architecture` + 6 `npm pack --dry-run` 순 발동. FULL 실패 시 태그/push 금지 (완벽강제 아님 — QUICK·SKIPPED는 tier 증거 조건부).
+- `npm run verify:quick` freeze — 1 `lint` + 2 `check:vault` + 3 `test` 고정 (version/arch 제외는 일상 단축용, drift는 FULL(push/tag 전)에서 포착).
+- `npm run verify:tiered` CQS 분기 — `node scripts/verify-tiered.js`가 tiered `--check` query-only 1회 후 SKIPPED→종료(exit 0, 증거 JSON) / QUICK→`verify:quick` / FULL→`verify` (exit 1 위임, exit 2 변조 차단).
 - `npm run lint` — node --check on plugins/force-delegation.js, scripts/check_vault.js, scripts/inventory.js, scripts/validate-schema.js, scripts/tiered-verify.js, scripts/verify-tiered.js, scripts/sync-version.js, scripts/sync-architecture.js, mcp/server.js
-- `npm run check:vault` — scripts/check_vault.js --strict: every wiki page needs `> Raw:` into raw/, index parity, Vault-Base hash reachability, markdown link targets (index.md + wiki/**)
+- `npm run check:vault` — scripts/check_vault.js --strict: every wiki page needs `> Raw:` into raw/, index parity, Vault-Base hash reachability, markdown link targets (index.md + wiki/**). Empty vault (0 pages, 0 rows) is a valid PASS skeleton.
 - `npm test` — node:test suites in tests/
 - `npm run check:version` — scripts/sync-version.js --check: live release tokens (mcp/package.json, mcp/package-lock.json, AGENTS.md H1, README.md H1, package.json description) derive from the root package.json master; drift exits 1. log.md history and wiki/raw provenance labels are excluded by design. Apply with `npm run sync:version`.
-- `npm run verify` — all of the above (`lint` + `check:vault` + `test` + `check:version` + `check:architecture`) + `npm pack --dry-run` hygiene. Empty vault (0 pages, 0 rows) is a valid PASS skeleton.
+- `npm run check:architecture` — scripts/sync-architecture.js --check: wiki/architecture/*.md master fresh 확인, drift 시 exit 1.
 
 ## Footnote
 
