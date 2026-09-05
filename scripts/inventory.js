@@ -180,10 +180,16 @@ function emit(inv) {
     else if (hasUNC(argvJoined)) uncHint = `argv=${argvJoined.slice(0, 120)}`;
     else if (hasUNC(invStr)) uncHint = `inventory contains UNC`;
     if (uncHint) {
-      console.error(
-        `FAIL: WSL UNC path forbidden — use ~/projects/<repo> Linux absolute (/home/jayeo/projects/...) (${uncHint})`
-      );
-      if (process.argv.includes("--strict")) process.exit(1);
+      if (process.argv.includes("--strict")) {
+        console.error(
+          `FAIL: WSL UNC path forbidden — use ~/projects/<repo> Linux absolute (/home/jayeo/projects/...) (${uncHint})`
+        );
+        process.exit(1);
+      } else {
+        console.error(
+          `WARNING: WSL UNC path forbidden — use ~/projects/<repo> Linux absolute (/home/jayeo/projects/...) (${uncHint})`
+        );
+      }
     }
   }
   // atomic cache write (tmp+rename) — tiered-verify.js:527-529 pattern, tmp residue cleanup on error
