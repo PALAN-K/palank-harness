@@ -47,6 +47,7 @@ v3.2 신설. palank-harness를 다른 프로젝트/머신으로 복제하는 표
   + test + check:version(버전 SSOT) + pack --dry-run 전체 통과.
 - 수동 프로브 7종 중 최소 5종 — 특히 무마커 Task 차단(2), conductor 직접 write 차단(4),
   rm 차단(6). 목록: log.md [2026-08-25] docs 엔트리.
+- 첫복제는 untracked/빈diff로 FULL 귀결 — `npm run verify` 필수.
 
 ## 용어 분리
 
