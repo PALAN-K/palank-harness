@@ -1,0 +1,12 @@
+#!/bin/sh
+# pre-push — FULL gate (공유 전, QUICK 불가)
+# QUICK 제외 근거: version/arch drift는 push 시점에 반드시 포착 (QUICK은 commit까지 일상 단축용)
+# FULL 리스크: 이 훅 우회 push는 공유 오염 — --no-verify 금지, 실패 시 push 차단
+npm run verify
+EC=$?
+if [ $EC -eq 0 ]; then
+  echo "pre-push FULL PASS"
+  exit 0
+fi
+echo "pre-push FULL failed — push blocked (QUICK 우회 금지)"
+exit $EC

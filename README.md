@@ -81,16 +81,17 @@ git fetch upstream
 ## 일상 명령어
 
 ```bash
-npm run verify                            # 전체 게이트: lint + check:vault --strict + test + check:version + pack --dry-run
+npm run verify                            # 전체 게이트(FULL): lint + check:vault + test + check:version + check:architecture + pack --dry-run
 npm run verify:tiered                     # tier 분기 게이트(SKIPPED→종료, QUICK→verify:quick, FULL→verify, Fail-Closed)
-npm run verify:quick                      # 가벼운 게이트: lint + check:vault + test (QUICK용)
+npm run verify:quick                      # 가벼운 게이트(QUICK): lint + check:vault + test — version/arch 제외(FULL에서만, 일상 단축용)
 npm run inventory                         # startup inventory (24h 캐시 우선, .opencode-inventory.json, 커밋 금지)
 npm run inventory:refresh                 # startup inventory 실시간 강제 갱신 (pull·모델변경 직후 1회)
 node scripts/validate-schema.js '<json>'  # Lock 스키마 검증 (exit 0 유효 / 1 무효 / 2 usage)
 ```
 
-- `npm run verify` = lint + check:vault + test + check:version + pack 순 발동(AGENTS.md Verification 절 SSOT).
+- `npm run verify`(FULL) = lint + check:vault + test + check:version + check:architecture + pack --dry-run 순 발동(AGENTS.md Verification 절 SSOT).
 - pre-commit 훅(`scripts/pre-commit` → `scripts/verify-tiered.js`)이 tier 판정 후 SKIPPED→종료 / QUICK→`verify:quick` / FULL→`verify` 분기, 실측만 `foundry/verify-history.jsonl`에 1줄 기록(--dry-run·fixture 미기록).
+- pre-push 훅(`scripts/pre-push` → `npm run verify` FULL, 공유 전 필수, QUICK 우회 금지).
 - Lock 스키마 필수 필드: `intent, files, schema, opencode_call, model, mcp, echo` —
   `echo.confirmed`는 엄격 boolean `true`(미확인 스키마는 Lock 불가).
 
