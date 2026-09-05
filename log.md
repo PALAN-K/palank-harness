@@ -88,3 +88,19 @@
 - `001-canvas-demotion.md` frontmatter 기각 3줄 + `replication-guide.md` excalidraw 이식 3줄 문서화.
 - 검증: 본트리 `npm run verify` PASS + 격리 worktree verify returncode 0, push 금지·원자적 2차 커밋 봉인.
 
+## [2026-09-05] docs+fix | --check CQS + inventory UNC WARNING (870da5f) [verify PASS]
+- 870da5fbbe12fd5a1850c7046c91b9019b9a5eda — skills/verify/SKILL.md CQS 1줄 + scripts/inventory.js 14줄 (non-strict WARNING 정밀화, P4).
+- 검증: 본문 명시 본트리 npm run verify PASS (62 tests) + 격리 worktree HEAD verify returncode 0, push 없음.
+
+## [2026-09-05] feat(verify) | P2 pre-push FULL + quick freeze (51bef55) [verify PASS]
+- 51bef55f8c2b12db129a24316ca42496dcf69d2d — scripts/pre-push 신설 12줄(FULL 고정, QUICK 우회 금지) + verify:quick freeze(lint+vault+test) + README/SKILL drift 통일 4 files.
+- 검증: 커밋 메시지 verify PASS, pre-push FULL 리스크 명시(우회 push는 공유 오염).
+
+## [2026-09-05] docs | first-import FULL entailment 명문화 (1043543) [verify PASS]
+- 1043543c21bcdce9ddacd54e1360c0fdb2636fd3 — skills/verify/SKILL.md 빈diff→FULL exit 1 1줄 + wiki/references/replication-guide.md 첫복제 FULL 1줄.
+- 검증: 커밋 메시지 verify PASS, 첫복제 untracked/빈diff FULL 귀결 명문화.
+
+## [2026-09-05] docs | QUICK evidence-null by design 명문화 (8491f7a) [verify PASS]
+- 8491f7a8800e15138930d18ef2ccb4e3771de72c — skills/verify/SKILL.md 1줄 (QUICK audit는 history+exit1 위임, sidecar는 SKIPPED만).
+- 검증: 커밋 메시지 verify PASS, 근거 tiered-verify.js:536-545/:525-534 vs :554-558.
+

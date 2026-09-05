@@ -48,10 +48,9 @@
 <h2>Pipeline (from 006-pipeline.md)</h2>
 <p style="color:var(--muted)">Diary → Echo → Interview → Lock → Dispatch → Verify. Full flow lives in <code>wiki/architecture/006-pipeline.md</code>.</p>
 <h2 style="margin-top:20px">Latest Changelog (from log.md ledger)</h2>
-<pre>## [2026-09-05] feat(arch) | sync-architecture --check drift gate + 7 tests [verify PASS]
-- `sync-architecture.js --check` drift 게이트 신설 + `verify` 체인 편입, 7테스트 봉인(idempotent·stale·allowlist 포함).
-- `001-canvas-demotion.md` frontmatter 기각 3줄 + `replication-guide.md` excalidraw 이식 3줄 문서화.
-- 검증: 본트리 `npm run verify` PASS + 격리 worktree verify returncode 0, push 금지·원자적 2차 커밋 봉인.</pre>
+<pre>## [2026-09-05] docs | QUICK evidence-null by design 명문화 (8491f7a) [verify PASS]
+- 8491f7a8800e15138930d18ef2ccb4e3771de72c — skills/verify/SKILL.md 1줄 (QUICK audit는 history+exit1 위임, sidecar는 SKIPPED만).
+- 검증: 커밋 메시지 verify PASS, 근거 tiered-verify.js:536-545/:525-534 vs :554-558.</pre>
 <h2 style="margin-top:20px">Canvas inbox note</h2>
 <p style="color:var(--muted)">Sticky notes in <code>architecture.excalidraw</code> are diary input. They never auto-execute. Interpreter captures them as diary, presents Echo summary, waits for <code>yes</code> (guardian), then Locks schema and dispatches via Task. This html file never reads canvas annotations as truth.</p>
 <footer>006 palank-harness v3.3.1 · md-to-html one-way · regen: <code>npm run sync:architecture</code> · SSOT: <code>wiki/architecture/*.md</code></footer>
