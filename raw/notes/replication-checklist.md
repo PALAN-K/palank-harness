@@ -56,6 +56,7 @@
 
 - `cd mcp && npm install`
 - `npm run inventory` 재생성 — 머신별 결과 상이 by-design(커밋 금지, .gitignore 등재)
+- hook 수동 연결 2줄: `ln -sf ../../scripts/pre-commit .git/hooks/pre-commit`, `ln -sf ../../scripts/pre-push .git/hooks/pre-push` + `chmod +x scripts/pre-commit scripts/pre-push` — husky 미사용 zero-dep(실측: pre-commit은 `scripts/verify-tiered.js` 경유 분기, pre-push는 `npm run verify` 직호 FULL)
 
 ## 5단계 — 대상 프로젝트화
 
@@ -68,6 +69,7 @@
 ## 6단계 — 검증
 
 - `npm run verify` PASS
+- pre-commit 분기(`scripts/pre-commit` → `scripts/verify-tiered.js` 경유: SKIPPED→종료 / QUICK→`verify:quick` / FULL→`verify`) vs pre-push FULL(`scripts/pre-push` → `npm run verify` 직호, tiered 경유 아님, QUICK 우회 금지) 구분
 - `npm run check:version` — 라이브 버전 토큰(mcp manifests, AGENTS/README H1, description)이
   루트 package.json 마스터와 동기됐는지 기계 검사(2026-08-26 신설; scripts/sync-version.js)
 - 수동 프로브(log.md [2026-08-25] docs 엔트리의 7종) 중 **최소 5종**, 특히:

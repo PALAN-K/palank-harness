@@ -45,6 +45,9 @@ v3.2 신설. palank-harness를 다른 프로젝트/머신으로 복제하는 표
 
 - `npm run verify` = lint(node --check) + check:vault --strict(Raw 필수·index 패리티·해시 도달성·링크 대상)
   + test + check:version(버전 SSOT) + pack --dry-run 전체 통과.
+- pre-commit 훅(`scripts/pre-commit` → `scripts/verify-tiered.js` 경유): tier 판정 후 SKIPPED→종료 / QUICK→`verify:quick` / FULL→`verify` 분기.
+- pre-push 훅(`scripts/pre-push` → `npm run verify` 직호 FULL, tiered 경유 아님, QUICK 우회 금지).
+- 훅 연결은 수동 2줄(`ln -sf ../../scripts/pre-commit .git/hooks/pre-commit`, `ln -sf ../../scripts/pre-push .git/hooks/pre-push` + `chmod +x`) — husky 미사용 zero-dep.
 - 수동 프로브 7종 중 최소 5종 — 특히 무마커 Task 차단(2), conductor 직접 write 차단(4),
   rm 차단(6). 목록: log.md [2026-08-25] docs 엔트리.
 - 첫복제는 untracked/빈diff로 FULL 귀결 — `npm run verify` 필수.

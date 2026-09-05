@@ -92,7 +92,8 @@ node scripts/validate-schema.js '<json>'  # Lock 스키마 검증 (exit 0 유효
 
 - `npm run verify`(FULL) = lint + check:vault + test + check:version + check:architecture + pack --dry-run 순 발동(AGENTS.md Verification 절 SSOT).
 - pre-commit 훅(`scripts/pre-commit` → `scripts/verify-tiered.js`)이 tier 판정 후 SKIPPED→종료 / QUICK→`verify:quick` / FULL→`verify` 분기, 실측만 `foundry/verify-history.jsonl`에 1줄 기록(--dry-run·fixture 미기록).
-- pre-push 훅(`scripts/pre-push` → `npm run verify` FULL, 공유 전 필수, QUICK 우회 금지).
+- pre-push 훅(`scripts/pre-push` → `npm run verify` 직호 FULL, tiered 경유 아님, 공유 전 필수, QUICK 우회 금지).
+- 훅 연결은 수동 2줄(`ln -sf ../../scripts/pre-commit .git/hooks/pre-commit`, `ln -sf ../../scripts/pre-push .git/hooks/pre-push` + `chmod +x`) — husky 미사용 zero-dep.
 - Lock 스키마 필수 필드: `intent, files, schema, opencode_call, model, mcp, echo` —
   `echo.confirmed`는 엄격 boolean `true`(미확인 스키마는 Lock 불가).
 
