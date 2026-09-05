@@ -7,6 +7,7 @@
 ```bash
 # thin 설치는 파일 복사만 (WSL은 Linux 절대경로 사용)
 cp -a AGENTS.md opencode.json scripts/ plugins/ skills/ mcp/ ~/projects/<target>/
+# + wiki/architecture/*.md 이식 후 npm run sync:architecture 로 architecture.html 재생성 (replication-guide 56-59 정합)
 # 금지: npx harness-bootstrap, opencode init, .opencode/agent/*.md 수동 생성
 # 오염 시: python3 -c "import shutil,pathlib; shutil.rmtree(pathlib.Path('.opencode'))"
 ```
