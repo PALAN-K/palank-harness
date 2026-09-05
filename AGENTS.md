@@ -9,12 +9,12 @@
 |-- AGENTS.md              # constitution (this file)
 |-- opencode.json          # provider/model registry + agents/plugins/mcp (SSOT)
 |-- skills/interpreter/    # diary -> schema -> optimal call (Echo-first)
-|-- skills/verify/         # mechanical gates: lint / vault / test / pack
+|-- skills/verify/ + skills/excalidraw/ + skills/reviewer/  # gates + canvas mirror (md->html one-way, inbox diary) + FULL advisory
 |-- mcp/                   # MCP servers — one per domain (palank-domain)
-|-- scripts/               # check_vault.js (vault linter), inventory.js (inventory as code), validate-schema.js (Lock gate), sync-version.js (version SSOT), tiered-verify.js (tier gate, Fail-Closed 3-stage)
+|-- scripts/               # check_vault.js (vault linter), inventory.js (inventory as code), validate-schema.js (Lock gate), sync-version.js (version SSOT), tiered-verify.js (tier gate, Fail-Closed 3-stage), verify-tiered.js (tier dispatcher), sync-architecture.js (md->html one-way, canvas mirror)
 |-- plugins/               # force-delegation.js — runtime hard block (guard layer 2 of 3)
 |-- foundry/               # foundry-only, excluded from npm pack (brainstorm/verify-history)
-`-- wiki/ + raw/ + index.md + log.md + tests/ + package.json   # vault + gates
+`-- wiki/ + raw/ + index.md + log.md + tests/ + package.json   # vault + gates (architecture.excalidraw/html are root mirror/view, md-master, pack-excluded, regen via sync:architecture)
 ```
 
 ## Rules (6 — Echo is #4, enforced by type+code)
@@ -43,7 +43,7 @@
 
 ## Verification
 
-- `npm run lint` — node --check on plugins/force-delegation.js, scripts/check_vault.js, scripts/inventory.js, scripts/validate-schema.js, mcp/server.js
+- `npm run lint` — node --check on plugins/force-delegation.js, scripts/check_vault.js, scripts/inventory.js, scripts/validate-schema.js, scripts/tiered-verify.js, scripts/verify-tiered.js, scripts/sync-version.js, scripts/sync-architecture.js, mcp/server.js
 - `npm run check:vault` — scripts/check_vault.js --strict: every wiki page needs `> Raw:` into raw/, index parity, Vault-Base hash reachability, markdown link targets (index.md + wiki/**)
 - `npm test` — node:test suites in tests/
 - `npm run check:version` — scripts/sync-version.js --check: live release tokens (mcp/package.json, mcp/package-lock.json, AGENTS.md H1, README.md H1, package.json description) derive from the root package.json master; drift exits 1. log.md history and wiki/raw provenance labels are excluded by design. Apply with `npm run sync:version`.

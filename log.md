@@ -75,3 +75,11 @@
 - 4단계 캐시 우선: `npm run inventory`에서 `--refresh` 제거(24h 캐시 우선) + `inventory:refresh` 신설. 멀티터미널 탐침 스톰 해소 (1곳만 refresh, 나머지 캐시 히트).
 - package.json 3.3.0→3.3.1, `npm run sync:version` 5타깃 0 drift (토큰 v3.3 유지). README 본문 갱신(일상 명령어 tier 분기·inventory 듀얼·pre-commit 래퍼), foundry/brainstorm/2026-09-04-tiered-fixes-1-to-4.md 기록.
 - 검증: `wsl npm run lint` PASS, `--dry-run` files에서 history 제외·미기록 확인, `wsl npm test -- tests/tiered-verify.test.js` 51/51 PASS ×2회 후에도 history 70줄 유지.
+
+## [2026-09-05] feat | visual architecture dogfooding — vault-native SSOT + 3-tier architecture [verify PASS]
+- 결정 15: Visual Architecture Schema의 vault-native 채택 — SSOT는 wiki/architecture/*.md(수기)로 확정, check_vault index parity/raw citation/hash reachability를 그대로 상속(신규 차단 게이트 0개, zero-code leverage).
+- 결정 16: Companion 뷰어 분리 — architecture.html(30KB 제로 의존 단일 뷰어)은 인간의 시각적 직관용 렌더링 산출물로 배치하고 기계적 parity/검증 대상에서 격하(3중 SSOT drift 차단).
+- 결정 17: Allowlist SSOT 수립 — wiki/architecture/006-overview.md에 3계층 컴포넌트·파일 매핑표를 정의하여 바이브코딩 시 백엔드 직관 유지 및 reviewer의 Zombie 잔재·Scope 오염 검출 기준으로 활용.
+- 파일 목록: wiki/architecture/006-overview.md, wiki/architecture/006-pipeline.md, index.md(architecture 2 bullets), architecture.html, foundry/brainstorm/2026-09-05-visual-architecture-dogfood.md, log.md(본 절).
+- 검증: check_vault --strict 7/7 parity PASS (0 errors), npm run lint PASS, npm test PASS.
+

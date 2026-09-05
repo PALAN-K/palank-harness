@@ -16,7 +16,7 @@
     "developer-tools"
   ],
   "scripts": {
-    "lint": "node --check plugins/force-delegation.js && node --check scripts/check_vault.js && node --check scripts/inventory.js && node --check scripts/validate-schema.js && node --check scripts/tiered-verify.js && node --check scripts/verify-tiered.js && node --check mcp/server.js",
+    "lint": "node --check plugins/force-delegation.js && node --check scripts/check_vault.js && node --check scripts/inventory.js && node --check scripts/validate-schema.js && node --check scripts/tiered-verify.js && node --check scripts/verify-tiered.js && node --check scripts/sync-version.js && node --check scripts/sync-architecture.js && node --check mcp/server.js",
     "check:vault": "node scripts/check_vault.js --strict",
     "test": "node --test \"tests/*.test.js\"",
     "inventory": "node scripts/inventory.js",
@@ -26,7 +26,8 @@
     "verify": "npm run lint && npm run check:vault && npm run test && npm run check:version && npm pack --dry-run",
     "verify:quick": "npm run lint && npm run check:vault -- --strict && npm test",
     "verify:tiered": "node scripts/verify-tiered.js",
-    "tiered": "node scripts/tiered-verify.js --check"
+    "tiered": "node scripts/tiered-verify.js --check",
+    "sync:architecture": "node scripts/sync-architecture.js"
   },
   "files": [
     "AGENTS.md",

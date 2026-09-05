@@ -14,10 +14,11 @@ One line per page. Session reads this first, then pages.
 - [replication-guide](wiki/references/replication-guide.md) — v3.2 복제 체크리스트 요약: 0단계 출발지 자격(복제 금지)·7단계 절차·함정 7종 (2026-08-25)
 
 ## architecture
-<!-- empty, .gitkeep only -->
+- [006-overview](wiki/architecture/006-overview.md) — 006 하네스 3계층(오케스트레이션·인터프리터·게이트&볼트) 아키텍처 및 화이트리스트 SSOT (2026-09-05)
+- [006-pipeline](wiki/architecture/006-pipeline.md) — 일기장 프롬프트에서 스키마 락 및 기계적 검증까지의 엔드투엔드 파이프라인 SSOT (2026-09-05)
 
 ## decisions
-<!-- empty, .gitkeep only -->
+- [001-canvas-demotion](wiki/decisions/001-canvas-demotion.md) — md=master 확정, canvas=mirror+inbox 격하, html=derived 자동뷰, 루트유지+pack-excluded (2026-09-05)
 
 ## releases
 <!-- empty, .gitkeep only -->
