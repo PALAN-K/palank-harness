@@ -107,3 +107,7 @@
 ## [2026-09-06] docs | P2-3-2 project→workspace 치환 (Phase B dual) — log 원문 보존 추기
 - [P2-3-2: log.md:62 `per-project`= `per-workspace`로 읽을 것] — 원문 삭제 금지(append-only)이므로 본 추기로 대체. 치환 확정분: mcp/server.js:10,107 `project root`→`REPO_ROOT`, :12 `per project`→`per workspace`, scripts/pre-commit:3 `per-project`→`per-workspace`. config-scope 5 (inventory.js:87,121 + allowlist:23,25,26)는 `project` 유지 + `(opencode config scope)` 주석 dual 처리.
 
+## [2026-09-06] docs | small_model 핀해제 문서 통일 (레지스트리 참조) [verify PASS]
+- Vault-Base: git:a9e8183845eb6d9fcf15238579a210fa4baef3e9
+- 결정: 문서 내 raw 모델 ID 핀 제거 → `opencode.json:_routing_note` 레지스트리 참조로 통일. 대상 5곳: skills/reviewer/SKILL.md:84 session継承 재서술(small_model 바인딩 전제 제거), README.md:73 일반화, wiki/references/replication-guide.md:28+70 + raw/notes/replication-checklist.md:41+104 raw-ID 제거. opencode.json 코드 핀 제거(a9e8183)의 문서 후속. 역사수정 없음 append-only, canvas 미접촉, push 없음.
+

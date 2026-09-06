@@ -81,7 +81,7 @@ Cap 초과 시 잘라내고, 잘라낸 사실을 finding evidence에 명시. 절
 
 ## Model note — Phase 1-A vs 1-B (아키텍처 모순 해소)
 
-- **Phase 1-A (현 단계, skill-mode): prompt-only sharpening** — reviewer는 별도 agent가 아니라 `skills/reviewer/SKILL.md` 스킬이다. 모델은 `opencode.json:small_model` (= conductor/interpreter와 동일 저가/무료 모델)을 그대로 쓴다. 별도 고품질 모델 바인딩은 **불가** — opencode 모델 바인딩은 agent 단위이며(`opencode.json:agent.<name>.model`), 스킬은 agent가 아니기 때문. 외부 시니어 오케스트레이터 지적 Q2 vs Q3 모순 해소.
+- **Phase 1-A (현 단계, skill-mode): prompt-only sharpening** — reviewer는 별도 agent가 아니라 `skills/reviewer/SKILL.md` 스킬이므로 호출 세션의 모델을 그대로 상속継承한다. 별도 고품질 모델 바인딩은 **불가** — opencode 모델 바인딩은 agent 단위이며(`opencode.json:agent.<name>.model`), 스킬은 agent가 아니기 때문. 모델 선택은 `opencode.json:_routing_note` 레지스트리를 따른다 (문서에 raw ID 기재 금지). 외부 시니어 오케스트레이터 지적 Q2 vs Q3 모순 해소.
 - **Phase 1-B (별도 PR, breaking): model split** — `opencode.json`에 4번째 agent `reviewer` 추가, `scripts/inventory.js:190 FORBIDDEN`에서 `reviewer` 제거, `AGENTS.md`의 `3 agents` 문구 `3+1`로 개정, `scripts/validate-schema.js`에 traceability 기계 게이트 추가 후, reviewer agent에만 고품질 모델을 바인딩한다. 이 PR에서는 **절대 수행하지 않는다** (thin 3 agents 유지).
 
 ## Relation to verify

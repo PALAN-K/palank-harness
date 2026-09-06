@@ -70,7 +70,7 @@ git fetch upstream
 1. upstream의 `log.md`로 변경점 리뷰 — 결정 이력(append-only 감사 장부)이 곧 업데이트 노트다.
 2. **병합 대상 (코어)**: `plugins/` · `scripts/` · `skills/` · `mcp/` · `AGENTS.md`
 3. **보호 경로 (절대 덮어쓰기 금지)**:
-   - `opencode.json`의 머신 값 — relay URL(baseURL) · 모델 ID(small_model 포함)
+    - `opencode.json`의 머신 값 — relay URL(baseURL) · 모델 ID(레지스트리 참조, raw ID 기재 금지)
    - `wiki/` · `raw/` — 이 프로젝트의 지식 볼트
    - `package.json`의 프로젝트 메타(name/description)
 4. 의존 변경 시: `cd mcp && npm install` 후 `npm run inventory:refresh` 재생성

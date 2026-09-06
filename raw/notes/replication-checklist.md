@@ -38,7 +38,7 @@
 ## 3단계 — opencode.json 재지정 (머신/프로젝트 종속 4곳)
 
 1. relay baseURL — 이 프로젝트 전용 값 → 대상 환경 값
-2. model ID 1종(muse-spark-1.2-contributor)+deep/fast variants 재매핑
+2. model ID(레지스트리 참조, raw ID 기재 금지)+deep/fast variants 재매핑
 3. 외부 plugin 채용 재판단 — v3 코어 아님. **채용 시 npm 버전 고정 필수**
    (현재: `opencode-dynamic-subagents@0.3.1`. 무버전 owner/repo spec은 조용히 관성이 된다 —
    2026-08-26 실측: normal ≡ --pure 프로브, 빈 클론 캐시. 함정 목록 7번)
@@ -101,7 +101,7 @@
 ## P2-1 이식 체크리스트 (transplant 3점, opencode.json 무수정)
 
 - [ ] relay baseURL 교체 — `provider.opencode-go.options.baseURL`을 대상 환경 값으로 (현 값: `https://005-relay-proxy.vercel.app/zen/go/v1`)
-- [ ] model 재매핑 — `muse-spark-1.2-contributor` 1종 + `deep`/`fast` variants 유지 (ID 변경 시 opencode.json만 별도 PR)
+- [ ] model 재매핑 — 레지스트리 참조 1종(`opencode.json:_routing_note` 기준, raw ID 기재 금지) + `deep`/`fast` variants 유지 (ID 변경 시 opencode.json만 별도 PR)
 - [ ] plugin npm 고정 — `opencode-dynamic-subagents@0.3.1` 유지, 무버전 owner/repo spec 금지 (함정 7번)
 - 원칙: 본 커밋은 문서만, opencode.json 무수정
 
