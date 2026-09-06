@@ -7,8 +7,8 @@ import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const __opencode = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../opencode.json"), "utf8"));
-const SMALL_MODEL = __opencode.small_model;
+// small_model: inherited from session model (pin 해제) — provider 동적참조 금지
+const SMALL_MODEL = "session-inherited";
 
 const VALID = {
   intent: "P0 복구 — force-delegation 가드를 공식 계약으로 재작성",

@@ -16,8 +16,8 @@ import {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
-const __opencode = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../opencode.json"), "utf8"));
-const SMALL_MODEL = __opencode.small_model;
+// small_model: inherited from session model (pin 해제) — provider 동적참조 금지
+const SMALL_MODEL = "session-inherited";
 
 // Helper to build fixture state
 function fixture({ files = [], untracked = [], diffContent = "", totalLines } = {}) {
