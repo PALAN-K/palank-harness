@@ -1,0 +1,1 @@
+{"case":"vault-parity-001","created_at":"2026-09-06T04:56:18Z","grading_rule":{"type":"contains","value":"PARITY-VERDICT: FAIL raw-missing plus index-skew"},"hidden_answer_hash":"05694bb1a8f7d658048014e5fdea9b58ecea4584efd362a663d34637cbe67ba1","prompt_bundle_hash":"d098f23e942f10e9761e8acd0125a51906a89f71e09d5aef1ff388dda4efe65b","version":1}

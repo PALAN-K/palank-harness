@@ -1,0 +1,6 @@
+Diagnosis after running node scripts/check_vault.js --strict:
+
+- check_vault reports a strict failure on a wiki page missing its `> Raw:` line.
+- index.md row count no longer matches wiki/ contents.
+
+PARITY-VERDICT: FAIL raw-missing plus index-skew

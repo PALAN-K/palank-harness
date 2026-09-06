@@ -1,0 +1,6 @@
+Diagnosis after running node scripts/check_vault.js --strict:
+
+- check output looked noisy but nothing seemed fatal.
+- index.md looks fine to me.
+
+PARITY-VERDICT: PASS no issues found
