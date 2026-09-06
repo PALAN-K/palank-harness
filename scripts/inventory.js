@@ -84,7 +84,7 @@ function collect(version) {
   const agents = new Map(); // name -> {name, ...}
   const tools = new Map(); // invocation -> {name, description, source, invocation}
 
-  // 1) opencode debug skill — built-in/project/global skills
+  // 1) opencode debug skill — built-in/project/global skills (opencode config scope)
   const skillsRaw = tryJson("opencode", ["debug", "skill"]);
   if (skillsRaw) {
     source.push("opencode debug skill");
@@ -118,7 +118,7 @@ function collect(version) {
     }
   }
 
-  // 3) filesystem globs — project + global command/agent/skill dirs (wrapper spec)
+  // 3) filesystem globs — project + global command/agent/skill dirs (wrapper spec, opencode config scope)
   const home = os.homedir();
   const globRoots = [
     path.join(ROOT, ".opencode", "command"),

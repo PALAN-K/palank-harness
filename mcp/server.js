@@ -7,9 +7,9 @@
  *   get_context       — layered reading: AGENTS.md head(3000) + index.md +
  *                       intent-keyword overlap ranking over wiki/raw, max 5 files,
  *                       ~4000 chars each  [was a stub in v2]
- *   verify_before_tag — spawns `npm run verify` at project root (timeout 120s),
+ *   verify_before_tag — spawns `npm run verify` at REPO_ROOT (timeout 120s),
  *                       returns {ok, output_tail}  [was a stub in v2]
- * Copy per project and add domain tools — AGENTS.md is the contract.
+ * Copy per workspace and add domain tools — AGENTS.md is the contract.
  */
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
@@ -104,7 +104,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
     },
     {
       name: "verify_before_tag",
-      description: "Run `npm run verify` preflight at project root (timeout 120s). Blocks tag if it fails.",
+      description: "Run `npm run verify` preflight at REPO_ROOT (timeout 120s). Blocks tag if it fails.",
       inputSchema: { type: "object", properties: {}, required: [] },
       annotations: { idempotentHint: true }, // same input -> same gate result while sources unchanged
     },

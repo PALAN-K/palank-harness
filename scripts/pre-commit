@@ -1,6 +1,6 @@
 #!/bin/sh
 # pre-commit — thin harness hermetic guard (foundry + vault)
-# Zero-dep, fail-closed. Foundry is hermetic per-project.
+# Zero-dep, fail-closed. Foundry is hermetic per-workspace.
 [ ! -f scripts/check_vault.js ] && exit 0
 [ ! -f scripts/tiered-verify.js ] && exit 0
 
