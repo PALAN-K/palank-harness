@@ -92,6 +92,11 @@
 7. 무버전 owner/repo 플러그인 spec은 에러 없이 **관성**이 된다 — 2026-08-26 실측
    (빈 클론 캐시 + normal≡--pure 프로브). npm `name@version` 고정만이 로드를 보증한다.
 
+> CQS 주의(P1-3 실측): tiered `--check`는 query-only — history 미기록(`--log` 시에만
+> `foundry/verify-history.jsonl` 1줄 append). sidecar `.verify-tier.json`은 SKIPPED 증거라
+> `--dry-run` 없이 유지(QUICK/FULL은 stale sidecar 삭제, 엄밀측정은 `--dry-run`으로 억제),
+> 증거 없는 SKIPPED는 exit 2 차단. 근거: `scripts/tiered-verify.js:519,547`·`:525-534`·`:554-558` + exit 계약(`--help`).
+
 ## 참조
 
 - `wiki/references/replication-guide.md` — 요약 페이지(볼트)
