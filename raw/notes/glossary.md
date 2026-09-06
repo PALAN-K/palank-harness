@@ -44,9 +44,11 @@
 | `HARNESS_ROOT` | `REPO_ROOT`의 alias — 호환 유지용. `const HARNESS_ROOT = REPO_ROOT` | `mcp/server.js` | 외부에서 `HARNESS_ROOT`를 import/참조하던 코드는 그대로 동작. 제거 금지(Add not Remove). |
 | `ROOT` | `REPO_ROOT`의 alias — 호환 유지용. `const ROOT = REPO_ROOT` | `scripts/inventory.js`, `scripts/tiered-verify.js` | 동일. |
 | `VAULT_ROOT` | vault 루트 — `vaultDir = path.resolve(vaultArg)` 로 도출. thin 레이아웃에서 `VAULT_ROOT == REPO_ROOT` 일 수 있으나 논리적으로 별개(검사 대상 디렉터리 vs 실행기 루트). `const VAULT_ROOT = vaultDir` | `scripts/check_vault.js` | 신설 alias. 기존 코드가 `vaultDir`를 직접 쓰므로 영향 없음. 재복제 시 덧씌우기만으로 확장. |
-| `project` (SDK) | opencode SDK의 project 핸들(`{project,client,$,directory,worktree}`) — 위 4종과 무관. | `plugins/force-delegation.js` B-1 주석 | 명명 충돌 방지용 주석 분리. `REPO_ROOT`/`VAULT_ROOT`/`instance root`와 혼동 금지. |
+| `project` (SDK) | opencode SDK의 `project` 핸들(`{project,client,$,directory,worktree}`) — SDK 타입 실측 핸들이며 위 4종(`REPO_ROOT`/`HARNESS_ROOT`/`ROOT`/`VAULT_ROOT`)과 무관. `project ≠ REPO_ROOT/VAULT_ROOT/product/workspace` — 제품·작업공간·리포 루트 지칭 금지. | `plugins/force-delegation.js` B-1 주석 | 명명 충돌 방지용 주석 분리. `REPO_ROOT`/`VAULT_ROOT`/`instance root`와 혼동 금지. |
 
 별칭 전략은 Add not Remove — 기존 설치본이 `HARNESS_ROOT` 또는 `ROOT`로 고정해 둔 스크립트·외부 참조가 있어도, 신규 `REPO_ROOT`를 표준으로 도입하되 구 별칭을 그대로 export/유지한다. 재복제 시 `cp -a AGENTS.md opencode.json scripts/ plugins/ skills/ mcp/` 덮어쓰기만으로 무파손 확장된다.
+
+P2-3-2 치환사전 적용: `project (SDK)` 유지 / `project (product)`→`product` / `project (workspace)`→`workspace` / config scope 5건(`scripts/inventory.js:87,121`, `raw/data/allowlist-candidates.json:23,25,26`)은 `project` 유지 + `(opencode config scope)` 주석 — 본 6장 정의가 판정 기준.
 
 ## 7. 상호 대조 요약
 

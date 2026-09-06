@@ -27,6 +27,10 @@ palank-harness thin v3.2에서 혼동되는 5대 용어를 1표로 분리한다.
 | `ROOT` | `REPO_ROOT` alias | `scripts/inventory.js`, `scripts/tiered-verify.js` (`const ROOT = REPO_ROOT`) | 동일. |
 | `VAULT_ROOT` | `vaultDir` alias | `scripts/check_vault.js` (`const VAULT_ROOT = vaultDir`) | `vaultDir` 직접 사용 코드 무영향. thin에서 `VAULT_ROOT == REPO_ROOT` 일 수 있으나 논리 분리. |
 | `project` (SDK) | SDK 핸들 | `plugins/force-delegation.js` B-1 주석 `project ≠ repo/vault/instance` | 명명 충돌 방지 주석. 혼동 금지. |
+| `product` | 제품 의미 분리 | vault/문서 관성어 중 제품 지칭분 — P2-3-2 치환사전 `product` 확정, `project (SDK)`(SDK 핸들)와 혼동 금지. | `project (SDK)`가 아니다 — SDK 핸들을 제품명으로 오독 금지. |
+| `workspace` | 작업공간 의미 분리 | 리포 루트·인스턴스 지칭분 — P2-3-2 치환 확정, `project (SDK)`와 혼동 금지. 상세 용례는 아래 P2-3-2 문단. | `project (SDK)`도 `REPO_ROOT` 표준명 자체도 아니다 — 용례상 대역어. |
+
+P2-3-2 용례: `REPO_ROOT` 2건(`mcp/server.js:10,107`)·`per-workspace` 3건(`:12`, `scripts/pre-commit:3`, `log.md:62` 추기)·config scope 5건(`(opencode config scope)` 주석 유지)이 본 대조표의 적용 사례.
 
 재복제는 `cp -a AGENTS.md opencode.json scripts/ plugins/ skills/ mcp/ ~/projects/<target>/` 덮어쓰기만으로 무파손. 수동 마이그레이션 불필요.
 
