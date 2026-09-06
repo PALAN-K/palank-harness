@@ -58,8 +58,9 @@ v3.2 신설. palank-harness를 다른 프로젝트/머신으로 복제하는 표
 
 ## Excalidraw 이식 (thin)
 - thin 복사 후 `wiki/architecture/*.md` 이식 — excalidraw는 mirror+inbox로만 취급.
-- `npm run sync:architecture`로 `architecture.html` 재생성 (idempotent).
-- `npm run check:architecture` fresh 확인 — `npm run verify`에 포함됨.
+- `npm run sync:architecture`로 `architecture.html` 재생성 (idempotent, md→html 단방향 — html 수동편집 금지, `sync-architecture.js` 무수정).
+- `npm run check:architecture` fresh 확인 — FULL(`npm run verify`/pre-push)에서만 포착, QUICK(`verify:quick`=lint+vault+test)은 version/arch 제외라 미포착이 정상.
+- Allowlist 미존재 경로는 `[MISSING_COMPONENT]` 로그만 남기고 exit 0 (reviewer advisory, 게이트 차단 아님).
 
 ## 참조
 

@@ -14,6 +14,7 @@ This skill guides AI agents in rendering high-quality, non-overlapping, aestheti
 2. **Canvas is mirror plus inbox (View + Inbox)**: `architecture.excalidraw` is a human-friendly mirror of md plus a sticky-note inbox. md to canvas is one-way render. Canvas to md/code is allowed only via Echo-confirmed Task (`gate:echo-confirmed`) — never auto-executed.
 3. **HTML is derived auto-view**: `architecture.html` is regenerated from md core (tiers plus Changelog) by `npm run sync:architecture`. Never hand-edit html to fix drift — fix md, rerun the script.
 4. **Changelog truth is package.json plus log.md**: canvas Changelog card is a mirror copy only. Truth lives in `package.json` version plus `log.md` append-only ledger.
+5. **Scope 한정 (FULL-only + 로그한정 + html 단방향)**: `check:architecture` drift는 FULL(`npm run verify`/pre-push)에서만 포착 — QUICK(`verify:quick`=lint+vault+test)은 version/arch 제외라 미포착이 정상. Allowlist 미존재 파일은 `[MISSING_COMPONENT]` 로그만 남기고 exit 0 (reviewer advisory, 정리 대상 지정용). html 수동편집 금지 — md 수정 후 `npm run sync:architecture` 단방향 재생성만 허용 (코드 무수정).
 
 ## Core Rules & Guardrails (Toss Design System Style)
 
