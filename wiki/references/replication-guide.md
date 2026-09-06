@@ -68,6 +68,12 @@ v3.2 신설. palank-harness를 다른 프로젝트/머신으로 복제하는 표
 - [ ] model 재매핑 — `muse-spark-1.2-contributor` + `deep`/`fast` variants 유지
 - [ ] plugin npm 고정 — `opencode-dynamic-subagents@0.3.1` 유지, 무버전 spec 금지 (함정 7번)
 
+## P2-2 MCP·Global·Install 체크리스트 (opencode.json 무수정)
+
+- [ ] MCP cwd 확인 — `mcp/palank-domain` local `node mcp/server.js`, cwd=루트 상대경로 스폰 (`pwd` + `node --check`)
+- [ ] Global 5종 allow 이중오버레이 — Global + Project `permission.bash` 동일 5종 `allow` (`git stash*`/`git reset*`/`git checkout*`/`npm run verify*`/`npm run check:version*`), `*`:`ask` 유지
+- [ ] mcp install + inventory 재생성 (커밋금지) — `cd mcp` 후 `npm install` (`mcp/node_modules` 금지), `npm run inventory` 재생성 (`.opencode-inventory.json` 금지)
+
 ## 참조
 
 - `raw/notes/replication-checklist.md` — 원본 상세판

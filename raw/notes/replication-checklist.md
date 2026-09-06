@@ -104,6 +104,14 @@
 - [ ] plugin npm 고정 — `opencode-dynamic-subagents@0.3.1` 유지, 무버전 owner/repo spec 금지 (함정 7번)
 - 원칙: 본 커밋은 문서만, opencode.json 무수정
 
+## P2-2 MCP·Global·Install 체크리스트 (opencode.json·AGENTS.md 무수정)
+
+- [ ] MCP cwd 확인 — `mcp/palank-domain` type local `command ["node","mcp/server.js"]` `enabled true`, cwd=프로젝트 루트에서 상대경로 스폰 확인 (`pwd` + `node --check mcp/server.js`)
+- [ ] Global 5종 allow 이중오버레이 — Global `~/.config/opencode/opencode.json` + Project `opencode.json` `permission.bash`에 동일 5종 `allow` (`git stash*`/`git reset*`/`git checkout*`/`npm run verify*`/`npm run check:version*`), `*`:`ask` 기본 유지 (분배형 pilot 자동화, ask 마찰 제거)
+- [ ] mcp install — `cd mcp` 후 `npm install`, `mcp/node_modules` 커밋금지 (`.gitignore` `node_modules/` 매칭)
+- [ ] inventory 재생성 — `npm run inventory` 재생성, 머신별 상이 by-design, `.opencode-inventory.json` 커밋금지 (`.gitignore` 등재)
+- 원칙: 본 커밋은 문서만, opencode.json·AGENTS.md 무수정, push 없음
+
 ## 참조
 
 - `wiki/references/replication-guide.md` — 요약 페이지(볼트)
