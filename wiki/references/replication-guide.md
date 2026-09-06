@@ -62,6 +62,12 @@ v3.2 신설. palank-harness를 다른 프로젝트/머신으로 복제하는 표
 - `npm run check:architecture` fresh 확인 — FULL(`npm run verify`/pre-push)에서만 포착, QUICK(`verify:quick`=lint+vault+test)은 version/arch 제외라 미포착이 정상.
 - Allowlist 미존재 경로는 `[MISSING_COMPONENT]` 로그만 남기고 exit 0 (reviewer advisory, 게이트 차단 아님).
 
+## P2-1 이식 체크리스트 (transplant 3점, opencode.json 무수정)
+
+- [ ] relay baseURL 교체 — 대상 환경 값으로 (현 값: `https://005-relay-proxy.vercel.app/zen/go/v1`)
+- [ ] model 재매핑 — `muse-spark-1.2-contributor` + `deep`/`fast` variants 유지
+- [ ] plugin npm 고정 — `opencode-dynamic-subagents@0.3.1` 유지, 무버전 spec 금지 (함정 7번)
+
 ## 참조
 
 - `raw/notes/replication-checklist.md` — 원본 상세판

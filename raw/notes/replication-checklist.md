@@ -97,6 +97,13 @@
 > `--dry-run` 없이 유지(QUICK/FULL은 stale sidecar 삭제, 엄밀측정은 `--dry-run`으로 억제),
 > 증거 없는 SKIPPED는 exit 2 차단. 근거: `scripts/tiered-verify.js:519,547`·`:525-534`·`:554-558` + exit 계약(`--help`).
 
+## P2-1 이식 체크리스트 (transplant 3점, opencode.json 무수정)
+
+- [ ] relay baseURL 교체 — `provider.opencode-go.options.baseURL`을 대상 환경 값으로 (현 값: `https://005-relay-proxy.vercel.app/zen/go/v1`)
+- [ ] model 재매핑 — `muse-spark-1.2-contributor` 1종 + `deep`/`fast` variants 유지 (ID 변경 시 opencode.json만 별도 PR)
+- [ ] plugin npm 고정 — `opencode-dynamic-subagents@0.3.1` 유지, 무버전 owner/repo spec 금지 (함정 7번)
+- 원칙: 본 커밋은 문서만, opencode.json 무수정
+
 ## 참조
 
 - `wiki/references/replication-guide.md` — 요약 페이지(볼트)
