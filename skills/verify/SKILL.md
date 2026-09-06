@@ -72,6 +72,7 @@ FULL 실패 시 태그/push 금지. QUICK(`verify:quick`)/SKIPPED(증거 JSON+si
 ## Hard rules
 
 - No guessing, official docs only.
+- Judgment(모순·고아·구주장)는 report-only — 자동 수정 금지.
 - Skills never inside `mcp/` (하네스 소유 분리). Proposal-first for new skill.
 - Enforcement는 게이트 — 프롬프트를 무시해도 모델 불문 블럭.
 
