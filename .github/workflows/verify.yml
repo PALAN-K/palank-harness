@@ -1,0 +1,34 @@
+# palank-harness CI — npm run verify FULL (6-stage fixed)
+# Constraints: 1 file ONLY (.github/workflows/verify.yml) / local hooks immutable
+# (scripts/pre-commit, scripts/pre-push, scripts/commit-msg, no husky) /
+# FULL fixed (경량 경로 아님) / node 22 (engines >=22 정합) /
+# mcp install included / checkout fetch-depth:0 (Vault-Base hash reachability — shallow FAIL).
+
+name: verify
+
+"on":
+  push:
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full history — Vault-Base hash reachability)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js 22 (engines >=22 정합)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install root dependencies
+        run: npm install
+
+      - name: Install mcp dependencies
+        run: npm --prefix mcp install
+
+      - name: Run verify (FULL fixed)
+        run: npm run verify
