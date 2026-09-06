@@ -38,7 +38,7 @@ description: >
 5. **Classify** — `research|brainstorm` vs `build|fix|migrate|review`.
 6. **Read (build 계열만)** — 3-layer: AGENTS.md(헌법) → index.md(카탈로그) → wiki/raw (MCP get_context, 5파일 제한).
 7. **Translate** — 스키마 완성.
-8. **Dispatch** — 3-tier: `opencode run --agent verify`(단발) / `opencode session`(장문맥) / `opencode mcp`(도메인 툴). 모든 Task 프롬프트는 게이트 마커 필수: 확인된 위임은 `gate:echo-confirmed`, 조사 전용은 `gate:research-exempt` (미선언 시 플러그인이 차단 — fail-closed, Goose PreToolUse 패턴의 반대 설계). 정적 매핑 테이블 금지 — 매 실행 inventory 기반 LLM 선택. **mode에 따라 dispatch 메시지를 달리한다** — `guardian`은 "승인된 plan으로 build 위임", `pilot`은 "auto 스냅샷 후 build 위임 (되돌리기: git stash pop / git branch pilot/...) ", `kamikaze`는 "snapshot 후 즉시 build (no verify warnings)".
+8. **Dispatch** — 3-tier: `opencode run --agent verify`(단발) / `opencode session`(장문맥) / `opencode mcp`(도메인 툴). 모든 Task 프롬프트는 게이트 마커 필수: 확인된 위임은 `gate:echo-confirmed`, 조사 전용은 `gate:research-exempt` (미선언 시 플러그인이 차단 — fail-closed, Goose PreToolUse 패턴의 반대 설계). 정적 매핑 테이블 금지 — 매 실행 inventory 기반 LLM 선택. **mode에 따라 dispatch 메시지를 달리한다** — `guardian`은 "승인된 plan으로 build 위임", `pilot`은 "auto 스냅샷 후 build 위임 (되돌리기: git stash pop / git branch pilot/...) ", `kamikaze`는 "snapshot 후 즉시 build (no verify warnings)". depth-limit 차단 시 직접 쓰기 금지 — 읽기전용 확인 후 다음턴 `gate:echo-confirmed`로 재위임.
 9. **Verify (build 계열만, mode별 분기)**
     - `guardian` (기본): FULL이면 Reviewer(Final) → verify 스킬 순으로 위임, QUICK/SKIPPED는 Review OFF 후 verify 경량 경로. research는 검증 없이 종료. 사용자는 각 단계에서 승인/반려한다.
     - `pilot` — **자동 verify loop (승인 없이 완료까지)**: `node scripts/tiered-verify.js --check` 로 Tier를 코드 판정 → Tier별 verify를 **자동**으로 수행(승인 대기 없음, 호출 자체가 자동):
@@ -87,6 +87,7 @@ description: >
 - mode는 optional 필드이며 생략 시 guardian으로 간주 — thin 3 agents를 깨지 않는다.
 - pilot auto-verify는 retry cap 3을 초과하지 않으며, SKIPPED 증거 없이는 exit 2로 차단(fail-closed).
 - kamikaze는 verify를 생략하지만 snapshot은 반드시 수행한다 — 되돌릴 수 없는 실행은 없다.
+- depth-limit 폴백: Task 차단 시 쓰기금지 유지 + Read/Glob/Grep 읽기전용만, 다음턴 재위임 + Echo 재선언 (max 1회, 초과 시 Handoff).
 
 ## 게이트 마커의 본질적 한계 (v3.2 명시)
 
