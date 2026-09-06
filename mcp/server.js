@@ -9,6 +9,9 @@
  *                       ~4000 chars each  [was a stub in v2]
  *   verify_before_tag — spawns `npm run verify` at REPO_ROOT (timeout 120s),
  *                       returns {ok, output_tail}  [was a stub in v2]
+ *   diagnostics       — lightweight LSP feedback: `node --check <file>` on an edited
+ *                       file, returns structured {ok, file, line, column, message}
+ *                       (no tsconfig, no tsc — JS syntax only, pilot wiring)
  * Copy per workspace and add domain tools — AGENTS.md is the contract.
  */
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
@@ -108,6 +111,17 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
       inputSchema: { type: "object", properties: {}, required: [] },
       annotations: { idempotentHint: true }, // same input -> same gate result while sources unchanged
     },
+    {
+      name: "diagnostics",
+      description:
+        "Lightweight LSP feedback: run `node --check` on an edited file, return structured file:line diagnostics (no tsconfig, no tsc).",
+      inputSchema: {
+        type: "object",
+        properties: { file: { type: "string", description: "Repo-relative path to JS file to check" } },
+        required: ["file"],
+      },
+      annotations: { readOnlyHint: true }, // check only, never writes
+    },
   ],
 }));
 
@@ -194,6 +208,62 @@ server.setRequestHandler(CallToolRequestSchema, async (req) => {
     const output_tail = ((res.stdout || "") + (res.stderr || "")).trim().slice(-4000);
     return {
       content: [{ type: "text", text: JSON.stringify({ ok: res.status === 0, output_tail }, null, 2) }],
+    };
+  }
+
+  if (name === "diagnostics") {
+    const relRaw = String(args.file || "").trim().replace(/^\.\//, "");
+    const rel = relRaw.replace(/^\/+/, "");
+    if (!rel) {
+      return { content: [{ type: "text", text: JSON.stringify({ ok: false, file: relRaw, line: null, column: null, message: "missing file param", output_tail: "" }, null, 2) }] };
+    }
+    const abs = path.resolve(REPO_ROOT, rel);
+    const inside = abs === REPO_ROOT || abs.startsWith(REPO_ROOT + path.sep);
+    if (!inside) {
+      return { content: [{ type: "text", text: JSON.stringify({ ok: false, file: rel, line: null, column: null, message: "outside repo root", output_tail: "" }, null, 2) }] };
+    }
+    let stat = null;
+    try {
+      stat = fs.statSync(abs);
+    } catch {
+      stat = null;
+    }
+    if (!stat || !stat.isFile()) {
+      return { content: [{ type: "text", text: JSON.stringify({ ok: false, file: rel, line: null, column: null, message: "file not found", output_tail: "" }, null, 2) }] };
+    }
+    const ext = path.extname(abs).toLowerCase();
+    if (ext !== ".js" && ext !== ".mjs" && ext !== ".cjs") {
+      return { content: [{ type: "text", text: JSON.stringify({ ok: false, file: rel, line: null, column: null, message: "unsupported extension (node --check only, no tsconfig)", output_tail: "" }, null, 2) }] };
+    }
+    const res = spawnSync("node", ["--check", abs], { encoding: "utf8", timeout: 10000 });
+    const output = ((res.stdout || "") + (res.stderr || "")).trim();
+    if (res.status === 0) {
+      return { content: [{ type: "text", text: JSON.stringify({ ok: true, file: rel, line: null, column: null, message: "ok", output_tail: "" }, null, 2) }] };
+    }
+    let line = null;
+    let column = null;
+    for (const l of output.split("\n")) {
+      const m = l.match(/:(\d+)(?::(\d+))?\s*$/);
+      if (m) {
+        line = parseInt(m[1], 10) || null;
+        column = m[2] ? parseInt(m[2], 10) || null : null;
+        break;
+      }
+    }
+    let message = "";
+    for (const l of output.split("\n")) {
+      const t = l.trim();
+      if (/^SyntaxError|^Error/.test(t)) {
+        message = t;
+        break;
+      }
+    }
+    if (!message) {
+      const nonEmpty = output.split("\n").map((l) => l.trim()).filter(Boolean);
+      message = nonEmpty.length > 0 ? nonEmpty[nonEmpty.length - 1].slice(0, 300) : "syntax error";
+    }
+    return {
+      content: [{ type: "text", text: JSON.stringify({ ok: false, file: rel, line, column, message, output_tail: output.slice(-2000) }, null, 2) }],
     };
   }
 

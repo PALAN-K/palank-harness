@@ -115,3 +115,11 @@ node scripts/validate-schema.js '<json>'  # Lock 스키마 검증 (exit 0 유효
 - **Node 버전 부족** → node --test glob 인수 실패 — engines `>=22`(실측 v24).
 
 전체 함정 6종(실측 기반): [raw/notes/replication-checklist.md](raw/notes/replication-checklist.md) — 용어·별칭 상세: [raw/notes/glossary.md](raw/notes/glossary.md)
+
+## MCP diagnostics (경량 LSP 피드백)
+
+- 도구: `palank-domain / diagnostics` — 편집 파일 대상 `node --check` 구조화 반환 (pilot 배선).
+- 입력: `{ file: "mcp/server.js" }` — repo-relative, `.js` / `.mjs` / `.cjs`만, repo 밖은 차단.
+- 출력: `{ ok, file, line, column, message, output_tail }` — 실패 시 `file:line` 명중이 데모 증거.
+- 범위: JS 구문만 — `tsconfig`·`tsc` 제외, 쓰기 없음 (readOnly).
+- 구현: `mcp/server.js` — `spawnSync node --check` (timeout 10s), 6단 검증 무수정.
