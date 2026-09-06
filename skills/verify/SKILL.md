@@ -68,6 +68,7 @@ npm run verify  # FULL 6단 고정: 1 lint + 2 check:vault + 3 test + 4 check:ve
 ```
 
 FULL 실패 시 태그/push 금지. QUICK(`verify:quick`)/SKIPPED(증거 JSON+sidecar)는 tier 증거 조건부로 경량·생략 허용 (완벽강제 아님).
+- commit-msg 훅(`scripts/commit-msg`): ① 타입 prefix·② `[verify PASS]` 필수 차단, ③ `Vault-Base:` 권장 WARNING만 — pre-commit 분리, WIP/fixup 2차 예고.
 
 ## Hard rules
 

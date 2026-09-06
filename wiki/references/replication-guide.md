@@ -48,6 +48,8 @@ v3.2 신설. palank-harness를 다른 프로젝트/머신으로 복제하는 표
 - pre-commit 훅(`scripts/pre-commit` → `scripts/verify-tiered.js` 경유): tiered `--check` CQS query-only 1회 후 SKIPPED→종료(증거 JSON, exit 0) / QUICK→`verify:quick` / FULL→`verify` (exit 1 위임, exit 2 변조 차단) 분기.
 - pre-push 훅(`scripts/pre-push` → `npm run verify` 직호 FULL, tiered 경유 아님, QUICK 우회 금지).
 - 훅 연결은 수동 2줄(`ln -sf ../../scripts/pre-commit .git/hooks/pre-commit`, `ln -sf ../../scripts/pre-push .git/hooks/pre-push` + `chmod +x`) — husky 미사용 zero-dep.
+- commit-msg 훅(`scripts/commit-msg`): 3단계 게이트 — ① 타입 prefix `docs|test|fix|feat|chore`(scope 허용) 필수·② 제목 `[verify PASS]` 토큰 필수 (①② fail-closed 차단)·③ 본문 `Vault-Base:` 권장 (없으면 WARNING만, exit 0). pre-commit과 분리 (연동 없음). zero-dep sh.
+- 훅 연결은 수동 2줄(`ln -sf ../../scripts/commit-msg .git/hooks/commit-msg` + `chmod +x scripts/commit-msg`) — husky 미사용 zero-dep. WIP/fixup 예외는 2차 예고 (현 게이트는 예외 없이 차단 — 코드 `scripts/commit-msg`가 SSOT).
 - 수동 프로브 7종 중 최소 5종 — 특히 무마커 Task 차단(2), conductor 직접 write 차단(4),
   rm 차단(6). 목록: log.md [2026-08-25] docs 엔트리.
 - 첫복제는 untracked/빈diff로 FULL 귀결 — `npm run verify` FULL한정 필수.

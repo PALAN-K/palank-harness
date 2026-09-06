@@ -57,6 +57,7 @@
 - `cd mcp && npm install`
 - `npm run inventory` 재생성 — 머신별 결과 상이 by-design(커밋 금지, .gitignore 등재)
 - hook 수동 연결 2줄: `ln -sf ../../scripts/pre-commit .git/hooks/pre-commit`, `ln -sf ../../scripts/pre-push .git/hooks/pre-push` + `chmod +x scripts/pre-commit scripts/pre-push` — husky 미사용 zero-dep(실측: pre-commit은 `scripts/verify-tiered.js` 경유 분기, pre-push는 `npm run verify` 직호 FULL)
+- hook 수동 연결 commit-msg 2줄: `ln -sf ../../scripts/commit-msg .git/hooks/commit-msg` + `chmod +x scripts/commit-msg` — 3단계 게이트 (① 타입 prefix `docs|test|fix|feat|chore` 필수·② `[verify PASS]` 필수·③ `Vault-Base:` 권장 WARNING만), pre-commit과 분리 (연동 없음), WIP/fixup 예외는 2차 예고 (현 게이트 예외 없음, 코드 SSOT)
 
 ## 5단계 — 대상 프로젝트화
 
