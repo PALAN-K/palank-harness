@@ -1,0 +1,30 @@
+#!/bin/sh
+# commit-msg — atomic message gate (type + verify token, Vault-Base advisory)
+# Zero-dep, fail-closed ①②, advisory ③. pre-commit과 분리 (연동 없음).
+MSG_FILE="$1"
+[ -z "$MSG_FILE" ] && echo "commit-msg BLOCKED: missing file arg" && exit 1
+[ ! -f "$MSG_FILE" ] && echo "commit-msg BLOCKED: not found: $MSG_FILE" && exit 1
+SUBJECT=$(head -n 1 "$MSG_FILE")
+# ① type prefix docs|test|fix|feat|chore (scope 허용)
+if ! printf '%s' "$SUBJECT" | grep -Eq '^(docs|test|fix|feat|chore)(\([^)]*\))?: .+'; then
+  echo "commit-msg BLOCKED (① type prefix missing)"
+  echo "  got: $SUBJECT"
+  echo "  ex: feat(hooks): commit-msg gate [verify PASS]"
+  echo "  ex: docs: terminology update [verify PASS]"
+  exit 1
+fi
+# ② [verify PASS] token 필수 (제목)
+case "$SUBJECT" in
+  *"[verify PASS]"*) ;;
+  *)
+    echo "commit-msg BLOCKED (② [verify PASS] missing)"
+    echo "  got: $SUBJECT"
+    echo "  ex: feat(hooks): commit-msg gate [verify PASS]"
+    exit 1
+    ;;
+esac
+# ③ Vault-Base 권장 (없으면 경고만 exit 0)
+if ! grep -q "Vault-Base:" "$MSG_FILE"; then
+  echo "commit-msg WARNING (③ Vault-Base missing, advisory only)"
+fi
+exit 0
