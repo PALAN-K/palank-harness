@@ -123,3 +123,8 @@
 - oracle 4/4 — 8be7711 feat(oracle): verify:oracle wiring [verify PASS] (2026-09-06) — package.json 2줄(verify:oracle 스크립트 배선: sealed 샘플 대상 grade 실행).
 - 검증: 본 추기는 감사원장 보충이며 코드 변경 없음. M1 문서정합(AGENTS.md lint 13종+Layout oracle/commit-msg, opencode.json _thin_warning v3.3)은 별도 diff로 집행.
 
+## [2026-09-07] docs | v3.3.1 결번인정 — tag intentionally skipped (no retro tag) [verify PASS]
+- ae2f4dd (v3.3.1 sync commit) exists, tags v3.3.0/v3.3.2/v3.3.3 only — v3.3.1 tag intentionally skipped, user approved 2026-09-07 (gate:echo-confirmed).
+- 2d33bf7 push done via `git push origin main` (no tags), FULL verify PASS (75 tests) pre-push gate.
+- Never force-push, never retro-tag v3.3.1 — missing-number record preserved append-only.
+
