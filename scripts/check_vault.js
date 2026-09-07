@@ -282,6 +282,39 @@ if (!fs.existsSync(path.join(vaultDir, ".git"))) {
   }
 }
 
+// h) skill auto-install check — skills/ 4종 + opencode.json skills[] (WARNING only, strict PASS 유지)
+{
+  const EXPECTED = ["interpreter", "verify", "excalidraw", "reviewer"];
+  const missing = [];
+  for (const s of EXPECTED) {
+    const p = path.join(vaultDir, "skills", s, "SKILL.md");
+    try {
+      const raw = fs.readFileSync(p, "utf-8");
+      const head = raw.slice(0, 800);
+      if (!/^name:\s*.+/m.test(head) || !/^description:\s*/m.test(head)) missing.push(`${s} (frontmatter)`);
+    } catch {
+      missing.push(s);
+    }
+  }
+  let registered = false;
+  try {
+    const ocRaw = fs.readFileSync(path.join(vaultDir, "opencode.json"), "utf-8");
+    const oc = JSON.parse(ocRaw);
+    const arr = Array.isArray(oc.skills) ? oc.skills : [];
+    registered = arr.some((e) => typeof e === "string" && (e === "./skills" || e === "skills" || e.endsWith("/skills")));
+  } catch {}
+  if (missing.length > 0) {
+    report("warning", `skill files missing (advisory only): [${missing.join(", ")}] — thin 이식은 cp -a skills/ 확인`);
+  } else {
+    reports.push(`info: skill files ok (4/4: ${EXPECTED.join(", ")})`);
+  }
+  if (!registered) {
+    report("warning", `opencode.json skills[] missing "./skills" (advisory only) — 네이티브 skill 등록은 skills:["./skills"] 선언이 정로 (.opencode/skills 오염 금지)`);
+  } else {
+    reports.push(`info: opencode.json skills[] ok ("./skills" registered)`);
+  }
+}
+
 // summary
 reports.push(
   `check_vault: ${errors} errors — ${wikiFiles.length} wiki files, ${indexBullets} index rows${strict ? " [strict]" : ""}`

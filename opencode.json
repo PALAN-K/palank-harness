@@ -103,5 +103,8 @@
   },
   "instructions": [
     "AGENTS.md"
+  ],
+  "skills": [
+    "./skills"
   ]
 }

@@ -129,6 +129,20 @@ function collect(version) {
     path.join(ROOT, ".opencode", "skills"),
     path.join(home, ".config", "opencode", "skills"),
   ];
+  // 3b) opencode.json skills[] explicit sources (SSOT auto-install: ./skills) — additive, thin cp-a safe
+  try {
+    const oc = JSON.parse(fs.readFileSync(path.join(ROOT, "opencode.json"), "utf8"));
+    const extra = Array.isArray(oc.skills) ? oc.skills : [];
+    for (const e of extra) {
+      if (typeof e !== "string") continue;
+      if (/^https?:\/\//.test(e)) continue; // HTTP catalog — not a local dir
+      let resolved = null;
+      if (e === "~" || e.startsWith("~/")) resolved = path.join(home, e.slice(2));
+      else if (path.isAbsolute(e)) resolved = e;
+      else resolved = path.resolve(ROOT, e);
+      if (resolved && !globRoots.includes(resolved)) globRoots.push(resolved);
+    }
+  } catch {}
   const seen = new Set();
   for (const dir of globRoots) {
     for (const f of walkMd(dir)) {
@@ -225,6 +239,17 @@ function emit(inv) {
           `WARNING: .opencode/agent/*.md still exists [${leftover.join(", ")}] — inventory에서는 미집계이나 vault 린터가 FAIL 처리합니다. 삭제 요망.`
         );
       }
+    }
+  } catch {}
+  // h) skill 4종 카운트 (interpreter/verify/excalidraw/reviewer) — WARNING only, strict PASS 유지
+  try {
+    const EXPECTED_SKILLS = ["interpreter", "verify", "excalidraw", "reviewer"];
+    const found = new Set((inv.tools || []).filter((t) => String(t.invocation || "").startsWith("skill:")).map((t) => t.name));
+    const missing = EXPECTED_SKILLS.filter((s) => !found.has(s));
+    if (missing.length > 0) {
+      console.error(
+        `WARNING: expected skills missing [${missing.join(", ")}] — found [${[...found].join(", ") || "none"}]. thin 이식은 cp -a skills/ + opencode.json skills:["./skills"] 확인 후 npm run inventory --refresh (SSOT auto-install).`
+      );
     }
   } catch {}
 }

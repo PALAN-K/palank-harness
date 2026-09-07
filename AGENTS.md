@@ -7,7 +7,7 @@
 ```
 006 palank-harness/
 |-- AGENTS.md              # constitution (this file)
-|-- opencode.json          # provider/model registry + agents/plugins/mcp (SSOT)
+|-- opencode.json          # provider/model registry + agents/plugins/mcp/skills[] (SSOT)
 |-- skills/interpreter/    # diary -> schema -> optimal call (Echo-first)
 |-- skills/verify/ + skills/excalidraw/ + skills/reviewer/  # gates + canvas mirror (md->html one-way, inbox diary) + FULL advisory
 |-- mcp/                   # MCP servers — one per domain (palank-domain)
