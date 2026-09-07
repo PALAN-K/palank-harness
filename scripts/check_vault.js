@@ -12,6 +12,10 @@
  *     are skipped; relative targets resolve against the vault ROOT by harness
  *     convention (index.md bullets are root-relative).
  *   e) forbidden pollution — .opencode/agent/*.md or .opencode/skills must not exist
+ *   f) WSL UNC guard — Linux 절대경로만 허용 (strict FAIL, non-strict WARNING)
+ *   g) orphan raw — raw/ files never cited by any wiki "> Raw:" emit WARNING only
+ *      (fail-open advisory: raw-only assets like ADRs/inventories are allowed;
+ *      never increments errors, strict still passes)
  * Empty vault (0 pages, 0 rows) is a valid PASS skeleton.
  * Usage: node scripts/check_vault.js [--strict] [vaultDir=.]
  *
@@ -232,6 +236,49 @@ if (!fs.existsSync(path.join(vaultDir, ".git"))) {
     }
   } else {
     reports.push("info: WSL UNC guard ok (no \\\\wsl path detected)");
+  }
+}
+
+// g) orphan-raw reverse check — raw/ files not cited by any wiki "> Raw:".
+//    Fail-open WARNING only (never errors): raw-only assets (ADRs, inventories,
+//    allowlists) are legitimate without a wiki summary page. Strict still passes.
+{
+  const rawDir = path.join(vaultDir, "raw");
+  if (!fs.existsSync(rawDir)) {
+    reports.push("info: orphan-raw check skipped (no raw/ dir)");
+  } else {
+    const rawFiles = walk(rawDir).filter(
+      (f) => fs.statSync(f).isFile() && path.basename(f) !== ".gitkeep"
+    );
+    if (rawFiles.length === 0) {
+      reports.push("info: orphan-raw check skipped (no raw files)");
+    } else {
+      const cited = new Set();
+      for (const f of wikiFiles) {
+        let content = "";
+        try {
+          content = fs.readFileSync(f, "utf-8");
+        } catch {
+          continue;
+        }
+        for (const c of content.matchAll(/>\s*Raw:\s*`?([^`\s\n]+)`?/g)) {
+          cited.add(c[1].replace(/[,;\]\)]+$/, ""));
+        }
+      }
+      let orphans = 0;
+      for (const f of rawFiles) {
+        const rel = path.relative(vaultDir, f).replace(/\\/g, "/");
+        if (!cited.has(rel)) {
+          orphans++;
+          report(
+            "warning",
+            `orphan raw (uncited, advisory only): ${rel} — no wiki '> Raw:' cites it (raw-only ADR/inventory 허용, strict PASS 유지)`
+          );
+        }
+      }
+      if (orphans === 0) reports.push(`info: orphan-raw check ok (${rawFiles.length} raw files cited)`);
+      else reports.push(`info: orphan-raw check ran (${orphans}/${rawFiles.length} uncited, warning only)`);
+    }
   }
 }
 

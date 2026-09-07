@@ -11,7 +11,7 @@
 |-- skills/interpreter/    # diary -> schema -> optimal call (Echo-first)
 |-- skills/verify/ + skills/excalidraw/ + skills/reviewer/  # gates + canvas mirror (md->html one-way, inbox diary) + FULL advisory
 |-- mcp/                   # MCP servers — one per domain (palank-domain)
-|-- scripts/               # check_vault.js (vault linter), inventory.js (inventory as code), validate-schema.js (Lock gate), sync-version.js (version SSOT), tiered-verify.js (tier gate, Fail-Closed 3-stage), verify-tiered.js (tier dispatcher), sync-architecture.js (md->html one-way, canvas mirror)
+|-- scripts/               # check_vault.js (vault linter), inventory.js (inventory as code), validate-schema.js (Lock gate), sync-version.js (version SSOT), tiered-verify.js (tier gate, Fail-Closed 3-stage), verify-tiered.js (tier dispatcher), sync-architecture.js (md->html one-way, canvas mirror), commit-msg (atomic msg gate) + oracle/record.js,seal.js,grade.js (judgment seal)
 |-- plugins/               # force-delegation.js — runtime hard block (guard layer 2 of 3)
 |-- foundry/               # foundry-only, excluded from npm pack (brainstorm/verify-history)
 `-- wiki/ + raw/ + index.md + log.md + tests/ + package.json   # vault + gates (architecture.excalidraw/html are root mirror/view, md-master, pack-excluded, regen via sync:architecture)
@@ -46,7 +46,7 @@
 - `npm run verify` (FULL) 6단 고정 — 1 `lint` + 2 `check:vault` + 3 `test` + 4 `check:version` + 5 `check:architecture` + 6 `npm pack --dry-run` 순 발동. FULL 실패 시 태그/push 금지 (완벽강제 아님 — QUICK·SKIPPED는 tier 증거 조건부).
 - `npm run verify:quick` freeze — 1 `lint` + 2 `check:vault` + 3 `test` 고정 (version/arch 제외는 일상 단축용, drift는 FULL(push/tag 전)에서 포착).
 - `npm run verify:tiered` CQS 분기 — `node scripts/verify-tiered.js`가 tiered `--check` query-only 1회 후 SKIPPED→종료(exit 0, 증거 JSON) / QUICK→`verify:quick` / FULL→`verify` (exit 1 위임, exit 2 변조 차단).
-- `npm run lint` — node --check on plugins/force-delegation.js, scripts/check_vault.js, scripts/inventory.js, scripts/validate-schema.js, scripts/tiered-verify.js, scripts/verify-tiered.js, scripts/sync-version.js, scripts/sync-architecture.js, mcp/server.js
+- `npm run lint` — sh -n on scripts/commit-msg + node --check on plugins/force-delegation.js, scripts/check_vault.js, scripts/inventory.js, scripts/validate-schema.js, scripts/tiered-verify.js, scripts/verify-tiered.js, scripts/sync-version.js, scripts/sync-architecture.js, scripts/oracle/record.js, scripts/oracle/seal.js, scripts/oracle/grade.js, mcp/server.js (13종)
 - `npm run check:vault` — scripts/check_vault.js --strict: every wiki page needs `> Raw:` into raw/, index parity, Vault-Base hash reachability, markdown link targets (index.md + wiki/**). Empty vault (0 pages, 0 rows) is a valid PASS skeleton.
 - `npm test` — node:test suites in tests/
 - `npm run check:version` — scripts/sync-version.js --check: live release tokens (mcp/package.json, mcp/package-lock.json, AGENTS.md H1, README.md H1, package.json description) derive from the root package.json master; drift exits 1. log.md history and wiki/raw provenance labels are excluded by design. Apply with `npm run sync:version`.
