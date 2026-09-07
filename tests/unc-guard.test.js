@@ -45,7 +45,7 @@ test("(f) UNC content with --strict => FAIL, exit 1 (fail-closed)", () => {
   }
 });
 
-test("inventory --strict passes on the clean repo (3 live agents)", () => {
+test("inventory --strict passes on the clean repo (3 live agents)", (t) => {
   const r = spawnSync(process.execPath, [INVENTORY, "--strict"], {
     cwd: REPO_ROOT,
     encoding: "utf8",
@@ -53,6 +53,10 @@ test("inventory --strict passes on the clean repo (3 live agents)", () => {
   });
   assert.equal(r.status, 0, `inventory --strict must pass, stderr: ${r.stderr}`);
   const inv = JSON.parse(r.stdout);
+  if (inv.available === false) {
+    t.skip("CI 무CLI: inventory available:false — live 3 agents 확인 불가, opencode.json 정적 정의로 대체하므로 skip");
+    return;
+  }
   const names = (inv.agents || []).map((a) => a.name);
   for (const expected of ["conductor", "interpreter", "verify"]) {
     assert.ok(names.includes(expected), `missing agent ${expected} in ${names.join(",")}`);
