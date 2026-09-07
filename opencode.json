@@ -70,8 +70,7 @@
     }
   },
   "plugin": [
-    "./plugins/force-delegation.js",
-    "opencode-dynamic-subagents@0.3.1"
+    "./plugins/force-delegation.js"
   ],
   "provider": {
     "opencode-go": {
