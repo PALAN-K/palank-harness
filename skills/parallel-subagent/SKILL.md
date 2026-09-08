@@ -19,3 +19,10 @@ description: 병렬 실행 역할 정의 (agent 아님) — conductor Task 위�
 
 ## Tier
 - FULL 확정 (BLACKLIST `skills/**` + untracked 이중사유), QUICK/SKIPPED 기대 없음
+
+## Orchestrator (prompt role, not agent)
+- Chain: main conductor → Task(interpreter) → Task(orchestrator-prompt, general) → Task(workers)
+- Prompt role only: no `opencode.json` agent addition, no `.opencode/agent/*.md` files
+- Fan-out/fan-in via orchestrator prompt; cap 3 workers max
+- Final `git show` + FULL verify stays in main conductor (no seal delegation)
+- Evidence: verdict bus `/tmp/verdict-bus-<ts>/` JSON only, repo pollution 0
