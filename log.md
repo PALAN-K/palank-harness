@@ -128,3 +128,15 @@
 - 2d33bf7 push done via `git push origin main` (no tags), FULL verify PASS (75 tests) pre-push gate.
 - Never force-push, never retro-tag v3.3.1 — missing-number record preserved append-only.
 
+## [2026-09-08] feat | v3.4.0 parallel-subagent + seals — P1/P2/P4 [verify PASS]
+- 457e854 P1: skills/parallel-subagent/SKILL.md (30 lines, role≠agent, FROZEN fallback) + scripts/oracle/seals.js (653B thin wrapper) — verify FULL PASS (lint 14).
+- e6126e4 P2: orchestrator prompt-role docs appended to SKILL.md — verify FULL PASS.
+- 78a2374 P4: FROZEN-fallback-only line added — verify FULL PASS.
+
+## [2026-09-08] chore | v3.3.3 → 3.4.0 version tokens [verify PASS]
+- 86c9fd9: sync-version.js mechanical bump, 5 files (package.json x2, mcp/package.json, AGENTS.md, README.md), 0 drift.
+
+## [2026-09-08] docs | v3.4.0 README overhaul — parallel-subagent + seals + bus [verify PASS]
+- 96558fd: 5 hunks (commands +2, parallel-subagent section, seals SSOT, verdict bus, docs map table), 23 insertions, H1 untouched.
+- Full verify PASS pre-commit (75 tests, lint 14, vault ok, version ok, architecture fresh, pack 72 files).
+
