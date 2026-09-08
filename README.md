@@ -85,6 +85,8 @@ git fetch upstream
 npm run verify                            # 전체 게이트(FULL): lint + check:vault + test + check:version + check:architecture + pack --dry-run
 npm run verify:tiered                     # tier 분기 게이트(SKIPPED→종료, QUICK→verify:quick, FULL→verify, Fail-Closed)
 npm run verify:quick                      # 가벼운 게이트(QUICK): lint + check:vault + test — version/arch 제외(FULL에서만, 일상 단축용)
+npm run lint                              # lint 14 targets: sh -n 1 + node --check 13 (oracle trio + seals.js 포함)
+npm run verify:oracle                     # oracle 표본 등급: grade --sealed scripts/oracle/samples/vault-parity-001.sealed.json --artifact scripts/oracle/samples/vault-parity-001.pass.txt
 npm run inventory                         # startup inventory (24h 캐시 우선, .opencode-inventory.json, 커밋 금지)
 npm run inventory:refresh                 # startup inventory 실시간 강제 갱신 (pull·모델변경 직후 1회)
 node scripts/validate-schema.js '<json>'  # Lock 스키마 검증 (exit 0 유효 / 1 무효 / 2 usage)
@@ -97,6 +99,23 @@ node scripts/validate-schema.js '<json>'  # Lock 스키마 검증 (exit 0 유효
 - Lock 스키마 필수 필드: `intent, files, schema, opencode_call, model, mcp, echo` —
   `echo.confirmed`는 엄격 boolean `true`(미확인 스키마는 Lock 불가).
 
+## 병렬 위임 (parallel-subagent — role ≠ agent)
+
+- `parallel-subagent`는 agent가 아니다 — `opencode.json agent{}` 등록 없음, `.opencode/agent/*.md` 생성 금지(thin 3-agent 유지), conductor Task 위임 패턴의 역할 약속만 정의.
+- transport 교체 없음, FULL 6단 변경 없음, 데몬·repo내 out/ 금지.
+
+```js
+// Task(interpreter|verify) 병렬 팬아웃 예시 — workers 최대 3
+Task({ subagent_type: "interpreter", description: "...", prompt: "gate:echo-confirmed ..." });
+Task({ subagent_type: "verify", description: "...", prompt: "gate:echo-confirmed ..." });
+// fan-out/fan-in via orchestrator prompt; workers max 3
+```
+
+- 봉인 SSOT 3종: `scripts/oracle/record.js`/`seal.js`/`grade.js` canonical — hash·판정 원본, 포크 금지.
+- `scripts/oracle/seals.js`(복수형)는 thin wrapper/aggregator 전용 — 신규 판정 로직·실행·데몬·repo 쓰기 금지.
+- `canonicalize()`는 `record.js`에서만 정의, `seals.js`는 re-export로 import.
+- verdict bus는 `/tmp/verdict-bus-<ts>/`만 허용 — JSON-only, repo 오염 0 (`git status --porcelain` 빈값).
+
 ## 문서 지도
 
 | 문서 | 역할 |
@@ -104,7 +123,10 @@ node scripts/validate-schema.js '<json>'  # Lock 스키마 검증 (exit 0 유효
 | `AGENTS.md` | 헌법 — 세션 중 불변(수정은 세션 재시작으로), Layout 8줄 SSOT |
 | `wiki/` + `raw/` + `index.md` | 지식 볼트 — 7-structure(`architecture/decisions/releases/gotchas/archive` + `concepts/topics/references`), Raw 인용·패리티·해시 검증 |
 | `foundry/` | 공장 전용 — brainstorm/templates/verify-history, hermetic·`npm pack` 제외, 하네스 밖 |
-| `log.md` | 결정 이력 — append-only 감사 장부, 업데이트 노트 겸용 |
+| `skills/` | 스킬 모음 — interpreter/verify/excalidraw/reviewer + parallel-subagent (role ≠ agent) |
+| `skills/parallel-subagent/SKILL.md` | 병렬 위임 역할 — Task(interpreter/verify) 팬아웃, workers 최대 3, thin 3-agent 유지 |
+| `scripts/oracle/` | 판단 봉인 — record/seal/grade SSOT + seals.js wrapper + verdict bus `/tmp/verdict-bus-<ts>/` |
+| `log.md` | 결정 이력 — append-only 감사 장부, 업데이트 노트 겸용 (v3.4.0 synced) |
 | [wiki/references/replication-guide.md](wiki/references/replication-guide.md) | 이식 절차 — 7단계 요약(볼트 페이지), 상세판은 raw/notes |
 | [wiki/concepts/terminology.md](wiki/concepts/terminology.md) | 용어 분리 — replication≠distribution≠scaffold, foundry≠harness 5행 표 + REPO_ROOT 별칭 4종 |
 
