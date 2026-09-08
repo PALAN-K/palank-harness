@@ -3,6 +3,8 @@ name: parallel-subagent
 description: 병렬 실행 역할 정의 (agent 아님) — conductor Task 위임 패턴의 역할 설명용
 ---
 
+> FROZEN-fallback-only — terminal-track bus preserved for Task-failure fallback, new work uses parallel-subagent.
+
 # parallel-subagent (role ≠ agent)
 
 > 이 파일은 agent가 아니다. `opencode.json agent{}` 등록 없음,
