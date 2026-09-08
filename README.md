@@ -1,4 +1,4 @@
-# palank-harness v3.3 — Echo-first interpreter on opencode
+# palank-harness v3.4 — Echo-first interpreter on opencode
 
 > **⚠️ thin v3.3 — 설치는 파일 복사만 (WSL은 Linux 절대경로만, UNC 쓰기 금지) — AGENTS.md 헌법 참조**
 > thin 설치는 `006-palank-harness`에서 **파일 복사**만으로 수행 — `npx harness-bootstrap` / `opencode init` / `.opencode/agent/*.md` 수동 생성 **절대 금지**.
