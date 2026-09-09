@@ -48,10 +48,13 @@
 <h2>Pipeline (from 006-pipeline.md)</h2>
 <p style="color:var(--muted)">Diary → Echo → Interview → Lock → Dispatch → Verify. Full flow lives in <code>wiki/architecture/006-pipeline.md</code>.</p>
 <h2 style="margin-top:20px">Latest Changelog (from log.md ledger)</h2>
-<pre>## [2026-09-07] docs | v3.3.1 결번인정 — tag intentionally skipped (no retro tag) [verify PASS]
-- ae2f4dd (v3.3.1 sync commit) exists, tags v3.3.0/v3.3.2/v3.3.3 only — v3.3.1 tag intentionally skipped, user approved 2026-09-07 (gate:echo-confirmed).
-- 2d33bf7 push done via `git push origin main` (no tags), FULL verify PASS (75 tests) pre-push gate.
-- Never force-push, never retro-tag v3.3.1 — missing-number record preserved append-only.</pre>
+<pre>## [2026-09-09] chore | SSOT 유지 + FULL verify + push — provider 중복제거·미러재생성 [verify PASS]
+- opencode.json M 유지 (복원금지 준수): provider `opencode-go` 블록 삭제가 정상 — 실행 SSOT는 global이 provider 소유, 프로젝트 중복 제거가 맞음 (CIRC). diff 20 deletions, 현재 M 그대로 진행.
+- architecture.html regen 후 포함: `npm run sync:architecture` md-&gt;html ok (v3.4.0 tiers=14 -&gt; 5370B, 0 errors), md-master 우선·html one-way mirror 준수. `check:architecture` fresh 확인.
+- Tier: FULL — `tiered-verify --check --dry-run` blacklist hit: opencode.json (files 2, totalLines 27). Reviewer advisory non-blocking (의미 변경 없음, 스킵).
+- FULL verify PASS (6단): 1 lint PASS (14 checks) + 2 check:vault PASS (8 pages / 8 index rows, 0 errors, orphan-raw 3건 WARNING-only) + 3 test PASS (75/75) + 4 check:version PASS (5 targets 0 drift, master 3.4.0) + 5 check:architecture PASS (fresh v3.4.0) + 6 pack PASS (72 files, 135.6 kB).
+- vault: 본 건은 운영 기록으로 신규 지식 주장 없음 — wiki/index 변경 없음, raw provenance 불필요 (중복 소급금지 준수, 이전 muse-spark PASS 재기록 없음).
+- Done: atomic commit 후 `git push origin main` (tags 제외). FULL 실패 시 push 금지 게이트 준수 — 본 회차 PASS이므로 push 집행.</pre>
 <h2 style="margin-top:20px">Canvas inbox note</h2>
 <p style="color:var(--muted)">Sticky notes in <code>architecture.excalidraw</code> are diary input. They never auto-execute. Interpreter captures them as diary, presents Echo summary, waits for <code>yes</code> (guardian), then Locks schema and dispatches via Task. This html file never reads canvas annotations as truth.</p>
 <footer>006 palank-harness v3.4.0 · md-to-html one-way · regen: <code>npm run sync:architecture</code> · SSOT: <code>wiki/architecture/*.md</code></footer>

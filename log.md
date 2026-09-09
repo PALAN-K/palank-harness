@@ -140,3 +140,11 @@
 - 96558fd: 5 hunks (commands +2, parallel-subagent section, seals SSOT, verdict bus, docs map table), 23 insertions, H1 untouched.
 - Full verify PASS pre-commit (75 tests, lint 14, vault ok, version ok, architecture fresh, pack 72 files).
 
+## [2026-09-09] chore | SSOT 유지 + FULL verify + push — provider 중복제거·미러재생성 [verify PASS]
+- opencode.json M 유지 (복원금지 준수): provider `opencode-go` 블록 삭제가 정상 — 실행 SSOT는 global이 provider 소유, 프로젝트 중복 제거가 맞음 (CIRC). diff 20 deletions, 현재 M 그대로 진행.
+- architecture.html regen 후 포함: `npm run sync:architecture` md->html ok (v3.4.0 tiers=14 -> 5370B, 0 errors), md-master 우선·html one-way mirror 준수. `check:architecture` fresh 확인.
+- Tier: FULL — `tiered-verify --check --dry-run` blacklist hit: opencode.json (files 2, totalLines 27). Reviewer advisory non-blocking (의미 변경 없음, 스킵).
+- FULL verify PASS (6단): 1 lint PASS (14 checks) + 2 check:vault PASS (8 pages / 8 index rows, 0 errors, orphan-raw 3건 WARNING-only) + 3 test PASS (75/75) + 4 check:version PASS (5 targets 0 drift, master 3.4.0) + 5 check:architecture PASS (fresh v3.4.0) + 6 pack PASS (72 files, 135.6 kB).
+- vault: 본 건은 운영 기록으로 신규 지식 주장 없음 — wiki/index 변경 없음, raw provenance 불필요 (중복 소급금지 준수, 이전 muse-spark PASS 재기록 없음).
+- Done: atomic commit 후 `git push origin main` (tags 제외). FULL 실패 시 push 금지 게이트 준수 — 본 회차 PASS이므로 push 집행.
+
