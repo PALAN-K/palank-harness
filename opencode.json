@@ -67,12 +67,31 @@
     "verify": {
       "prompt": "skills/verify/SKILL.md",
       "mode": "subagent"
+    },
+    "build": {
+      "prompt": "You are in native build/plan mode. Palank wiring (Echo/Interview/Lock/Task delegation) does NOT apply here. Execute directly without delegation. No Echo gate required.",
+      "mode": "all",
+      "reasoningEffort": "high",
+      "permission": {
+        "mcp": {
+          "palank-domain": "deny"
+        }
+      }
+    },
+    "plan": {
+      "prompt": "You are in native build/plan mode. Palank wiring (Echo/Interview/Lock/Task delegation) does NOT apply here. Execute directly without delegation. No Echo gate required.",
+      "mode": "all",
+      "reasoningEffort": "xhigh",
+      "permission": {
+        "mcp": {
+          "palank-domain": "deny"
+        }
+      }
     }
   },
   "plugin": [
     "./plugins/force-delegation.js"
   ],
-
   "mcp": {
     "palank-domain": {
       "type": "local",
