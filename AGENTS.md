@@ -2,6 +2,10 @@
 
 > Transparent-wrapper interpreter on opencode. Single source for ALL models — no per-model fork.
 
+## Scope
+
+> palank wiring (Echo/Interview/Lock/Task delegation) applies to conductor path only — native build/plan mode is exempt.
+
 ## Layout (fixed, 8 lines)
 
 ```
